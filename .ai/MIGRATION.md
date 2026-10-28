@@ -98,7 +98,7 @@ None identified.
 _Machine-generated from `.ai/EVIDENCE.jsonl`. Do not edit by hand._
 
 ```
-56 commands recorded, of which 8 verified (4 passed, 4 failed, 2 non-binding).
+57 commands recorded, of which 8 verified (4 passed, 4 failed, 2 non-binding).
 
 Files changed since baseline `0ecc127` (git): 93
   - apps/api/package.json
@@ -158,7 +158,7 @@ Most recent verified runs:
 ### Working tree
 
 <!-- relay:git:start -->
-- Branch `master` at `1989ee5`, 2 uncommitted path(s).
+- Branch `master` at `ac1c75f`, 2 uncommitted path(s).
 - Changed now:
 
 ```
@@ -197,5 +197,5 @@ AttachmentRepository, the controller stays thin, the route param is
 ## Last Updated
 
 <!-- relay:updated:start -->
-- 2026-10-28T12:18:47Z (mechanical regions refreshed by `migration-state.sh`)
+- 2026-10-28T12:38:41Z (mechanical regions refreshed by `migration-state.sh`)
 <!-- relay:updated:end -->
