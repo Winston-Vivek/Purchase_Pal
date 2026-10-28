@@ -3,6 +3,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { DataSource } from 'typeorm';
 import { AppModule } from '../../src/app.module';
 import { setupApp } from '../../src/setup-app';
+import { BoomModule } from './boom.module';
 
 export interface TestContext {
   app: INestApplication;
@@ -19,7 +20,7 @@ export interface TestContext {
  */
 export async function createTestApp(): Promise<TestContext> {
   const moduleRef: TestingModule = await Test.createTestingModule({
-    imports: [AppModule],
+    imports: [AppModule, BoomModule],
   }).compile();
 
   const app = moduleRef.createNestApplication();

@@ -98,17 +98,22 @@ None identified.
 _Machine-generated from `.ai/EVIDENCE.jsonl`. Do not edit by hand._
 
 ```
-17 commands recorded, of which 5 verified (3 passed, 2 failed, 1 non-binding).
+24 commands recorded, of which 5 verified (3 passed, 2 failed, 1 non-binding).
 
-Files changed since baseline `0ecc127` (git): 8
+Files changed since baseline `0ecc127` (git): 33
+  - apps/api/package.json
+  - apps/api/package-lock.json
+  - apps/api/prisma/migrations/20261028080043_init/migration.sql
+  - apps/api/prisma/migrations/migration_lock.toml
+  - apps/api/prisma/schema.prisma
   - apps/api/src/app.module.ts
+  - apps/api/src/attachments/attachment.entity.ts
   - apps/api/src/common/dates/clock.ts
   - apps/api/src/common/dates/dates.module.ts
   - apps/api/src/common/dates/dates.service.spec.ts
   - apps/api/src/common/dates/dates.service.ts
-  - docs/ai-usage.md
-  - docs/test-cases.md
-  - package.json
+  - apps/api/src/database/data-source.ts
+  ... and 21 more
 
 Tool-observed edits: 0 across 0 files.
   (Only Edit/Write/MultiEdit are visible to the hook. A Bash-first session
@@ -152,7 +157,7 @@ exit 1 (probe)  npm test  (2026-10-28T09:38:07Z)
 ### Working tree
 
 <!-- relay:git:start -->
-- Branch `master` at `3933fdb`, 2 uncommitted path(s).
+- Branch `master` at `208a6b6`, 2 uncommitted path(s).
 - Changed now:
 
 ```
@@ -191,5 +196,5 @@ gate currently fails 4 of 6 checks, naming all 77 cases that have no test yet.
 ## Last Updated
 
 <!-- relay:updated:start -->
-- 2026-10-28T09:44:02Z (mechanical regions refreshed by `migration-state.sh`)
+- 2026-10-28T09:56:56Z (mechanical regions refreshed by `migration-state.sh`)
 <!-- relay:updated:end -->
