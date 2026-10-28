@@ -145,20 +145,20 @@ Valid base body: `{ productName: "AirPods Pro (2nd generation)", category: "ELEC
 
 | ID | Scenario | Expected | Pri | Status |
 | --- | --- | --- | --- | --- |
-| API-ATT-01 | Upload receipt.pdf to own purchase | 201; id, fileName, mimeType application/pdf, fileSize | P0 | Not run |
-| API-ATT-02 | Upload .jpg, .png, .webp | 201 each | P0 | Not run |
-| API-ATT-03 | Download own attachment | 200; bytes identical to upload; Content-Disposition has original name | P0 | Not run |
-| API-ATT-04 | Upload big.pdf (5.2 MB) | 413 PAYLOAD_TOO_LARGE; nothing saved | P0 | Not run |
-| API-ATT-05 | Upload malware.exe | 415 UNSUPPORTED_MEDIA_TYPE; nothing saved | P0 | Not run |
-| API-ATT-06 | Upload fake.pdf (text renamed .pdf) | 415 (file signature check) | P0 | Not run |
-| API-ATT-07 | 6th file on one purchase | 400; still 5 files | P0 | Not run |
-| API-ATT-08 | Upload with no file field | 400 | P1 | Not run |
-| API-ATT-09 | Stored file path | Under UPLOAD_DIR, random key, not the original name, not under a public/static route | P0 | Not run |
-| API-ATT-10 | B: download A's attachment | 404 | P0 | Not run |
-| API-ATT-11 | B: upload to A's purchase | 404; nothing saved | P0 | Not run |
-| API-ATT-12 | B: delete A's attachment | 404; file still there | P0 | Not run |
-| API-ATT-13 | DELETE own attachment | 204; row and file removed | P0 | Not run |
-| API-ATT-14 | Download without cookie | 401 | P0 | Not run |
+| API-ATT-01 | Upload receipt.pdf to own purchase | 201; id, fileName, mimeType application/pdf, fileSize | P0 | Pass 2026-10-28 |
+| API-ATT-02 | Upload .jpg, .png, .webp | 201 each | P0 | Pass 2026-10-28 |
+| API-ATT-03 | Download own attachment | 200; bytes identical to upload; Content-Disposition has original name | P0 | Pass 2026-10-28 |
+| API-ATT-04 | Upload big.pdf (5.2 MB) | 413 PAYLOAD_TOO_LARGE; nothing saved | P0 | Pass 2026-10-28 |
+| API-ATT-05 | Upload malware.exe | 415 UNSUPPORTED_MEDIA_TYPE; nothing saved | P0 | Pass 2026-10-28 |
+| API-ATT-06 | Upload fake.pdf (text renamed .pdf) | 415 (file signature check) | P0 | Pass 2026-10-28 |
+| API-ATT-07 | 6th file on one purchase | 400; still 5 files | P0 | Pass 2026-10-28 |
+| API-ATT-08 | Upload with no file field | 400 | P1 | Pass 2026-10-28 |
+| API-ATT-09 | Stored file path | Under UPLOAD_DIR, random key, not the original name, not under a public/static route | P0 | Pass 2026-10-28 |
+| API-ATT-10 | B: download A's attachment | 404 | P0 | Pass 2026-10-28 |
+| API-ATT-11 | B: upload to A's purchase | 404; nothing saved | P0 | Pass 2026-10-28 |
+| API-ATT-12 | B: delete A's attachment | 404; file still there | P0 | Pass 2026-10-28 |
+| API-ATT-13 | DELETE own attachment | 204; row and file removed | P0 | Pass 2026-10-28 |
+| API-ATT-14 | Download without cookie | 401 | P0 | Pass 2026-10-28 |
 
 ### 2.6 Service records (`service-records.e2e-spec.ts`) — US-07, BR-07
 

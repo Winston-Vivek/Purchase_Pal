@@ -176,9 +176,7 @@ describe('Receipts (e2e)', () => {
   it('API-ATT-14 downloading without a cookie is 401', async () => {
     const uploaded = await upload('receipt.pdf').expect(201);
 
-    await request(app.getHttpServer())
-      .get(`/api/v1/attachments/${uploaded.body.id}`)
-      .expect(401);
+    await request(app.getHttpServer()).get(`/api/v1/attachments/${uploaded.body.id}`).expect(401);
   });
 
   describe('BR-09 ownership', () => {

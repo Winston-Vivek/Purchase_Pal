@@ -1,12 +1,14 @@
 import { Global, Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { Attachment } from '../attachments/attachment.entity';
 import { Purchase } from '../purchases/purchase.entity';
 import { User } from '../users/user.entity';
+import { AttachmentRepository } from './attachment/attachment.repository';
 import { HealthRepository } from './health/health.repository';
 import { PurchaseRepository } from './purchase/purchase.repository';
 import { UserRepository } from './user/user.repository';
 
-const repositories = [UserRepository, PurchaseRepository, HealthRepository];
+const repositories = [UserRepository, PurchaseRepository, AttachmentRepository, HealthRepository];
 
 /**
  * Global, so a feature module injects a repository without re-importing this.
@@ -15,7 +17,7 @@ const repositories = [UserRepository, PurchaseRepository, HealthRepository];
  */
 @Global()
 @Module({
-  imports: [TypeOrmModule.forFeature([User, Purchase])],
+  imports: [TypeOrmModule.forFeature([User, Purchase, Attachment])],
   providers: repositories,
   exports: repositories,
 })

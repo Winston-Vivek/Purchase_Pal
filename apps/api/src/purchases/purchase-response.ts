@@ -1,3 +1,4 @@
+import { AttachmentResponse, toAttachmentResponse } from '../attachments/attachment-response';
 import { DatesService, DeadlineStatus } from '../common/dates/dates.service';
 import { User } from '../users/user.entity';
 import { Purchase } from './purchase.entity';
@@ -21,7 +22,7 @@ export interface PurchaseResponse {
   warrantyStatus: DeadlineStatus;
   warrantyDaysLeft: number | null;
   hasReceipt: boolean;
-  attachments?: unknown[];
+  attachments?: AttachmentResponse[];
   serviceRecords?: unknown[];
 }
 
@@ -67,7 +68,8 @@ export function toPurchaseResponse(
   };
 
   if (options.includeRelations) {
-    response.attachments = purchase.attachments ?? [];
+    // Mapped, not raw: a raw Attachment carries storageKey.
+    response.attachments = (purchase.attachments ?? []).map(toAttachmentResponse);
     response.serviceRecords = purchase.serviceRecords ?? [];
   }
 
