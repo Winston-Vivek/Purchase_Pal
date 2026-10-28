@@ -67,10 +67,10 @@ All requests use `/api/v1`. "Signed in as A" = A's auth cookie. Errors must use 
 | ID | Scenario | Expected | Pri | Status |
 | --- | --- | --- | --- | --- |
 | API-ERR-01 | POST /auth/register with empty body | 400, code VALIDATION_ERROR, `fields` has name, email, password | P0 | Not run |
-| API-ERR-02 | GET /api/v1/unknown | 404, code NOT_FOUND | P0 | Not run |
-| API-ERR-03 | Unhandled exception thrown in a test-only route | 500, code INTERNAL, no stack trace in body | P0 | Not run |
+| API-ERR-02 | GET /api/v1/unknown | 404, code NOT_FOUND | P0 | Pass 2026-10-28 |
+| API-ERR-03 | Unhandled exception thrown in a test-only route | 500, code INTERNAL, no stack trace in body | P0 | Pass 2026-10-28 |
 | API-ERR-04 | Unknown property in a body (`isAdmin: true`) | 400 VALIDATION_ERROR naming the property | P0 | Not run |
-| API-ERR-05 | Malformed JSON body | 400 VALIDATION_ERROR | P1 | Not run |
+| API-ERR-05 | Malformed JSON body | 400 VALIDATION_ERROR | P1 | Pass 2026-10-28 |
 
 ### 2.2 Auth (`auth.e2e-spec.ts`) — US-01
 

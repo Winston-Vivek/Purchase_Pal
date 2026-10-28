@@ -1,6 +1,8 @@
 import { INestApplication, ValidationPipe } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import cookieParser from 'cookie-parser';
+import { AllExceptionsFilter } from './common/filters/all-exceptions.filter';
+import { validationExceptionFactory } from './common/errors/validation-exception.factory';
 
 /**
  * Every piece of global wiring the app needs, in one function.
@@ -38,12 +40,13 @@ export function setupApp(app: INestApplication): INestApplication {
       forbidNonWhitelisted: true,
       // Turn plain JSON into DTO instances so @Type() conversions apply.
       transform: true,
-      // NOTE: the exceptionFactory that reshapes these into
-      // { error: { code, message, fields } } arrives in Day 3 Slice 2, written
-      // test-first against API-ERR-01..05. Until then Nest's default shape
-      // applies — which is exactly why those tests will fail first.
+      // Reshapes class-validator output into { code, message, fields }.
+      exceptionFactory: validationExceptionFactory,
     }),
   );
+
+  // Registered after the pipe so it also catches what the pipe throws.
+  app.useGlobalFilters(new AllExceptionsFilter());
 
   // Lets Nest run onModuleDestroy (closing the Prisma pool) on SIGTERM
   // (devops-graceful-shutdown).
