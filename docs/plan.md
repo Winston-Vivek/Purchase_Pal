@@ -115,6 +115,8 @@ cases still marked "Not run", and areas whose first commit was `feat(` instead o
 
 **Gate:** all listed tests green; DatesService coverage ≥ 90%; lint clean; red → green commits visible in `git log`.
 
+*API-AUTH-12 is written in Slice 3 but verified by the Day 4 gate — it needs `/dashboard`.*
+
 ### Day 4 — Backend features (TDD)
 
 **Skill:** `nestjs-best-practices` · **Prompt:** Day 4
@@ -124,7 +126,7 @@ cases still marked "Not run", and areas whose first commit was `feat(` instead o
 | 1 Receipts | Upload (MIME + signature, 5 MB, 5 files), private download, delete; StorageService interface with local disk | API-ATT-01 → 14 |
 | 2 Service records | CRUD under an owned purchase, newest first | API-SVC-01 → 10 |
 | 3 Cascade | Delete purchase removes files, attachments and service records | API-PUR-31 → 32 |
-| 4 Dashboard | Counts, needs-action (soonest first), recently expired (30 days), recent 5, user alert windows | API-DASH-01 → 08 |
+| 4 Dashboard | Counts, needs-action (soonest first), recently expired (30 days), recent 5, user alert windows | API-DASH-01 → 08, API-AUTH-12 |
 | 5 Search/filter/sort | q, category, returnStatus, warrantyStatus, sort, pagination | API-SRCH-01 → 10 |
 | 6 Seed | Two demo users, 7 purchases matching the mockups, dates relative to today | API-SEED-01 → 02 |
 

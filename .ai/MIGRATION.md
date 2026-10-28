@@ -17,7 +17,7 @@ _Read from manifests by `detect-stack.sh`. Not model output._
 |---|---|---|---|
 | - | _none detected_ | - | - |
 
-**Source files:** 0 `vue`, 5 `js`, 44 `ts`  
+**Source files:** 0 `vue`, 5 `js`, 56 `ts`  
 **Config files:** none
 
 **Migration signals detected:**
@@ -61,24 +61,25 @@ _One wave per phase in `docs/plan.md`. Each closes on a verified
 
 - [x] 01 Requirements — scope, business rules BR-01..10, validation, user stories, API contract, data model. Gate: `npm run gate day1`
 - [x] 02 Design — UI guide, `@theme` tokens, status system, screens, wireframes, mockups. Gate: `npm run gate day2`
-- [~] 03 Backend core — setup, DatesService, error shape, auth, alert settings, purchases CRUD. 77 cases. Gate: `npm run gate day3`
-- [ ] 04 Backend features — receipts, service records, cascade, dashboard, search, seed. 46 cases. Gate: `npm run gate day4`
+- [x] 03 Backend core — setup, DatesService, error shape, auth, alert settings, purchases CRUD. 77 cases. Gate: `npm run gate day3`
+- [~] 04 Backend features — receipts, service records, cascade, dashboard, search, seed. 46 cases. Gate: `npm run gate day4`
 - [ ] 05 Frontend core — scaffold, data layer, base components, shell, list/form, details. 43 cases. Gate: `npm run gate day5`
 - [ ] 06 Frontend features + E2E — dashboard, dialogs, settings, search UI, Playwright, quality pass. 35 cases. Gate: `npm run gate day6`
 - [ ] 07 UAT and delivery — fresh-clone check, UAT-01..13, defect fixes test-first, docs, tag v1.0.0. Gate: `npm run gate day7`
 
 ## Current Wave
 
-03 Backend core
+04 Backend features
 
 ## Completed
 
 - [x] 01 Requirements
 - [x] 02 Design
+- [x] 03 Backend core
 
 ## In Progress
 
-- [~] 03 Backend core — Slice 0 (setup) done at `ce206ae`; slices 1-5 unwritten
+- [x] 03 Backend core — Slice 0 (setup) done at `ce206ae`; slices 1-5 unwritten
 
 ## Pending
 - [ ] 03 Backend core
@@ -97,9 +98,9 @@ None identified.
 _Machine-generated from `.ai/EVIDENCE.jsonl`. Do not edit by hand._
 
 ```
-39 commands recorded, of which 6 verified (3 passed, 3 failed, 2 non-binding).
+50 commands recorded, of which 8 verified (4 passed, 4 failed, 2 non-binding).
 
-Files changed since baseline `0ecc127` (git): 57
+Files changed since baseline `0ecc127` (git): 71
   - apps/api/package.json
   - apps/api/package-lock.json
   - apps/api/prisma/migrations/20261028080043_init/migration.sql
@@ -112,7 +113,7 @@ Files changed since baseline `0ecc127` (git): 57
   - apps/api/src/auth/auth.module.ts
   - apps/api/src/auth/auth.service.ts
   - apps/api/src/auth/current-user.decorator.ts
-  ... and 45 more
+  ... and 59 more
 
 Tool-observed edits: 0 across 0 files.
   (Only Edit/Write/MultiEdit are visible to the hook. A Bash-first session
@@ -125,6 +126,8 @@ Most recent verified runs:
   [!] `npm run gate day3` -> exit 1  (wave 03, 2026-10-28T09:33:48Z)
   [!] probe `npm test` -> exit 1  (wave 03, 2026-10-28T09:38:07Z)
   [!] probe `npm --prefix apps/api run test:e2e` -> exit 1  (wave 03, 2026-10-28T10:00:13Z)
+  [!] `npm --prefix apps/api run test:e2e` -> exit 1  (wave 03, 2026-10-28T10:53:00Z)
+  [x] `npm run gate day3` -> exit 0  (wave 03, 2026-10-28T11:47:47Z)
 ```
 
 **Wave verification gate**
@@ -132,39 +135,40 @@ Most recent verified runs:
 - Wave `01` — **verified**: every binding command last ran green.
 - Wave `02` — **verified**: every binding command last ran green.
 - Wave `03` — _NOT verified_: still failing —
-    - `npm run gate day3` -> exit 1
+    - `npm --prefix apps/api run test:e2e` -> exit 1
     - _the gate keys on the exact command string. Re-run it verbatim to clear it, or retire it with_ `relay-gate --clear '<part of it>' --reason '<why>'`
     - probes (recorded, non-binding):
         - `npm --prefix apps/api run test:e2e` -> exit 1
         - `npm test` -> exit 1
-- Wave `04` — _not verified_: declared `pending`, so no evidence binds to it.
+- Wave `04` — _not verified_: no passing `relay-verify` run recorded.
 - Wave `05` — _not verified_: declared `pending`, so no evidence binds to it.
 - Wave `06` — _not verified_: declared `pending`, so no evidence binds to it.
 - Wave `07` — _not verified_: declared `pending`, so no evidence binds to it.
 
 **Tracked metrics**
 
+- `tests` for `npm --prefix apps/api run test:e2e`: 56 — baseline, wave 03.
 - `tests` for `npm run test:e2e`: 4 — baseline, wave 03.
 
-**Verified runs for the current wave (`03`)**
+**Verified runs for the current wave (`04`)**
 
 ```
-exit 0  npm run test:e2e  (2026-10-28T09:33:40Z)
-exit 1  npm run gate day3  (2026-10-28T09:33:48Z)
-exit 1 (probe)  npm test  (2026-10-28T09:38:07Z)
-exit 1 (probe)  npm --prefix apps/api run test:e2e  (2026-10-28T10:00:13Z)
+(none)
 ```
 <!-- relay:evidence:end -->
 
 ### Working tree
 
 <!-- relay:git:start -->
-- Branch `master` at `1d22d86`, 2 uncommitted path(s).
+- Branch `master` at `0d09a44`, 5 uncommitted path(s).
 - Changed now:
 
 ```
  M .ai/EVIDENCE.jsonl
  M .ai/MIGRATION.md
+ M docs/plan.md
+ M docs/test-cases.md
+ M gates/phases.json
 ```
 <!-- relay:git:end -->
 
@@ -190,13 +194,13 @@ _No decisions recorded. Use `relay-decide` when a choice changes what the migrat
 
 ## Exact Next Action
 
-Verify wave 01 with `relay-verify -- npm run gate day1`, then wave 02, to bind
-real evidence to the two phases already done. Then move to wave 03, where Slice
-0 (setup) is committed at `ce206ae` and slices 1–5 are unwritten: the Day 3
-gate currently fails 4 of 6 checks, naming all 77 cases that have no test yet.
+Start Day 4 Slice 1 (Receipts, API-ATT-01..14) test-first, under the org
+template conventions now recorded in SKILL.md: upload goes through an
+AttachmentRepository, the controller stays thin, the route param is
+`:purchaseId`, and every input has a documented DTO.
 
 ## Last Updated
 
 <!-- relay:updated:start -->
-- 2026-10-28T10:35:33Z (mechanical regions refreshed by `migration-state.sh`)
+- 2026-10-28T11:48:23Z (mechanical regions refreshed by `migration-state.sh`)
 <!-- relay:updated:end -->

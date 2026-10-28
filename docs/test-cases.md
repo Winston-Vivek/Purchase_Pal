@@ -87,7 +87,9 @@ All requests use `/api/v1`. "Signed in as A" = A's auth cookie. Errors must use 
 | API-AUTH-09 | GET /auth/me with cookie | 200 current user | P0 | Pass 2026-10-28 |
 | API-AUTH-10 | GET /auth/me without cookie, or a tampered/expired token | 401 | P0 | Pass 2026-10-28 |
 | API-AUTH-11 | POST /auth/logout | 204; cookie cleared; next /auth/me → 401 | P0 | Pass 2026-10-28 |
-| API-AUTH-12 | GET /purchases, /dashboard without cookie | 401 on each | P0 | Not run |
+| API-AUTH-12 | GET /purchases, /dashboard without cookie | 401 on each | P0 | Not run — see note |
+
+> **API-AUTH-12 is verified by the Day 4 gate, not Day 3.** Its `/purchases` half passes as of Day 3 Slice 5. The `/dashboard` half cannot: Nest runs guards after routing, so a route that does not exist returns 404 rather than 401. `/dashboard` is built in Day 4 Slice 4, and the test is unchanged.
 
 ### 2.3 Alert settings (`settings.e2e-spec.ts`) — US-08
 

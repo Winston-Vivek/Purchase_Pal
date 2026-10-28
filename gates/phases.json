@@ -11,7 +11,8 @@
     "  coverage           lines+branches threshold for files matching a pattern",
     "  files              these paths must exist",
     "  tdd-history        the first commit touching an area must be a test: one",
-    "  testcases-status   no listed ID may still be 'Not run' in test-cases.md"
+    "  testcases-status   no listed ID may still be 'Not run' in test-cases.md",
+    "API-AUTH-12 moved from day3 to day4 on 28 Oct 2026. It asserts /purchases AND /dashboard return 401 without a cookie; /dashboard is built in day4 slice 4, and Nest runs guards after routing, so a route that does not exist returns 404 and cannot be 401. The test is unchanged - only the phase it holds open."
   ],
   "testCasesFile": "docs/test-cases.md",
   "phases": [
@@ -24,7 +25,10 @@
         {
           "kind": "files",
           "label": "Requirements are written down",
-          "paths": ["docs/requirements.md", "docs/plan.md"]
+          "paths": [
+            "docs/requirements.md",
+            "docs/plan.md"
+          ]
         },
         {
           "kind": "command",
@@ -43,7 +47,10 @@
         {
           "kind": "files",
           "label": "Design guide and wireframes exist",
-          "paths": ["design/ui-guide.md", "design/wireframes.html"]
+          "paths": [
+            "design/ui-guide.md",
+            "design/wireframes.html"
+          ]
         },
         {
           "kind": "command",
@@ -56,23 +63,93 @@
     {
       "id": "day3",
       "title": "Setup and backend core (TDD)",
-      "status": "in-progress",
+      "status": "passed",
       "slices": [
-        { "id": "0", "title": "Setup", "tdd": false, "testIds": [], "done": true },
-        { "id": "1", "title": "Date rules", "tdd": true, "area": "dates", "testIds": ["UT-DATE-01..24"] },
-        { "id": "2", "title": "Error shape", "tdd": true, "area": "errors", "testIds": ["API-ERR-01..05"] },
-        { "id": "3", "title": "Auth", "tdd": true, "area": "auth", "testIds": ["API-AUTH-01..12"] },
-        { "id": "4", "title": "Alert settings", "tdd": true, "area": "settings", "testIds": ["API-SET-01..06"] },
-        { "id": "5", "title": "Purchases CRUD", "tdd": true, "area": "purchases", "testIds": ["API-PUR-01..30"] }
+        {
+          "id": "0",
+          "title": "Setup",
+          "tdd": false,
+          "testIds": [],
+          "done": true
+        },
+        {
+          "id": "1",
+          "title": "Date rules",
+          "tdd": true,
+          "area": "dates",
+          "testIds": [
+            "UT-DATE-01..24"
+          ],
+          "done": true
+        },
+        {
+          "id": "2",
+          "title": "Error shape",
+          "tdd": true,
+          "area": "errors",
+          "testIds": [
+            "API-ERR-01..05"
+          ],
+          "done": true
+        },
+        {
+          "id": "3",
+          "title": "Auth",
+          "tdd": true,
+          "area": "auth",
+          "testIds": [
+            "API-AUTH-01..11"
+          ],
+          "done": true
+        },
+        {
+          "id": "4",
+          "title": "Alert settings",
+          "tdd": true,
+          "area": "settings",
+          "testIds": [
+            "API-SET-01..06"
+          ],
+          "done": true
+        },
+        {
+          "id": "5",
+          "title": "Purchases CRUD",
+          "tdd": true,
+          "area": "purchases",
+          "testIds": [
+            "API-PUR-01..30"
+          ],
+          "done": true
+        }
       ],
       "gate": [
-        { "kind": "command", "label": "Lint clean", "cwd": "apps/api", "run": "npm run lint" },
-        { "kind": "command", "label": "Build clean", "cwd": "apps/api", "run": "npm run build" },
+        {
+          "kind": "command",
+          "label": "Lint clean",
+          "cwd": "apps/api",
+          "run": "npm run lint"
+        },
+        {
+          "kind": "command",
+          "label": "Build clean",
+          "cwd": "apps/api",
+          "run": "npm run build"
+        },
         {
           "kind": "test-ids",
           "label": "Every Day 3 test case passes",
-          "suites": ["unit", "e2e"],
-          "ids": ["UT-DATE-01..24", "API-ERR-01..05", "API-AUTH-01..12", "API-SET-01..06", "API-PUR-01..30"]
+          "suites": [
+            "unit",
+            "e2e"
+          ],
+          "ids": [
+            "UT-DATE-01..24",
+            "API-ERR-01..05",
+            "API-AUTH-01..11",
+            "API-SET-01..06",
+            "API-PUR-01..30"
+          ]
         },
         {
           "kind": "coverage",
@@ -81,32 +158,137 @@
           "minLines": 90,
           "minBranches": 90
         },
-        { "kind": "tdd-history", "label": "Red-then-green visible in git log", "areas": ["dates", "errors", "auth", "settings", "purchases"] },
-        { "kind": "testcases-status", "label": "test-cases.md status column is filled in", "ids": ["UT-DATE-01..24", "API-ERR-01..05", "API-AUTH-01..12", "API-SET-01..06", "API-PUR-01..30"] }
+        {
+          "kind": "tdd-history",
+          "label": "Red-then-green visible in git log",
+          "areas": [
+            "dates",
+            "errors",
+            "auth",
+            "settings",
+            "purchases"
+          ]
+        },
+        {
+          "kind": "testcases-status",
+          "label": "test-cases.md status column is filled in",
+          "ids": [
+            "UT-DATE-01..24",
+            "API-ERR-01..05",
+            "API-AUTH-01..11",
+            "API-SET-01..06",
+            "API-PUR-01..30"
+          ]
+        }
       ]
     },
     {
       "id": "day4",
       "title": "Backend features (TDD)",
-      "status": "pending",
+      "status": "in-progress",
       "slices": [
-        { "id": "1", "title": "Receipts", "tdd": true, "area": "attachments", "testIds": ["API-ATT-01..14"] },
-        { "id": "2", "title": "Service records", "tdd": true, "area": "services", "testIds": ["API-SVC-01..10"] },
-        { "id": "3", "title": "Cascade", "tdd": true, "area": "purchases", "testIds": ["API-PUR-31..32"] },
-        { "id": "4", "title": "Dashboard", "tdd": true, "area": "dashboard", "testIds": ["API-DASH-01..08"] },
-        { "id": "5", "title": "Search, filter, sort", "tdd": true, "area": "search", "testIds": ["API-SRCH-01..10"] },
-        { "id": "6", "title": "Seed", "tdd": true, "area": "seed", "testIds": ["API-SEED-01..02"] }
+        {
+          "id": "1",
+          "title": "Receipts",
+          "tdd": true,
+          "area": "attachments",
+          "testIds": [
+            "API-ATT-01..14"
+          ]
+        },
+        {
+          "id": "2",
+          "title": "Service records",
+          "tdd": true,
+          "area": "services",
+          "testIds": [
+            "API-SVC-01..10"
+          ]
+        },
+        {
+          "id": "3",
+          "title": "Cascade",
+          "tdd": true,
+          "area": "purchases",
+          "testIds": [
+            "API-PUR-31..32"
+          ]
+        },
+        {
+          "id": "4",
+          "title": "Dashboard",
+          "tdd": true,
+          "area": "dashboard",
+          "testIds": [
+            "API-DASH-01..08",
+            "API-AUTH-12"
+          ]
+        },
+        {
+          "id": "5",
+          "title": "Search, filter, sort",
+          "tdd": true,
+          "area": "search",
+          "testIds": [
+            "API-SRCH-01..10"
+          ]
+        },
+        {
+          "id": "6",
+          "title": "Seed",
+          "tdd": true,
+          "area": "seed",
+          "testIds": [
+            "API-SEED-01..02"
+          ]
+        }
       ],
       "gate": [
-        { "kind": "command", "label": "Lint clean", "cwd": "apps/api", "run": "npm run lint" },
+        {
+          "kind": "command",
+          "label": "Lint clean",
+          "cwd": "apps/api",
+          "run": "npm run lint"
+        },
         {
           "kind": "test-ids",
           "label": "Every Day 4 test case passes",
-          "suites": ["e2e"],
-          "ids": ["API-ATT-01..14", "API-SVC-01..10", "API-PUR-31..32", "API-DASH-01..08", "API-SRCH-01..10", "API-SEED-01..02"]
+          "suites": [
+            "e2e"
+          ],
+          "ids": [
+            "API-ATT-01..14",
+            "API-SVC-01..10",
+            "API-PUR-31..32",
+            "API-DASH-01..08",
+            "API-SRCH-01..10",
+            "API-SEED-01..02",
+            "API-AUTH-12"
+          ]
         },
-        { "kind": "tdd-history", "label": "Red-then-green visible in git log", "areas": ["attachments", "services", "dashboard", "search", "seed"] },
-        { "kind": "testcases-status", "label": "test-cases.md status column is filled in", "ids": ["API-ATT-01..14", "API-SVC-01..10", "API-DASH-01..08", "API-SRCH-01..10", "API-SEED-01..02"] }
+        {
+          "kind": "tdd-history",
+          "label": "Red-then-green visible in git log",
+          "areas": [
+            "attachments",
+            "services",
+            "dashboard",
+            "search",
+            "seed"
+          ]
+        },
+        {
+          "kind": "testcases-status",
+          "label": "test-cases.md status column is filled in",
+          "ids": [
+            "API-ATT-01..14",
+            "API-SVC-01..10",
+            "API-DASH-01..08",
+            "API-SRCH-01..10",
+            "API-SEED-01..02",
+            "API-AUTH-12"
+          ]
+        }
       ]
     },
     {
@@ -114,18 +296,96 @@
       "title": "Frontend core (TDD)",
       "status": "pending",
       "slices": [
-        { "id": "0", "title": "Scaffold", "tdd": false, "testIds": [], "done": false },
-        { "id": "1", "title": "Data layer", "tdd": true, "area": "api-client", "testIds": ["FE-API-01..04", "FE-AUTH-01..06"] },
-        { "id": "2", "title": "Base components", "tdd": true, "area": "components", "testIds": ["FE-CMP-01..16"] },
-        { "id": "3", "title": "Shell + auth pages", "tdd": true, "area": "shell", "testIds": ["FE-PAGE-01..04"] },
-        { "id": "4", "title": "Purchases list and form", "tdd": true, "area": "purchases-ui", "testIds": ["FE-PAGE-05..12"] },
-        { "id": "5", "title": "Details", "tdd": true, "area": "details", "testIds": ["FE-PAGE-13..17"] }
+        {
+          "id": "0",
+          "title": "Scaffold",
+          "tdd": false,
+          "testIds": [],
+          "done": false
+        },
+        {
+          "id": "1",
+          "title": "Data layer",
+          "tdd": true,
+          "area": "api-client",
+          "testIds": [
+            "FE-API-01..04",
+            "FE-AUTH-01..06"
+          ]
+        },
+        {
+          "id": "2",
+          "title": "Base components",
+          "tdd": true,
+          "area": "components",
+          "testIds": [
+            "FE-CMP-01..16"
+          ]
+        },
+        {
+          "id": "3",
+          "title": "Shell + auth pages",
+          "tdd": true,
+          "area": "shell",
+          "testIds": [
+            "FE-PAGE-01..04"
+          ]
+        },
+        {
+          "id": "4",
+          "title": "Purchases list and form",
+          "tdd": true,
+          "area": "purchases-ui",
+          "testIds": [
+            "FE-PAGE-05..12"
+          ]
+        },
+        {
+          "id": "5",
+          "title": "Details",
+          "tdd": true,
+          "area": "details",
+          "testIds": [
+            "FE-PAGE-13..17"
+          ]
+        }
       ],
       "gate": [
-        { "kind": "command", "label": "Lint clean", "cwd": "apps/web", "run": "npm run lint" },
-        { "kind": "test-ids", "label": "Every Day 5 test case passes", "suites": ["web"], "ids": ["FE-API-01..04", "FE-AUTH-01..06", "FE-CMP-01..16", "FE-PAGE-01..17"] },
-        { "kind": "command", "label": "Only ui-guide tokens used — no raw hex in components", "cwd": ".", "run": "! grep -rInE '(class|:class)=\"[^\"]*#[0-9a-fA-F]{3,8}' apps/web/src --include=*.vue" },
-        { "kind": "testcases-status", "label": "test-cases.md status column is filled in", "ids": ["FE-API-01..04", "FE-AUTH-01..06", "FE-CMP-01..16", "FE-PAGE-01..17"] }
+        {
+          "kind": "command",
+          "label": "Lint clean",
+          "cwd": "apps/web",
+          "run": "npm run lint"
+        },
+        {
+          "kind": "test-ids",
+          "label": "Every Day 5 test case passes",
+          "suites": [
+            "web"
+          ],
+          "ids": [
+            "FE-API-01..04",
+            "FE-AUTH-01..06",
+            "FE-CMP-01..16",
+            "FE-PAGE-01..17"
+          ]
+        },
+        {
+          "kind": "command",
+          "label": "Only ui-guide tokens used \u2014 no raw hex in components",
+          "cwd": ".",
+          "run": "! grep -rInE '(class|:class)=\"[^\"]*#[0-9a-fA-F]{3,8}' apps/web/src --include=*.vue"
+        },
+        {
+          "kind": "testcases-status",
+          "label": "test-cases.md status column is filled in",
+          "ids": [
+            "FE-API-01..04",
+            "FE-AUTH-01..06",
+            "FE-CMP-01..16",
+            "FE-PAGE-01..17"
+          ]
+        }
       ]
     },
     {
@@ -133,17 +393,88 @@
       "title": "Frontend features and E2E",
       "status": "pending",
       "slices": [
-        { "id": "1", "title": "Dashboard", "tdd": true, "area": "dashboard-ui", "testIds": ["FE-PAGE-18..21"] },
-        { "id": "2", "title": "Service dialog and delete", "tdd": true, "area": "service-ui", "testIds": ["FE-PAGE-22..25"] },
-        { "id": "3", "title": "Settings", "tdd": true, "area": "settings-ui", "testIds": ["FE-PAGE-26..28"] },
-        { "id": "4", "title": "Search UI", "tdd": true, "area": "search-ui", "testIds": ["FE-PAGE-29..32"] },
-        { "id": "5", "title": "Playwright", "tdd": true, "area": "e2e", "testIds": ["E2E-01..08"] },
-        { "id": "6", "title": "Quality pass", "tdd": false, "testIds": ["NFR-01..12"] }
+        {
+          "id": "1",
+          "title": "Dashboard",
+          "tdd": true,
+          "area": "dashboard-ui",
+          "testIds": [
+            "FE-PAGE-18..21"
+          ]
+        },
+        {
+          "id": "2",
+          "title": "Service dialog and delete",
+          "tdd": true,
+          "area": "service-ui",
+          "testIds": [
+            "FE-PAGE-22..25"
+          ]
+        },
+        {
+          "id": "3",
+          "title": "Settings",
+          "tdd": true,
+          "area": "settings-ui",
+          "testIds": [
+            "FE-PAGE-26..28"
+          ]
+        },
+        {
+          "id": "4",
+          "title": "Search UI",
+          "tdd": true,
+          "area": "search-ui",
+          "testIds": [
+            "FE-PAGE-29..32"
+          ]
+        },
+        {
+          "id": "5",
+          "title": "Playwright",
+          "tdd": true,
+          "area": "e2e",
+          "testIds": [
+            "E2E-01..08"
+          ]
+        },
+        {
+          "id": "6",
+          "title": "Quality pass",
+          "tdd": false,
+          "testIds": [
+            "NFR-01..12"
+          ]
+        }
       ],
       "gate": [
-        { "kind": "test-ids", "label": "Every Day 6 component test passes", "suites": ["web"], "ids": ["FE-PAGE-18..32"] },
-        { "kind": "test-ids", "label": "Every Playwright journey passes", "suites": ["playwright"], "ids": ["E2E-01..08"] },
-        { "kind": "testcases-status", "label": "Accessibility and responsive checks recorded", "ids": ["NFR-01..12"] }
+        {
+          "kind": "test-ids",
+          "label": "Every Day 6 component test passes",
+          "suites": [
+            "web"
+          ],
+          "ids": [
+            "FE-PAGE-18..32"
+          ]
+        },
+        {
+          "kind": "test-ids",
+          "label": "Every Playwright journey passes",
+          "suites": [
+            "playwright"
+          ],
+          "ids": [
+            "E2E-01..08"
+          ]
+        },
+        {
+          "kind": "testcases-status",
+          "label": "Accessibility and responsive checks recorded",
+          "ids": [
+            "NFR-01..12"
+          ]
+        }
       ]
     },
     {
@@ -152,10 +483,51 @@
       "status": "pending",
       "slices": [],
       "gate": [
-        { "kind": "command", "label": "API lint clean", "cwd": "apps/api", "run": "npm run lint" },
-        { "kind": "test-ids", "label": "Whole API suite still green", "suites": ["unit", "e2e"], "ids": ["UT-DATE-01..24", "API-ERR-01..05", "API-AUTH-01..12", "API-SET-01..06", "API-PUR-01..32", "API-ATT-01..14", "API-SVC-01..10", "API-DASH-01..08", "API-SRCH-01..10"] },
-        { "kind": "files", "label": "Delivery documents written", "paths": ["README.md", "docs/architecture.md", "docs/security.md", "docs/decisions.md", "docs/demo-script.md", "CHANGELOG.md", "docs/ai-usage.md"] },
-        { "kind": "testcases-status", "label": "Every UAT scenario has a recorded result", "ids": ["UAT-01..13"] }
+        {
+          "kind": "command",
+          "label": "API lint clean",
+          "cwd": "apps/api",
+          "run": "npm run lint"
+        },
+        {
+          "kind": "test-ids",
+          "label": "Whole API suite still green",
+          "suites": [
+            "unit",
+            "e2e"
+          ],
+          "ids": [
+            "UT-DATE-01..24",
+            "API-ERR-01..05",
+            "API-AUTH-01..12",
+            "API-SET-01..06",
+            "API-PUR-01..32",
+            "API-ATT-01..14",
+            "API-SVC-01..10",
+            "API-DASH-01..08",
+            "API-SRCH-01..10"
+          ]
+        },
+        {
+          "kind": "files",
+          "label": "Delivery documents written",
+          "paths": [
+            "README.md",
+            "docs/architecture.md",
+            "docs/security.md",
+            "docs/decisions.md",
+            "docs/demo-script.md",
+            "CHANGELOG.md",
+            "docs/ai-usage.md"
+          ]
+        },
+        {
+          "kind": "testcases-status",
+          "label": "Every UAT scenario has a recorded result",
+          "ids": [
+            "UAT-01..13"
+          ]
+        }
       ]
     }
   ]
