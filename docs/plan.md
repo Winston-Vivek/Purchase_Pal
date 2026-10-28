@@ -56,6 +56,11 @@ Full install steps: `docs/SKILLS.md`. Combined working rules: `.claude/skills/pr
 
 ## 4. How every build day runs
 
+**The gates below are executable.** `gates/phases.json` holds this plan in machine-readable form and
+`npm run gate <phase>` checks it: test case IDs that have no test, failing tests, short coverage,
+cases still marked "Not run", and areas whose first commit was `feat(` instead of `test(`. See
+[`gates/README.md`](../gates/README.md).
+
 ### TDD loop (each slice)
 
 1. **Red:** Claude writes the tests for the slice's test cases (IDs in `docs/test-cases.md`) and runs them. They must fail for the right reason. Commit `test(<area>): ...`.

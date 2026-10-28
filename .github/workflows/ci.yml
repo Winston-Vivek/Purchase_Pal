@@ -89,6 +89,14 @@ jobs:
         env:
           DATABASE_URL: postgresql://proofly:proofly@localhost:5434/proofly_test?schema=public
 
+      # Re-runs the gate of every phase already marked "passed" in
+      # gates/phases.json. A change that breaks a signed-off phase fails here,
+      # even when the work in flight belongs to a later one.
+      - name: Phase gates — regression check
+        run: node ../../gates/run-gate.mjs --ci
+        env:
+          DATABASE_URL: postgresql://proofly:proofly@localhost:5434/proofly_test?schema=public
+
       - name: Upload coverage
         if: always()
         uses: actions/upload-artifact@v4

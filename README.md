@@ -76,6 +76,24 @@ contain `proofly_test`.
 
 ---
 
+## Phase gates
+
+The build runs in seven phases, and each one ends in a gate that is checked by a script rather than
+by eye:
+
+```bash
+npm run gate:status        # the board: phases, slices, test cases each owns
+npm run gate day3          # run Day 3's gate
+npm run gate -- --ci       # re-run every phase already signed off
+```
+
+A gate fails if a test case ID from `docs/test-cases.md` has no test, if a test is failing, if
+coverage is short, if `docs/test-cases.md` still says "Not run" — or if the first commit for an area
+was `feat(` rather than `test(`, which is what writing code before its failing test looks like in the
+history. See [`gates/README.md`](gates/README.md).
+
+---
+
 ## How it is built
 
 | Layer | Choice |
