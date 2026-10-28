@@ -17,12 +17,11 @@ _Read from manifests by `detect-stack.sh`. Not model output._
 |---|---|---|---|
 | - | _none detected_ | - | - |
 
-**Source files:** 0 `vue`, 2 `js`, 13 `ts`  
+**Source files:** 0 `vue`, 5 `js`, 26 `ts`  
 **Config files:** none
 
 **Migration signals detected:**
 
-- `has-schema-migrations` (high) — schema migrations live in `apps/api/prisma/migrations` -- a database built fresh from them can diverge silently from a long-lived one, so wave 05 must diff the two
 <!-- relay:source-stack:end -->
 
 ## Target Stack
@@ -98,9 +97,9 @@ None identified.
 _Machine-generated from `.ai/EVIDENCE.jsonl`. Do not edit by hand._
 
 ```
-24 commands recorded, of which 5 verified (3 passed, 2 failed, 1 non-binding).
+34 commands recorded, of which 6 verified (3 passed, 3 failed, 2 non-binding).
 
-Files changed since baseline `0ecc127` (git): 33
+Files changed since baseline `0ecc127` (git): 39
   - apps/api/package.json
   - apps/api/package-lock.json
   - apps/api/prisma/migrations/20261028080043_init/migration.sql
@@ -112,8 +111,8 @@ Files changed since baseline `0ecc127` (git): 33
   - apps/api/src/common/dates/dates.module.ts
   - apps/api/src/common/dates/dates.service.spec.ts
   - apps/api/src/common/dates/dates.service.ts
-  - apps/api/src/database/data-source.ts
-  ... and 21 more
+  - apps/api/src/common/errors/error-codes.ts
+  ... and 27 more
 
 Tool-observed edits: 0 across 0 files.
   (Only Edit/Write/MultiEdit are visible to the hook. A Bash-first session
@@ -125,6 +124,7 @@ Most recent verified runs:
   [x] `npm run test:e2e` -> exit 0  (wave 03, 2026-10-28T09:33:40Z)
   [!] `npm run gate day3` -> exit 1  (wave 03, 2026-10-28T09:33:48Z)
   [!] probe `npm test` -> exit 1  (wave 03, 2026-10-28T09:38:07Z)
+  [!] probe `npm --prefix apps/api run test:e2e` -> exit 1  (wave 03, 2026-10-28T10:00:13Z)
 ```
 
 **Wave verification gate**
@@ -135,6 +135,7 @@ Most recent verified runs:
     - `npm run gate day3` -> exit 1
     - _the gate keys on the exact command string. Re-run it verbatim to clear it, or retire it with_ `relay-gate --clear '<part of it>' --reason '<why>'`
     - probes (recorded, non-binding):
+        - `npm --prefix apps/api run test:e2e` -> exit 1
         - `npm test` -> exit 1
 - Wave `04` — _not verified_: declared `pending`, so no evidence binds to it.
 - Wave `05` — _not verified_: declared `pending`, so no evidence binds to it.
@@ -151,13 +152,14 @@ Most recent verified runs:
 exit 0  npm run test:e2e  (2026-10-28T09:33:40Z)
 exit 1  npm run gate day3  (2026-10-28T09:33:48Z)
 exit 1 (probe)  npm test  (2026-10-28T09:38:07Z)
+exit 1 (probe)  npm --prefix apps/api run test:e2e  (2026-10-28T10:00:13Z)
 ```
 <!-- relay:evidence:end -->
 
 ### Working tree
 
 <!-- relay:git:start -->
-- Branch `master` at `208a6b6`, 2 uncommitted path(s).
+- Branch `master` at `a98ccdd`, 2 uncommitted path(s).
 - Changed now:
 
 ```
@@ -196,5 +198,5 @@ gate currently fails 4 of 6 checks, naming all 77 cases that have no test yet.
 ## Last Updated
 
 <!-- relay:updated:start -->
-- 2026-10-28T09:56:56Z (mechanical regions refreshed by `migration-state.sh`)
+- 2026-10-28T10:10:15Z (mechanical regions refreshed by `migration-state.sh`)
 <!-- relay:updated:end -->
