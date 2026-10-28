@@ -97,9 +97,9 @@ None identified.
 _Machine-generated from `.ai/EVIDENCE.jsonl`. Do not edit by hand._
 
 ```
-34 commands recorded, of which 6 verified (3 passed, 3 failed, 2 non-binding).
+38 commands recorded, of which 6 verified (3 passed, 3 failed, 2 non-binding).
 
-Files changed since baseline `0ecc127` (git): 39
+Files changed since baseline `0ecc127` (git): 52
   - apps/api/package.json
   - apps/api/package-lock.json
   - apps/api/prisma/migrations/20261028080043_init/migration.sql
@@ -107,12 +107,12 @@ Files changed since baseline `0ecc127` (git): 39
   - apps/api/prisma/schema.prisma
   - apps/api/src/app.module.ts
   - apps/api/src/attachments/attachment.entity.ts
-  - apps/api/src/common/dates/clock.ts
-  - apps/api/src/common/dates/dates.module.ts
-  - apps/api/src/common/dates/dates.service.spec.ts
-  - apps/api/src/common/dates/dates.service.ts
-  - apps/api/src/common/errors/error-codes.ts
-  ... and 27 more
+  - apps/api/src/auth/auth.constants.ts
+  - apps/api/src/auth/auth.controller.ts
+  - apps/api/src/auth/auth.module.ts
+  - apps/api/src/auth/auth.service.ts
+  - apps/api/src/auth/current-user.decorator.ts
+  ... and 40 more
 
 Tool-observed edits: 0 across 0 files.
   (Only Edit/Write/MultiEdit are visible to the hook. A Bash-first session
@@ -159,7 +159,7 @@ exit 1 (probe)  npm --prefix apps/api run test:e2e  (2026-10-28T10:00:13Z)
 ### Working tree
 
 <!-- relay:git:start -->
-- Branch `master` at `a98ccdd`, 2 uncommitted path(s).
+- Branch `master` at `772a1bd`, 2 uncommitted path(s).
 - Changed now:
 
 ```
@@ -198,5 +198,5 @@ gate currently fails 4 of 6 checks, naming all 77 cases that have no test yet.
 ## Last Updated
 
 <!-- relay:updated:start -->
-- 2026-10-28T10:10:15Z (mechanical regions refreshed by `migration-state.sh`)
+- 2026-10-28T10:25:25Z (mechanical regions refreshed by `migration-state.sh`)
 <!-- relay:updated:end -->
