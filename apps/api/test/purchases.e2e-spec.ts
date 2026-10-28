@@ -1,4 +1,6 @@
 import { INestApplication } from '@nestjs/common';
+import { existsSync, readdirSync, rmSync } from 'node:fs';
+import { join, resolve } from 'node:path';
 import request from 'supertest';
 import { DataSource } from 'typeorm';
 import { signUp } from './utils/auth';
@@ -9,6 +11,11 @@ import { truncateAll } from './utils/database';
  * API-PUR-01..30 from docs/test-cases.md §2.4 — US-02, US-04, US-05, US-09.
  * Today is pinned to 2026-10-27 (Asia/Kolkata).
  */
+
+const UPLOAD_DIR = resolve(process.env.UPLOAD_DIR ?? './var/uploads-test');
+const FIXTURE = join(resolve(__dirname, 'fixtures'), 'receipt.pdf');
+
+const storedFiles = (): string[] => (existsSync(UPLOAD_DIR) ? readdirSync(UPLOAD_DIR) : []);
 
 const BASE = {
   productName: 'AirPods Pro (2nd generation)',
@@ -310,6 +317,80 @@ describe('Purchases (e2e)', () => {
 
       expect(response.body.total).toBe(0);
       expect(response.body.items).toEqual([]);
+    });
+  });
+
+  // --------------------------------------------------- BR-08 cascade ------
+  describe('BR-08 cascade', () => {
+    const upload = (purchaseId: string) =>
+      request(app.getHttpServer())
+        .post(`/api/v1/purchases/${purchaseId}/attachments`)
+        .set('Cookie', cookie)
+        .attach('file', FIXTURE);
+
+    const addService = (purchaseId: string, description: string) =>
+      request(app.getHttpServer())
+        .post(`/api/v1/purchases/${purchaseId}/services`)
+        .set('Cookie', cookie)
+        .send({ serviceDate: '2026-10-27', description });
+
+    beforeEach(() => {
+      rmSync(UPLOAD_DIR, { recursive: true, force: true });
+    });
+
+    it('API-PUR-31 deleting a purchase removes its receipts, its history and the files', async () => {
+      const created = await create().expect(201);
+      const id = created.body.id;
+
+      await upload(id).expect(201);
+      await upload(id).expect(201);
+      await addService(id, 'First repair').expect(201);
+      await addService(id, 'Second repair').expect(201);
+
+      expect(storedFiles()).toHaveLength(2);
+
+      // A second purchase with its own receipt, so the test proves the delete
+      // is targeted rather than simply emptying everything.
+      const survivor = await create({ ...BASE, productName: 'Survivor' }).expect(201);
+      await upload(survivor.body.id).expect(201);
+      expect(storedFiles()).toHaveLength(3);
+
+      await request(app.getHttpServer())
+        .delete(`/api/v1/purchases/${id}`)
+        .set('Cookie', cookie)
+        .expect(204);
+
+      const attachments = await dataSource.query<{ count: string }[]>(
+        'SELECT COUNT(*)::int AS count FROM attachments WHERE purchase_id = $1',
+        [id],
+      );
+      const services = await dataSource.query<{ count: string }[]>(
+        'SELECT COUNT(*)::int AS count FROM service_records WHERE purchase_id = $1',
+        [id],
+      );
+
+      expect(attachments[0]?.count).toBe(0);
+      expect(services[0]?.count).toBe(0);
+
+      // The two files are gone from disk; the survivor's is untouched.
+      expect(storedFiles()).toHaveLength(1);
+
+      await get(survivor.body.id).expect(200);
+    });
+
+    it('API-PUR-32 hasReceipt turns true on upload and false again on delete', async () => {
+      const created = await create().expect(201);
+      expect(created.body.hasReceipt).toBe(false);
+
+      const uploaded = await upload(created.body.id).expect(201);
+      expect((await get(created.body.id).expect(200)).body.hasReceipt).toBe(true);
+
+      await request(app.getHttpServer())
+        .delete(`/api/v1/attachments/${uploaded.body.id}`)
+        .set('Cookie', cookie)
+        .expect(204);
+
+      expect((await get(created.body.id).expect(200)).body.hasReceipt).toBe(false);
     });
   });
 });
