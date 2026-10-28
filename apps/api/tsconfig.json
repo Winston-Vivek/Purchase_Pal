@@ -1,0 +1,44 @@
+{
+  "compilerOptions": {
+    "module": "commonjs",
+    "target": "ES2023",
+    "lib": ["ES2023"],
+    "moduleResolution": "node",
+    "declaration": true,
+    "removeComments": true,
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+    "allowSyntheticDefaultImports": true,
+    "esModuleInterop": true,
+    "sourceMap": true,
+    "outDir": "./dist",
+    "baseUrl": "./",
+    "incremental": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+
+    /* Strict mode — required by CLAUDE.md ("NestJS 11 + TypeScript strict").
+       The extras below go past `strict` on purpose: they catch the mistakes
+       that cost the most time in a date- and money-heavy codebase. */
+    "strict": true,
+    "noImplicitOverride": true,
+    "noFallthroughCasesInSwitch": true,
+    "noImplicitReturns": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    /* Indexing an array or record yields `T | undefined`, so a missing
+       purchase or a bad date key has to be handled, not assumed. */
+    "noUncheckedIndexedAccess": true,
+
+    /* Off deliberately: Prisma's generated input types and class-validator
+       DTOs both model optional fields as `T | undefined`, which this flag
+       rejects. Turning it on would mean casting at every boundary. */
+    "exactOptionalPropertyTypes": false,
+
+    "paths": {
+      "src/*": ["src/*"]
+    }
+  },
+  "include": ["src/**/*", "test/**/*", "prisma/**/*"],
+  "exclude": ["node_modules", "dist"]
+}

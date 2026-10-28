@@ -1,0 +1,135 @@
+// Proofly data model — docs/requirements.md §10.
+//
+// Two rules shape every table here:
+//   BR-05  Business dates are SQL DATE (@db.Date), never timestamps. A return
+//          deadline is a calendar day, so a time and an offset would only
+//          create off-by-one bugs across the Asia/Kolkata boundary.
+//   BR-04  Status is COMPUTED per response, never stored. There is deliberately
+//          no returnStatus or warrantyStatus column: a stored status would go
+//          stale overnight and drift from the user's alert settings.
+//
+// Audit columns (createdAt/updatedAt) stay as timestamps — they record when a
+// row changed, which is a real instant, not a business date.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+/// requirements §7: the only accepted categories. A Postgres enum makes an
+/// invalid category impossible at the database level, not just in the DTO.
+enum Category {
+  ELECTRONICS
+  APPLIANCES
+  MOBILE
+  FURNITURE
+  FASHION
+  VEHICLE
+  HOME_KITCHEN
+  OTHER
+}
+
+model User {
+  id           String @id @default(uuid()) @db.Uuid
+  name         String @db.VarChar(80)
+  /// Stored lower-cased so "A@b.com" and "a@b.com" collide on this unique
+  /// index and the second register attempt gets 409 (API-AUTH-03).
+  email        String @unique @db.VarChar(255)
+  passwordHash String @map("password_hash")
+
+  /// US-08: the thresholds BR-04 compares daysLeft against. Defaults from D-08.
+  warrantyAlertDays Int @default(30) @map("warranty_alert_days")
+  returnAlertDays   Int @default(7) @map("return_alert_days")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  purchases Purchase[]
+
+  @@map("users")
+}
+
+model Purchase {
+  id     String @id @default(uuid()) @db.Uuid
+  /// BR-09: every read and write is scoped by this column. Deleting a user
+  /// takes their purchases with them.
+  userId String @map("user_id") @db.Uuid
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  productName String   @map("product_name") @db.VarChar(120)
+  category    Category
+  seller      String?  @db.VarChar(120)
+  purchaseDate DateTime @map("purchase_date") @db.Date
+  /// Decimal, not Float: money must not lose cents to binary rounding.
+  price       Decimal  @db.Decimal(12, 2)
+  /// ISO 4217, stored not converted (D-11).
+  currency    String   @default("INR") @db.Char(3)
+
+  /// BR-02 inputs. returnDeadline, when set, overrides purchaseDate + window.
+  returnWindowDays Int?      @map("return_window_days")
+  returnDeadline   DateTime? @map("return_deadline") @db.Date
+
+  /// BR-01 inputs. Both null together means "No warranty"; the DTO enforces
+  /// that one may not be given without the other (API-PUR-13/14).
+  warrantyStartDate DateTime? @map("warranty_start_date") @db.Date
+  warrantyMonths    Int?      @map("warranty_months")
+
+  notes String? @db.VarChar(1000)
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  attachments    Attachment[]
+  serviceRecords ServiceRecord[]
+
+  /// Ownership lookups hit userId on every request.
+  @@index([userId])
+  /// The default list order (newest purchase first) and the dashboard's date
+  /// windows both read this pair.
+  @@index([userId, purchaseDate])
+  @@map("purchases")
+}
+
+model Attachment {
+  id         String   @id @default(uuid()) @db.Uuid
+  purchaseId String   @map("purchase_id") @db.Uuid
+  purchase   Purchase @relation(fields: [purchaseId], references: [id], onDelete: Cascade)
+
+  /// BR-10: a random key, never the user's filename. Unique so a generated key
+  /// can never silently overwrite an existing receipt.
+  storageKey String @unique @map("storage_key")
+  /// The original name, shown in the UI and sent back in Content-Disposition.
+  fileName   String @map("file_name") @db.VarChar(255)
+  mimeType   String @map("mime_type") @db.VarChar(100)
+  /// Bytes. Capped at 5 MB by the upload pipe, so Int is far from overflowing.
+  fileSize   Int    @map("file_size")
+
+  uploadedAt DateTime @default(now()) @map("uploaded_at")
+
+  @@index([purchaseId])
+  @@map("attachments")
+}
+
+model ServiceRecord {
+  id         String   @id @default(uuid()) @db.Uuid
+  /// BR-07: a service record belongs to exactly one purchase. Ownership is
+  /// checked by joining to that purchase's userId.
+  purchaseId String   @map("purchase_id") @db.Uuid
+  purchase   Purchase @relation(fields: [purchaseId], references: [id], onDelete: Cascade)
+
+  serviceDate DateTime @map("service_date") @db.Date
+  provider    String?  @db.VarChar(120)
+  description String   @db.VarChar(500)
+  cost        Decimal? @db.Decimal(12, 2)
+  notes       String?  @db.VarChar(1000)
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@index([purchaseId])
+  @@map("service_records")
+}

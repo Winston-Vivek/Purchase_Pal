@@ -1,0 +1,39 @@
+# Proofly — local development database.
+#
+# Host port 5434 is deliberate: 5432 and 5433 are commonly already taken by
+# another Postgres (a system install or another project's container). Nothing
+# outside this file depends on the number — the app reads DATABASE_URL.
+#
+#   docker compose up -d          start
+#   docker compose logs -f db     watch
+#   docker compose down           stop (keeps data)
+#   docker compose down -v        stop and wipe the data volume
+
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: proofly-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: proofly
+      POSTGRES_PASSWORD: proofly
+      POSTGRES_DB: proofly
+      # Deterministic collation, so ORDER BY matches what the tests expect.
+      POSTGRES_INITDB_ARGS: "--locale=C --encoding=UTF8"
+    ports:
+      - "5434:5432"
+    volumes:
+      - proofly-db-data:/var/lib/postgresql/data
+      # Runs once, on an empty data volume, to add the test database.
+      - ./docker/postgres/init-test-db.sh:/docker-entrypoint-initdb.d/10-init-test-db.sh:ro
+    healthcheck:
+      # CI and `docker compose up --wait` block until this passes, so migrations
+      # never race the server's first start.
+      test: ["CMD-SHELL", "pg_isready -U proofly -d proofly"]
+      interval: 5s
+      timeout: 5s
+      retries: 12
+      start_period: 5s
+
+volumes:
+  proofly-db-data:

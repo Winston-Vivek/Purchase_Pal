@@ -1,0 +1,99 @@
+# Proofly CI — lint, unit and e2e on every push (requirements §11, "Quality").
+#
+# The e2e job runs against a real Postgres 16, not a mock or sqlite, because the
+# things most likely to break are exactly the things an in-memory stand-in gets
+# wrong: DATE columns, DECIMAL precision, ON DELETE CASCADE and case-sensitive
+# unique indexes.
+
+name: CI
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+    branches: [main, master]
+
+# A new push supersedes an in-flight run on the same ref.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  api:
+    name: API — lint, unit, build, e2e
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: proofly
+          POSTGRES_PASSWORD: proofly
+          POSTGRES_DB: proofly
+        ports:
+          - 5434:5432
+        options: >-
+          --health-cmd "pg_isready -U proofly"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 12
+
+    env:
+      NODE_ENV: test
+      # Not a secret: this database exists only for the life of the job.
+      JWT_SECRET: ci-only-secret-at-least-thirty-two-characters-long
+      JWT_EXPIRES_IN: 7d
+      BCRYPT_ROUNDS: '10'
+      WEB_ORIGIN: http://localhost:5173
+      APP_TIMEZONE: Asia/Kolkata
+      UPLOAD_DIR: ./var/uploads-ci
+
+    defaults:
+      run:
+        working-directory: apps/api
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: npm
+          cache-dependency-path: apps/api/package-lock.json
+
+      - name: Create the test database
+        run: PGPASSWORD=proofly psql -h localhost -p 5434 -U proofly -d proofly -c 'CREATE DATABASE proofly_test;'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Generate Prisma client
+        run: npx prisma generate
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Unit tests
+        run: npm run test:cov
+        env:
+          DATABASE_URL: postgresql://proofly:proofly@localhost:5434/proofly_test?schema=public
+
+      - name: Build
+        run: npm run build
+
+      # Runs jest directly rather than through `npm run test:e2e`, because that
+      # script loads .env.test, which is gitignored and absent here. The env
+      # above plus this DATABASE_URL give the same result.
+      - name: API e2e tests
+        run: npx jest --config ./test/jest-e2e.json --runInBand
+        env:
+          DATABASE_URL: postgresql://proofly:proofly@localhost:5434/proofly_test?schema=public
+
+      - name: Upload coverage
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: api-coverage
+          path: apps/api/coverage
+          if-no-files-found: ignore
+          retention-days: 7

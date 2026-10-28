@@ -12,6 +12,7 @@ build/
 .env
 .env.*
 !.env.example
+!.env.test.example
 
 # Uploaded receipts: private storage, never in git (BR-10, NFR-11)
 uploads/
