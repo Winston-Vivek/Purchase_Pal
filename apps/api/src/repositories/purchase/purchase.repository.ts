@@ -1,12 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
+import { ListPurchasesDto, PurchaseSort } from '../../purchases/dto/list-purchases.dto';
 import { Purchase } from '../../purchases/purchase.entity';
-
-export interface PaginatedPurchases {
-  items: Purchase[];
-  total: number;
-}
 
 /**
  * Owns persistence for Purchase.
@@ -28,33 +24,51 @@ export class PurchaseRepository {
     });
   }
 
-  /** Filtering and paging happen in the database, never in memory. */
-  async paginateForUser(
-    userId: string,
-    page: number,
-    pageSize: number,
-  ): Promise<PaginatedPurchases> {
-    const [items, total] = await this.purchases.findAndCount({
-      where: { userId },
-      // One query with a join rather than a count per row (db-avoid-n-plus-one).
-      relations: { attachments: true },
-      order: { purchaseDate: 'DESC', createdAt: 'DESC' },
-      skip: (page - 1) * pageSize,
-      take: pageSize,
-    });
-
-    return { items, total };
-  }
-
-  /** Every purchase for one user, newest first. Used by the dashboard, which
-   *  has to look at all of them — see DashboardService for why that is not a
-   *  filtered query. */
+  /** Every purchase for one user, newest first. The dashboard has to look at
+   *  all of them — see DashboardService for why that is not a filtered query. */
   findAllForUser(userId: string): Promise<Purchase[]> {
     return this.purchases.find({
       where: { userId },
       relations: { attachments: true },
       order: { purchaseDate: 'DESC', createdAt: 'DESC' },
     });
+  }
+
+  /**
+   * Text search, category filter and the column sorts, done in SQL.
+   *
+   * Returns every match rather than a page, because the status filters and the
+   * nearest-deadline sort are computed from BR-01/BR-04 and cannot go in a
+   * WHERE clause without a second implementation of those rules — see
+   * PurchasesService.list.
+   */
+  searchForUser(userId: string, query: ListPurchasesDto): Promise<Purchase[]> {
+    const builder = this.purchases
+      .createQueryBuilder('purchase')
+      // One query with a join rather than a count per row (db-avoid-n-plus-one).
+      .leftJoinAndSelect('purchase.attachments', 'attachment')
+      .where('purchase.userId = :userId', { userId });
+
+    if (query.q) {
+      builder.andWhere(
+        '(purchase.productName ILIKE :q OR purchase.seller ILIKE :q OR purchase.notes ILIKE :q)',
+        { q: `%${query.q}%` },
+      );
+    }
+
+    if (query.category) {
+      builder.andWhere('purchase.category = :category', { category: query.category });
+    }
+
+    if (query.sort === PurchaseSort.PRICE_DESC) {
+      builder.orderBy('purchase.price', 'DESC');
+    } else if (query.sort === PurchaseSort.PRICE_ASC) {
+      builder.orderBy('purchase.price', 'ASC');
+    } else {
+      builder.orderBy('purchase.purchaseDate', 'DESC').addOrderBy('purchase.createdAt', 'DESC');
+    }
+
+    return builder.getMany();
   }
 
   store(data: Partial<Purchase>): Promise<Purchase> {

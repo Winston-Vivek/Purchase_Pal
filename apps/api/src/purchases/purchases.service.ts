@@ -1,11 +1,11 @@
 import { BadRequestException, Inject, Injectable, NotFoundException } from '@nestjs/common';
-import { DatesService, InvalidDateError } from '../common/dates/dates.service';
+import { DatesService, DeadlineStatus, InvalidDateError } from '../common/dates/dates.service';
 import { ErrorCode } from '../common/errors/error-codes';
 import { STORAGE, Storage } from '../common/storage/storage.interface';
 import { PurchaseRepository } from '../repositories/purchase/purchase.repository';
 import { User } from '../users/user.entity';
 import { CreatePurchaseDto } from './dto/create-purchase.dto';
-import { ListPurchasesDto } from './dto/list-purchases.dto';
+import { ListPurchasesDto, PurchaseSort } from './dto/list-purchases.dto';
 import { UpdatePurchaseDto } from './dto/update-purchase.dto';
 import { Purchase } from './purchase.entity';
 
@@ -49,26 +49,79 @@ export class PurchasesService {
     });
   }
 
+  /**
+   * SQL does the text search, the category filter and the column sorts. The
+   * status filters and the nearest-deadline sort are applied here, because
+   * both are computed from BR-01/BR-04 and expressing them in SQL would mean a
+   * second implementation of the month-end clamp that would quietly disagree
+   * with DatesService (DashboardService carries the same reasoning).
+   *
+   * Paging therefore happens after that filtering, so `total` counts what the
+   * user actually matched rather than what SQL alone could narrow to.
+   */
   async list(
     user: User,
     query: ListPurchasesDto,
-  ): Promise<{
-    items: Purchase[];
-    total: number;
-    page: number;
-    pageSize: number;
-  }> {
-    const { items, total } = await this.purchases.paginateForUser(
-      user.id,
-      query.page,
-      query.pageSize,
-    );
+  ): Promise<{ items: Purchase[]; total: number; page: number; pageSize: number }> {
+    const matches = await this.purchases.searchForUser(user.id, query);
 
-    return { items, total, page: query.page, pageSize: query.pageSize };
+    let resolved = matches.map((purchase) => this.resolveDeadlines(purchase, user));
+
+    if (query.returnStatus) {
+      resolved = resolved.filter((r) => r.returnStatus === query.returnStatus);
+    }
+    if (query.warrantyStatus) {
+      resolved = resolved.filter((r) => r.warrantyStatus === query.warrantyStatus);
+    }
+
+    if (query.sort === PurchaseSort.DEADLINE_ASC) {
+      resolved.sort((a, b) => a.nextDeadlineDays - b.nextDeadlineDays);
+    }
+
+    const start = (query.page - 1) * query.pageSize;
+
+    return {
+      items: resolved.slice(start, start + query.pageSize).map((r) => r.purchase),
+      total: resolved.length,
+      page: query.page,
+      pageSize: query.pageSize,
+    };
   }
 
-  /** Every read is scoped by userId, so another user's row is simply not
-   *  there — 404, never 403, so its existence stays hidden (BR-09). */
+  /** The soonest deadline that has not already passed. A purchase with nothing
+   *  upcoming gets Infinity, so it sorts last rather than first. */
+  private resolveDeadlines(
+    purchase: Purchase,
+    user: User,
+  ): {
+    purchase: Purchase;
+    returnStatus: DeadlineStatus;
+    warrantyStatus: DeadlineStatus;
+    nextDeadlineDays: number;
+  } {
+    const returnDeadline = this.dates.returnDeadline(
+      purchase.purchaseDate,
+      purchase.returnWindowDays,
+      purchase.returnDeadline,
+    );
+    const warrantyExpiry = this.dates.warrantyExpiry(
+      purchase.warrantyStartDate,
+      purchase.warrantyMonths,
+    );
+
+    const upcoming = [
+      this.dates.daysLeft(returnDeadline),
+      this.dates.daysLeft(warrantyExpiry),
+    ].filter((days): days is number => days !== null && days >= 0);
+
+    return {
+      purchase,
+      returnStatus: this.dates.status(returnDeadline, user.returnAlertDays),
+      warrantyStatus: this.dates.status(warrantyExpiry, user.warrantyAlertDays),
+      nextDeadlineDays: upcoming.length > 0 ? Math.min(...upcoming) : Number.POSITIVE_INFINITY,
+    };
+  }
+
   async findOwned(user: User, id: string, withRelations = false): Promise<Purchase> {
     const purchase = await this.purchases.findOwned(user.id, id, withRelations);
 

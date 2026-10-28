@@ -204,16 +204,16 @@ Fixture for A (today 2026-10-27), matching the design mockups:
 
 | ID | Scenario | Expected | Pri | Status |
 | --- | --- | --- | --- | --- |
-| API-SRCH-01 | q=airpods | AirPods only (case-insensitive) | P1 | Not run |
-| API-SRCH-02 | q=croma (seller) | Samsung AC | P1 | Not run |
-| API-SRCH-03 | q matches notes text | That purchase | P1 | Not run |
-| API-SRCH-04 | category=APPLIANCES | Samsung AC, LG washer | P1 | Not run |
-| API-SRCH-05 | returnStatus=EXPIRING_SOON | Nike, AirPods | P1 | Not run |
-| API-SRCH-06 | warrantyStatus=EXPIRED | LG washer | P1 | Not run |
-| API-SRCH-07 | sort=price_desc | Dell first | P1 | Not run |
-| API-SRCH-08 | sort=deadline_asc | Nike, Samsung, AirPods first | P1 | Not run |
-| API-SRCH-09 | page=2, pageSize=5 | Items 6–7, total 7 | P1 | Not run |
-| API-SRCH-10 | B searches q=airpods | Empty (A's data never returned) | P0 | Not run |
+| API-SRCH-01 | q=airpods | AirPods only (case-insensitive) | P1 | Pass 2026-10-28 |
+| API-SRCH-02 | q=croma (seller) | Samsung AC | P1 | Pass 2026-10-28 |
+| API-SRCH-03 | q matches notes text | That purchase | P1 | Pass 2026-10-28 |
+| API-SRCH-04 | category=APPLIANCES | Samsung AC, LG washer | P1 | Pass 2026-10-28 |
+| API-SRCH-05 | returnStatus=EXPIRING_SOON | Nike, AirPods | P1 | Pass 2026-10-28 |
+| API-SRCH-06 | warrantyStatus=EXPIRED | LG washer | P1 | Pass 2026-10-28 |
+| API-SRCH-07 | sort=price_desc | Dell first | P1 | Pass 2026-10-28 |
+| API-SRCH-08 | sort=deadline_asc | Nike, Samsung, AirPods first | P1 | Pass 2026-10-28 |
+| API-SRCH-09 | page=2, pageSize=5 | Items 6–7, total 7 | P1 | Pass 2026-10-28 |
+| API-SRCH-10 | B searches q=airpods | Empty (A's data never returned) | P0 | Pass 2026-10-28 |
 
 ---
 
