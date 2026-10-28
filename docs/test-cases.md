@@ -93,11 +93,11 @@ All requests use `/api/v1`. "Signed in as A" = A's auth cookie. Errors must use 
 
 | ID | Scenario | Expected | Pri | Status |
 | --- | --- | --- | --- | --- |
-| API-SET-01 | New user defaults | warrantyAlertDays 30, returnAlertDays 7 | P0 | Not run |
-| API-SET-02 | PATCH warrantyAlertDays 60 | 200; /auth/me shows 60 | P0 | Not run |
-| API-SET-03 | PATCH warrantyAlertDays 0 or 366 | 400 fields.warrantyAlertDays | P0 | Not run |
-| API-SET-04 | PATCH returnAlertDays 0 or 61 | 400 fields.returnAlertDays | P0 | Not run |
-| API-SET-05 | PATCH with `email` or unknown field | 400 (not allowed here) | P0 | Not run |
+| API-SET-01 | New user defaults | warrantyAlertDays 30, returnAlertDays 7 | P0 | Pass 2026-10-28 |
+| API-SET-02 | PATCH warrantyAlertDays 60 | 200; /auth/me shows 60 | P0 | Pass 2026-10-28 |
+| API-SET-03 | PATCH warrantyAlertDays 0 or 366 | 400 fields.warrantyAlertDays | P0 | Pass 2026-10-28 |
+| API-SET-04 | PATCH returnAlertDays 0 or 61 | 400 fields.returnAlertDays | P0 | Pass 2026-10-28 |
+| API-SET-05 | PATCH with `email` or unknown field | 400 (not allowed here) | P0 | Pass 2026-10-28 |
 | API-SET-06 | After PATCH returnAlertDays 3, purchase with return in 5 days | returnStatus changes from EXPIRING_SOON to ACTIVE | P0 | Not run |
 
 ### 2.4 Purchases (`purchases.e2e-spec.ts`) — US-02, US-04, US-05, US-09

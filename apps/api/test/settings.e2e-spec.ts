@@ -28,7 +28,10 @@ describe('Alert settings (e2e)', () => {
   });
 
   const patch = (cookie: string, body: Record<string, unknown>) =>
-    request(app.getHttpServer()).patch('/api/v1/users/me/settings').set('Cookie', cookie).send(body);
+    request(app.getHttpServer())
+      .patch('/api/v1/users/me/settings')
+      .set('Cookie', cookie)
+      .send(body);
 
   it('API-SET-01 a new user starts with 30 day warranty and 7 day return windows', async () => {
     const { cookie } = await signUp(app);
