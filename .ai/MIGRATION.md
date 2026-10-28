@@ -98,7 +98,7 @@ None identified.
 _Machine-generated from `.ai/EVIDENCE.jsonl`. Do not edit by hand._
 
 ```
-50 commands recorded, of which 8 verified (4 passed, 4 failed, 2 non-binding).
+53 commands recorded, of which 8 verified (4 passed, 4 failed, 2 non-binding).
 
 Files changed since baseline `0ecc127` (git): 71
   - apps/api/package.json
@@ -134,9 +134,7 @@ Most recent verified runs:
 
 - Wave `01` — **verified**: every binding command last ran green.
 - Wave `02` — **verified**: every binding command last ran green.
-- Wave `03` — _NOT verified_: still failing —
-    - `npm --prefix apps/api run test:e2e` -> exit 1
-    - _the gate keys on the exact command string. Re-run it verbatim to clear it, or retire it with_ `relay-gate --clear '<part of it>' --reason '<why>'`
+- Wave `03` — **verified**: every binding command last ran green.
     - probes (recorded, non-binding):
         - `npm --prefix apps/api run test:e2e` -> exit 1
         - `npm test` -> exit 1
@@ -160,15 +158,12 @@ Most recent verified runs:
 ### Working tree
 
 <!-- relay:git:start -->
-- Branch `master` at `0d09a44`, 5 uncommitted path(s).
+- Branch `master` at `1f214e4`, 2 uncommitted path(s).
 - Changed now:
 
 ```
  M .ai/EVIDENCE.jsonl
  M .ai/MIGRATION.md
- M docs/plan.md
- M docs/test-cases.md
- M gates/phases.json
 ```
 <!-- relay:git:end -->
 
@@ -202,5 +197,5 @@ AttachmentRepository, the controller stays thin, the route param is
 ## Last Updated
 
 <!-- relay:updated:start -->
-- 2026-10-28T11:48:23Z (mechanical regions refreshed by `migration-state.sh`)
+- 2026-10-28T11:50:04Z (mechanical regions refreshed by `migration-state.sh`)
 <!-- relay:updated:end -->
