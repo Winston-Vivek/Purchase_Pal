@@ -98,9 +98,10 @@ None identified.
 _Machine-generated from `.ai/EVIDENCE.jsonl`. Do not edit by hand._
 
 ```
-7 commands recorded, of which 4 verified (3 passed, 1 failed, 0 non-binding).
+9 commands recorded, of which 4 verified (3 passed, 1 failed, 0 non-binding).
 
-Files changed since baseline `0ecc127` (git): 1
+Files changed since baseline `0ecc127` (git): 2
+  - docs/ai-usage.md
   - package.json
 
 Tool-observed edits: 0 across 0 files.
@@ -141,12 +142,11 @@ exit 1  npm run gate day3  (2026-10-28T09:33:48Z)
 ### Working tree
 
 <!-- relay:git:start -->
-- Branch `master` at `0ecc127`, 2 uncommitted path(s).
+- Branch `master` at `8355b9a`, 1 uncommitted path(s).
 - Changed now:
 
 ```
- M package.json
-?? .ai/
+ M .ai/MIGRATION.md
 ```
 <!-- relay:git:end -->
 
@@ -180,5 +180,5 @@ gate currently fails 4 of 6 checks, naming all 77 cases that have no test yet.
 ## Last Updated
 
 <!-- relay:updated:start -->
-- 2026-10-28T09:33:54Z (mechanical regions refreshed by `migration-state.sh`)
+- 2026-10-28T09:34:47Z (mechanical regions refreshed by `migration-state.sh`)
 <!-- relay:updated:end -->
