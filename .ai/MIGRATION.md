@@ -17,7 +17,7 @@ _Read from manifests by `detect-stack.sh`. Not model output._
 |---|---|---|---|
 | - | _none detected_ | - | - |
 
-**Source files:** 0 `vue`, 5 `js`, 26 `ts`  
+**Source files:** 0 `vue`, 5 `js`, 44 `ts`  
 **Config files:** none
 
 **Migration signals detected:**
@@ -97,9 +97,9 @@ None identified.
 _Machine-generated from `.ai/EVIDENCE.jsonl`. Do not edit by hand._
 
 ```
-38 commands recorded, of which 6 verified (3 passed, 3 failed, 2 non-binding).
+39 commands recorded, of which 6 verified (3 passed, 3 failed, 2 non-binding).
 
-Files changed since baseline `0ecc127` (git): 52
+Files changed since baseline `0ecc127` (git): 57
   - apps/api/package.json
   - apps/api/package-lock.json
   - apps/api/prisma/migrations/20261028080043_init/migration.sql
@@ -112,7 +112,7 @@ Files changed since baseline `0ecc127` (git): 52
   - apps/api/src/auth/auth.module.ts
   - apps/api/src/auth/auth.service.ts
   - apps/api/src/auth/current-user.decorator.ts
-  ... and 40 more
+  ... and 45 more
 
 Tool-observed edits: 0 across 0 files.
   (Only Edit/Write/MultiEdit are visible to the hook. A Bash-first session
@@ -159,7 +159,7 @@ exit 1 (probe)  npm --prefix apps/api run test:e2e  (2026-10-28T10:00:13Z)
 ### Working tree
 
 <!-- relay:git:start -->
-- Branch `master` at `772a1bd`, 2 uncommitted path(s).
+- Branch `master` at `1d22d86`, 2 uncommitted path(s).
 - Changed now:
 
 ```
@@ -198,5 +198,5 @@ gate currently fails 4 of 6 checks, naming all 77 cases that have no test yet.
 ## Last Updated
 
 <!-- relay:updated:start -->
-- 2026-10-28T10:25:25Z (mechanical regions refreshed by `migration-state.sh`)
+- 2026-10-28T10:35:33Z (mechanical regions refreshed by `migration-state.sh`)
 <!-- relay:updated:end -->
