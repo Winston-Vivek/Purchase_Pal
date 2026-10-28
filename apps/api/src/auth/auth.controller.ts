@@ -1,3 +1,4 @@
+import { ApiTags } from '@nestjs/swagger';
 import { Body, Controller, Get, HttpCode, Post, Res } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { CookieOptions, Response } from 'express';
@@ -19,6 +20,7 @@ function toMilliseconds(expiresIn: string): number {
   return Number(match[1]) * unit[match[2] as keyof typeof unit];
 }
 
+@ApiTags('auth')
 @Controller('auth')
 export class AuthController {
   private readonly cookieOptions: CookieOptions;

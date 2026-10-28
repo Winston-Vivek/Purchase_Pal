@@ -7,6 +7,7 @@ import { validateEnv } from './config/env.validation';
 import { databaseOptions } from './database/data-source';
 import { HealthModule } from './health/health.module';
 import { PurchasesModule } from './purchases/purchases.module';
+import { RepositoriesModule } from './repositories/repositories.module';
 
 @Module({
   imports: [
@@ -23,6 +24,7 @@ import { PurchasesModule } from './purchases/purchases.module';
       useFactory: (config: ConfigService) =>
         databaseOptions(config.getOrThrow<string>('DATABASE_URL')),
     }),
+    RepositoriesModule,
     DatesModule,
     AuthModule,
     PurchasesModule,

@@ -31,7 +31,7 @@ NestJS 11 + TypeScript strict · PostgreSQL 16 + TypeORM · bcrypt + JWT in http
 ## Layout
 
 ```
-apps/api/      NestJS (src/<feature>/, src/common/, src/database/, test/)
+apps/api/      NestJS (src/<feature>/, src/common/, src/repositories/, src/database/, test/)
 apps/web/      Vue (src/pages, components, composables, stores, api)
 e2e/           Playwright
 docs/          requirements, plan, test-plan, test-cases, uat-report, SKILLS, PROMPTS, + architecture, decisions, security, ai-usage, demo-script

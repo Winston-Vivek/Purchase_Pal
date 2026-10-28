@@ -40,6 +40,15 @@ Bugs: write a failing test that reproduces the bug first, then fix it.
 - Feature modules: `auth/`, `users/`, `purchases/`, `attachments/`, `service-records/`, `dashboard/`, plus `common/` (dates, filters, decorators) and `database/` (DataSource, migrations). Each feature owns its entity. Each module owns its controller, service and DTOs (`arch-feature-modules`).
 - One job per service; controllers only map HTTP to service calls (`arch-single-responsibility`). No circular imports between modules (`arch-avoid-circular-deps`); export only what other modules need (`arch-module-sharing`).
 
+**Org NestJS template conventions** (adopted 28 Oct 2026)
+- **All database access goes through a repository** in `src/repositories/<name>/<name>.repository.ts`, registered and exported from the global `RepositoriesModule`. Services, controllers and guards never touch a TypeORM `Repository` or the `DataSource` directly.
+- Repository methods take `userId` and fold it into the WHERE clause, so ownership cannot be forgotten by a caller (BR-09).
+- **REST handler names** on resource controllers: `index` (GET /), `store` (POST /), `show` (GET /:x), `update`, `destroy` (DELETE /:x).
+- **Route params are named**, never bare `id`: `:purchaseId`, `:attachmentId`, `:serviceRecordId`.
+- **Every input has its own DTO**, documented with `@ApiProperty` / `@ApiPropertyOptional`. Derive an update DTO from its store DTO *only* when update semantics really are "all fields optional" — not when `null` means "clear this".
+- Controllers stay thin: route params, DTO, guard, call a service. Services own use-case logic. Response mappers own representation.
+- **Where the template and `docs/requirements.md` disagree, the requirements win.** The template maps a full update to `PUT`; §9 locks `PATCH /purchases/:id`, so the verb stays `PATCH`.
+
 **Dependency injection**
 - Constructor injection only (`di-prefer-constructor-injection`).
 - Use injection tokens for swappable parts: `CLOCK` (fixed "today" in tests) and `STORAGE` (local disk now, S3 later) (`di-use-interfaces-tokens`).

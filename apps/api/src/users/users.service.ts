@@ -1,23 +1,21 @@
 import { Injectable } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { UserRepository } from '../repositories/user/user.repository';
 import { User } from './user.entity';
 
 @Injectable()
 export class UsersService {
-  constructor(@InjectRepository(User) private readonly users: Repository<User>) {}
+  constructor(private readonly users: UserRepository) {}
 
   findById(id: string): Promise<User | null> {
-    return this.users.findOne({ where: { id } });
+    return this.users.findById(id);
   }
 
-  /** Callers pass an already-lowercased address; see AuthService. */
   findByEmail(email: string): Promise<User | null> {
-    return this.users.findOne({ where: { email } });
+    return this.users.findByEmail(email);
   }
 
   create(data: Pick<User, 'name' | 'email' | 'passwordHash'>): Promise<User> {
-    return this.users.save(this.users.create(data));
+    return this.users.store(data);
   }
 
   /** Assigns only the keys the DTO actually carried, so omitting one window

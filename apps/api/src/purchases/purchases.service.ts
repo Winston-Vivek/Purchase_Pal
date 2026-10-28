@@ -1,8 +1,7 @@
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
 import { DatesService, InvalidDateError } from '../common/dates/dates.service';
 import { ErrorCode } from '../common/errors/error-codes';
+import { PurchaseRepository } from '../repositories/purchase/purchase.repository';
 import { User } from '../users/user.entity';
 import { CreatePurchaseDto } from './dto/create-purchase.dto';
 import { ListPurchasesDto } from './dto/list-purchases.dto';
@@ -20,7 +19,7 @@ interface DateState {
 @Injectable()
 export class PurchasesService {
   constructor(
-    @InjectRepository(Purchase) private readonly purchases: Repository<Purchase>,
+    private readonly purchases: PurchaseRepository,
     private readonly dates: DatesService,
   ) {}
 
@@ -32,7 +31,7 @@ export class PurchasesService {
       warrantyMonths: dto.warrantyMonths ?? null,
     });
 
-    const purchase = this.purchases.create({
+    return this.purchases.store({
       ...dto,
       price: dto.price.toFixed(2),
       currency: dto.currency ?? 'INR',
@@ -46,8 +45,6 @@ export class PurchasesService {
       attachments: [],
       serviceRecords: [],
     });
-
-    return this.purchases.save(purchase);
   }
 
   async list(
@@ -59,14 +56,11 @@ export class PurchasesService {
     page: number;
     pageSize: number;
   }> {
-    const [items, total] = await this.purchases.findAndCount({
-      where: { userId: user.id },
-      // One query with a join rather than a count per row (db-avoid-n-plus-one).
-      relations: { attachments: true },
-      order: { purchaseDate: 'DESC', createdAt: 'DESC' },
-      skip: (query.page - 1) * query.pageSize,
-      take: query.pageSize,
-    });
+    const { items, total } = await this.purchases.paginateForUser(
+      user.id,
+      query.page,
+      query.pageSize,
+    );
 
     return { items, total, page: query.page, pageSize: query.pageSize };
   }
@@ -74,12 +68,7 @@ export class PurchasesService {
   /** Every read is scoped by userId, so another user's row is simply not
    *  there — 404, never 403, so its existence stays hidden (BR-09). */
   async findOwned(user: User, id: string, withRelations = false): Promise<Purchase> {
-    const purchase = await this.purchases.findOne({
-      where: { id, userId: user.id },
-      relations: withRelations
-        ? { attachments: true, serviceRecords: true }
-        : { attachments: true },
-    });
+    const purchase = await this.purchases.findOwned(user.id, id, withRelations);
 
     if (!purchase) throw new NotFoundException('Purchase not found');
     return purchase;

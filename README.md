@@ -42,6 +42,10 @@ curl http://localhost:3000/api/v1/health
 # {"status":"ok","database":"up"}
 ```
 
+Interactive API documentation is at **http://localhost:3000/api/docs**, generated from
+the DTOs so it cannot drift from what the API actually accepts. It is not mounted when
+`NODE_ENV=production`.
+
 ### A note on the database port
 
 The container publishes Postgres on **5434**, not the usual 5432, because 5432 and 5433 are
@@ -117,7 +121,7 @@ Two decisions shape most of the code:
 ## Repository layout
 
 ```
-apps/api/      NestJS API — src/<feature>/, src/common/, src/database/, test/
+apps/api/      NestJS API — src/<feature>/, src/common/, src/repositories/, src/database/, test/
 apps/web/      Vue app (from Day 5)
 e2e/           Playwright journeys (from Day 6)
 docs/          requirements, plan, test plan, test cases, UAT, AI usage
