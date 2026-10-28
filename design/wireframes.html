@@ -1,0 +1,701 @@
+<title>Proofly Wireframes</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<style>
+/* Layout: review toolbar on top, one device frame below, review notes beside it (stacked on narrow screens).
+   Low-fidelity contract: grayscale, system type, borders only. Visual design lives in ui-guide.md. */
+:root {
+  --bg: #f3f4f6;
+  --panel: #ffffff;
+  --ink: #1c2028;
+  --ink-2: #545b67;
+  --line: #8b929d;
+  --line-2: #dfe2e7;
+  --fill: #eceef1;
+  --fill-2: #d6dae0;
+  --strong: #1c2028;
+  --on-strong: #ffffff;
+  --scrim: rgba(28, 32, 40, 0.45);
+  --f-ui: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --f-mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #14161a; --panel: #1c1f25; --ink: #e8eaee; --ink-2: #a5abb5; --line: #6c7380; --line-2: #2f333b;
+    --fill: #252930; --fill-2: #353a43; --strong: #e8eaee; --on-strong: #14161a; --scrim: rgba(0, 0, 0, 0.6);
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #14161a; --panel: #1c1f25; --ink: #e8eaee; --ink-2: #a5abb5; --line: #6c7380; --line-2: #2f333b;
+  --fill: #252930; --fill-2: #353a43; --strong: #e8eaee; --on-strong: #14161a; --scrim: rgba(0, 0, 0, 0.6);
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+body {
+  background: var(--bg); color: var(--ink); font: 15px/1.5 var(--f-ui);
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 16px 40px;
+}
+h1, h2, h3, h4 { margin: 0; line-height: 1.25; text-wrap: balance; }
+p { margin: 0; }
+a { color: inherit; }
+button, input, select, textarea { font: inherit; color: inherit; }
+:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+.num { font-variant-numeric: tabular-nums; }
+
+/* ---------- Review toolbar ---------- */
+.review { max-width: 1240px; margin: 0 auto 16px; display: grid; gap: 12px; grid-template-columns: minmax(0, 1fr); }
+.review-head { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 16px; }
+.review-head h1 { font-size: 20px; }
+.review-head p { color: var(--ink-2); font-size: 14px; }
+.controls { display: flex; flex-wrap: wrap; gap: 12px 20px; align-items: flex-end; }
+.ctl { display: grid; gap: 4px; min-width: 0; }
+.ctl-label { font: 600 11px/1 var(--f-mono); letter-spacing: 0.06em; text-transform: uppercase; color: var(--ink-2); }
+.seg { display: flex; flex-wrap: wrap; border: 1px solid var(--line); border-radius: 6px; overflow: hidden; background: var(--panel); }
+.seg button { border: 0; border-right: 1px solid var(--line-2); background: transparent; padding: 7px 12px; cursor: pointer; font-size: 14px; }
+.seg button:last-child { border-right: 0; }
+.seg button[aria-pressed="true"] { background: var(--strong); color: var(--on-strong); font-weight: 600; }
+.ctl select { padding: 7px 10px; border: 1px solid var(--line); border-radius: 6px; background: var(--panel); min-height: 36px; }
+.screens { flex: 1 1 100%; max-width: 100%; overflow-x: auto; }
+.screens .seg { flex-wrap: nowrap; width: max-content; }
+
+/* ---------- Stage ---------- */
+.stage { max-width: 1240px; margin: 0 auto; display: grid; gap: 16px; grid-template-columns: minmax(0, 1fr); }
+@media (min-width: 900px) { .notes { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); align-items: start; } .notes > h2 { grid-column: 1 / -1; } }
+.frame-wrap { min-width: 0; }
+.frame {
+  container: app / inline-size; position: relative; background: var(--panel);
+  border: 1px solid var(--line); border-radius: 8px; overflow: hidden; margin: 0 auto; width: 100%;
+}
+.frame.is-mobile { width: 360px; max-width: 100%; border-radius: 20px; }
+.frame-cap { font: 12px/1.4 var(--f-mono); color: var(--ink-2); text-align: center; margin-top: 8px; }
+.notes { background: var(--panel); border: 1px solid var(--line-2); border-radius: 8px; padding: 16px; display: grid; gap: 12px; font-size: 14px; }
+.notes h2 { font-size: 15px; }
+.notes .dir { border-left: 3px solid var(--strong); padding-left: 10px; }
+.notes ul { margin: 0; padding-left: 18px; display: grid; gap: 6px; }
+
+/* ---------- App shell (inside the frame) ---------- */
+.app { display: grid; grid-template-columns: minmax(0, 1fr); min-height: 640px; }
+.side { display: none; }
+.topbar { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 12px 16px; border-bottom: 1px solid var(--line-2); }
+.logo { font-weight: 700; letter-spacing: -0.01em; display: flex; align-items: center; gap: 8px; }
+.logo-mark { width: 22px; height: 22px; border: 2px solid var(--ink); border-radius: 5px; display: grid; place-items: center; font-size: 12px; }
+.content { padding: 16px; display: grid; gap: 24px; align-content: start; min-width: 0; }
+.bottom { position: sticky; bottom: 0; display: grid; grid-template-columns: repeat(4, 1fr); border-top: 1px solid var(--line-2); background: var(--panel); }
+.bottom a { display: grid; justify-items: center; gap: 2px; padding: 8px 4px 10px; text-decoration: none; font-size: 12px; color: var(--ink-2); min-height: 56px; }
+.bottom a[aria-current="page"] { color: var(--ink); font-weight: 700; }
+.bottom a[aria-current="page"] .ico { background: var(--fill-2); }
+.bottom .ico { width: 36px; height: 24px; border-radius: 12px; display: grid; place-items: center; }
+.bottom a.add .ico { background: var(--strong); color: var(--on-strong); }
+@container app (min-width: 1024px) {
+  .app { grid-template-columns: 220px minmax(0, 1fr); min-height: 720px; }
+  .side { display: flex; flex-direction: column; gap: 16px; padding: 20px 14px; border-right: 1px solid var(--line-2); }
+  .side nav { display: grid; gap: 2px; }
+  .side nav a { text-decoration: none; padding: 9px 10px 9px 12px; border-radius: 6px; border-left: 3px solid transparent; color: var(--ink-2); }
+  .side nav a[aria-current="page"] { border-left-color: var(--strong); background: var(--fill); color: var(--ink); font-weight: 600; }
+  .side-foot { margin-top: auto; font-size: 13px; color: var(--ink-2); display: grid; gap: 4px; }
+  .topbar, .bottom { display: none; }
+  .content { padding: 28px 32px; gap: 32px; }
+}
+
+/* ---------- Primitives ---------- */
+.ph { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; }
+.ph h2 { font-size: 22px; }
+.ph p { color: var(--ink-2); font-size: 14px; }
+.sec { display: grid; gap: 12px; min-width: 0; }
+.sec-h { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; flex-wrap: wrap; }
+.sec-h h3 { font-size: 16px; }
+.sec-h a { font-size: 14px; }
+.box { border: 1px solid var(--line-2); border-radius: 8px; background: var(--panel); }
+.pad { padding: 16px; }
+.muted { color: var(--ink-2); }
+.small { font-size: 13px; }
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 6px; min-height: 44px; padding: 0 16px;
+  border-radius: 8px; border: 1px solid var(--line); background: var(--panel); cursor: pointer; text-decoration: none; font-weight: 600; font-size: 14px; white-space: nowrap;
+}
+.btn.primary { background: var(--strong); color: var(--on-strong); border-color: var(--strong); }
+.btn.danger { background: var(--panel); border: 2px solid var(--strong); }
+.btn.ghost { border-color: transparent; text-decoration: underline; text-underline-offset: 3px; }
+.btn.sm { min-height: 36px; padding: 0 12px; font-size: 13px; }
+.only-wide { display: none; }
+@container app (min-width: 1024px) { .only-wide { display: inline-flex; } .only-narrow { display: none !important; } }
+
+/* Badges: wireframe stand-ins. Meaning is in the words; shape differs per status. */
+.badge { display: inline-flex; align-items: center; gap: 5px; padding: 2px 8px; border-radius: 999px; font-size: 12.5px; font-weight: 600; line-height: 1.5; max-width: 100%; }
+.badge svg { flex: none; }
+.b-ok { border: 1px solid var(--line); }
+.b-warn { background: var(--fill-2); border: 1px solid var(--fill-2); }
+.b-bad { background: var(--strong); color: var(--on-strong); border: 1px solid var(--strong); }
+.b-none { border: 1px dashed var(--line); color: var(--ink-2); font-weight: 500; }
+.badges { display: flex; flex-wrap: wrap; gap: 6px; }
+
+/* Stats */
+.stats { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+@container app (min-width: 768px) { .stats { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
+.stat { border: 1px solid var(--line-2); border-radius: 8px; padding: 12px 14px; display: grid; gap: 2px; text-decoration: none; }
+.stat b { font-size: 26px; line-height: 1.2; font-variant-numeric: tabular-nums; }
+.stat span { font-size: 13px; color: var(--ink-2); }
+.stat.hot { border: 2px solid var(--strong); }
+
+/* Rows */
+.rows { display: grid; border: 1px solid var(--line-2); border-radius: 8px; overflow: hidden; }
+.row { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 4px 12px; align-items: center; padding: 12px 14px; border-top: 1px solid var(--line-2); text-decoration: none; cursor: pointer; }
+.row:first-child { border-top: 0; }
+.row:hover { background: var(--fill); }
+.row .t { font-weight: 600; min-width: 0; }
+.row .m { grid-column: 1; font-size: 13px; color: var(--ink-2); }
+.row .badges { grid-column: 2; grid-row: 1 / span 2; justify-content: flex-end; }
+@container app (max-width: 520px) { .row { grid-template-columns: minmax(0, 1fr); } .row .badges { grid-column: 1; grid-row: auto; justify-content: flex-start; } }
+.two { display: grid; gap: 24px; grid-template-columns: minmax(0, 1fr); }
+@container app (min-width: 1024px) { .two { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+
+/* Timeline (dashboard B) */
+.tl-layout { display: grid; gap: 24px; grid-template-columns: minmax(0, 1fr); }
+@container app (min-width: 1024px) { .tl-layout { grid-template-columns: minmax(0, 1fr) 220px; } }
+.rail { display: flex; gap: 10px; overflow-x: auto; padding-bottom: 4px; }
+@container app (min-width: 1024px) { .rail { flex-direction: column; overflow: visible; } }
+.rail .stat { min-width: 140px; }
+.tl { display: grid; gap: 20px; }
+.tl-group { display: grid; grid-template-columns: 14px minmax(0, 1fr); gap: 0 12px; }
+.tl-dot { width: 12px; height: 12px; border: 2px solid var(--ink); border-radius: 50%; margin-top: 4px; background: var(--panel); }
+.tl-group.now .tl-dot { background: var(--strong); }
+.tl-line { grid-column: 1; width: 2px; background: var(--line-2); justify-self: center; }
+.tl-body { display: grid; gap: 8px; grid-row: span 2; }
+.tl-body h3 { font-size: 15px; }
+
+/* Table / cards */
+.toolbar { display: grid; gap: 10px; grid-template-columns: minmax(0, 1fr); }
+@container app (min-width: 768px) { .toolbar { grid-template-columns: minmax(0, 2fr) repeat(4, minmax(0, 1fr)); align-items: end; } }
+.field { display: grid; gap: 6px; min-width: 0; grid-template-columns: minmax(0, 1fr); }
+.num-row { display: flex; gap: 8px; align-items: center; }
+.field .num-row input { width: 120px; flex: none; }
+.field label, .field .lbl { font-weight: 600; font-size: 14px; }
+.field .hint { font-size: 13px; color: var(--ink-2); }
+.field input, .field select, .field textarea {
+  width: 100%; min-height: 44px; padding: 8px 12px; border: 1px solid var(--line); border-radius: 6px; background: var(--panel);
+}
+.field textarea { min-height: 80px; resize: vertical; }
+.field .err { font-size: 13px; font-weight: 600; display: flex; gap: 6px; align-items: flex-start; }
+.field [aria-invalid="true"] { border: 2px solid var(--strong); }
+.filters-mini { display: flex; gap: 8px; }
+.chips { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.chip { display: inline-flex; gap: 6px; align-items: center; border: 1px solid var(--line); border-radius: 999px; padding: 3px 6px 3px 12px; font-size: 13px; background: var(--panel); }
+.chip button { border: 0; background: var(--fill); border-radius: 50%; width: 24px; height: 24px; cursor: pointer; }
+.tbl-wrap { display: none; overflow-x: auto; border: 1px solid var(--line-2); border-radius: 8px; }
+.cards { display: grid; gap: 10px; }
+@container app (min-width: 768px) { .tbl-wrap { display: block; } .cards { display: none; } }
+table { width: 100%; border-collapse: collapse; font-size: 14px; }
+th { text-align: left; font-size: 12px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--ink-2); background: var(--fill); padding: 10px 12px; white-space: nowrap; }
+td { padding: 12px; border-top: 1px solid var(--line-2); vertical-align: top; }
+td a { font-weight: 600; }
+tr:hover td { background: var(--fill); }
+.card { border: 1px solid var(--line-2); border-radius: 8px; padding: 12px 14px; display: grid; gap: 8px; text-decoration: none; }
+.card .top { display: flex; justify-content: space-between; gap: 8px; }
+.card .top b { min-width: 0; }
+.pager { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; font-size: 14px; }
+
+/* Skeleton */
+.sk { background: var(--fill); border-radius: 6px; height: 14px; }
+.sk.h { height: 56px; }
+
+/* Empty / message blocks */
+.empty { border: 1px dashed var(--line); border-radius: 8px; padding: 28px 20px; text-align: center; display: grid; gap: 10px; justify-items: center; }
+.empty h3 { font-size: 16px; }
+.banner { border: 2px solid var(--strong); border-radius: 8px; padding: 12px 14px; display: flex; flex-wrap: wrap; gap: 10px 16px; align-items: center; justify-content: space-between; }
+.banner p { min-width: 0; flex: 1 1 220px; }
+
+/* Details */
+.dhead { display: grid; gap: 12px; }
+.crumb { font-size: 13px; color: var(--ink-2); }
+.dhead-top { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 12px; align-items: flex-start; }
+.dhead-top h2 { font-size: 22px; min-width: 0; }
+.facts { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px 16px; margin: 0; }
+@container app (min-width: 768px) { .facts { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
+.facts dt { font-size: 12px; color: var(--ink-2); text-transform: uppercase; letter-spacing: 0.05em; }
+.facts dd { margin: 0; font-weight: 600; }
+.panels { display: grid; gap: 12px; grid-template-columns: minmax(0, 1fr); }
+@container app (min-width: 768px) { .panels { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+.panel { border: 1px solid var(--line-2); border-radius: 8px; padding: 14px 16px; display: grid; gap: 8px; align-content: start; }
+.panel h3 { font-size: 15px; }
+.panel .big { font-size: 20px; font-weight: 700; font-variant-numeric: tabular-nums; }
+.panel.urgent { border: 2px solid var(--strong); }
+.jump { display: flex; gap: 8px; overflow-x: auto; position: sticky; top: 0; background: var(--panel); padding: 8px 0; z-index: 1; border-bottom: 1px solid var(--line-2); }
+.jump a { white-space: nowrap; border: 1px solid var(--line); border-radius: 999px; padding: 4px 12px; font-size: 13px; text-decoration: none; }
+.files { display: grid; border: 1px solid var(--line-2); border-radius: 8px; }
+.file { display: grid; grid-template-columns: 36px minmax(0, 1fr) auto; gap: 4px 12px; align-items: center; padding: 10px 12px; border-top: 1px solid var(--line-2); }
+.file:first-child { border-top: 0; }
+.file .fi { width: 36px; height: 44px; border: 1px solid var(--line); border-radius: 4px; display: grid; place-items: center; font: 600 10px var(--f-mono); }
+.file .fn { font-weight: 600; overflow-wrap: anywhere; }
+.file .acts { display: flex; gap: 4px; }
+@container app (max-width: 520px) { .file { grid-template-columns: 36px minmax(0, 1fr); } .file .acts { grid-column: 2; margin-left: -12px; } }
+.svc { display: grid; gap: 0; border-left: 2px solid var(--line-2); margin-left: 6px; }
+.svc-item { position: relative; padding: 0 0 16px 18px; display: grid; gap: 2px; }
+.svc-item::before { content: ""; position: absolute; left: -7px; top: 5px; width: 12px; height: 12px; border-radius: 50%; border: 2px solid var(--ink); background: var(--panel); }
+.svc-item .when { font-size: 13px; color: var(--ink-2); }
+.tabs { display: flex; border-bottom: 1px solid var(--line-2); gap: 4px; }
+.tabs button { border: 0; background: none; padding: 10px 12px; cursor: pointer; border-bottom: 3px solid transparent; font-weight: 600; color: var(--ink-2); min-height: 44px; }
+.tabs button[aria-selected="true"] { border-bottom-color: var(--strong); color: var(--ink); }
+.danger-zone { border: 1px dashed var(--line); border-radius: 8px; padding: 14px 16px; display: flex; flex-wrap: wrap; gap: 12px; justify-content: space-between; align-items: center; }
+.danger-zone p { flex: 1 1 220px; min-width: 0; }
+
+/* Forms */
+.form { display: grid; gap: 24px; max-width: 640px; width: 100%; }
+fieldset { border: 1px solid var(--line-2); border-radius: 8px; padding: 14px 16px 16px; margin: 0; display: grid; gap: 14px; min-width: 0; }
+legend { font-weight: 700; padding: 0 6px; }
+.grid2 { display: grid; gap: 14px; grid-template-columns: minmax(0, 1fr); }
+@container app (min-width: 560px) { .grid2 { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+.choice { display: grid; gap: 8px; }
+.choice label { display: flex; gap: 10px; align-items: center; min-height: 44px; padding: 0 12px; border: 1px solid var(--line-2); border-radius: 6px; cursor: pointer; font-weight: 500; }
+.choice input { width: 18px; height: 18px; }
+.preview { background: var(--fill); border-radius: 6px; padding: 10px 12px; font-size: 14px; }
+.drop { border: 2px dashed var(--line); border-radius: 8px; padding: 20px; display: grid; gap: 8px; justify-items: center; text-align: center; }
+.errsum { border: 2px solid var(--strong); border-radius: 8px; padding: 14px 16px; display: grid; gap: 8px; }
+.errsum h3 { font-size: 15px; }
+.errsum ul { margin: 0; padding-left: 18px; }
+.actions { display: flex; gap: 10px; justify-content: flex-end; flex-wrap: wrap; }
+.sticky-actions { position: sticky; bottom: 0; background: var(--panel); border-top: 1px solid var(--line-2); padding: 12px 0; }
+.inline-num { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 8px; }
+
+/* Overlay (dialogs) */
+.overlay { position: absolute; inset: 0; background: var(--scrim); display: grid; place-items: center; padding: 16px; z-index: 5; }
+.dialog { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; width: 100%; max-width: 480px; max-height: 100%; overflow: auto; padding: 18px; display: grid; gap: 16px; }
+.dialog h2 { font-size: 18px; }
+.toast { position: absolute; left: 50%; transform: translateX(-50%); bottom: 72px; background: var(--strong); color: var(--on-strong); border-radius: 8px; padding: 10px 16px; font-weight: 600; font-size: 14px; z-index: 6; white-space: nowrap; }
+@container app (min-width: 1024px) { .toast { bottom: 24px; } }
+
+/* Auth */
+.auth { min-height: 640px; display: grid; place-items: center; padding: 24px 16px; }
+.auth-card { width: 100%; max-width: 400px; display: grid; gap: 18px; }
+.auth-card .box { padding: 20px; display: grid; gap: 14px; }
+.demo { font-size: 13px; color: var(--ink-2); border-top: 1px solid var(--line-2); padding-top: 12px; }
+.demo code { font-family: var(--f-mono); }
+</style>
+
+<section class="review" aria-label="Wireframe review controls">
+  <div class="review-head">
+    <h1>Proofly wireframes</h1>
+    <p>Step 2 · low fidelity · structure, content and flow only. Colours, fonts and polish come from the UI guide.</p>
+  </div>
+  <div class="controls">
+    <div class="ctl screens">
+      <span class="ctl-label" id="lbl-screen">Screen</span>
+      <div class="seg" id="screenSeg" role="group" aria-labelledby="lbl-screen"></div>
+    </div>
+    <div class="ctl" id="dirCtl">
+      <span class="ctl-label" id="lbl-dir">Direction</span>
+      <div class="seg" id="dirSeg" role="group" aria-labelledby="lbl-dir"></div>
+    </div>
+    <div class="ctl">
+      <label class="ctl-label" for="stateSel">State</label>
+      <select id="stateSel"></select>
+    </div>
+    <div class="ctl">
+      <span class="ctl-label" id="lbl-vp">Viewport</span>
+      <div class="seg" id="vpSeg" role="group" aria-labelledby="lbl-vp">
+        <button type="button" data-vp="desktop" aria-pressed="true">Desktop</button>
+        <button type="button" data-vp="mobile" aria-pressed="false">Mobile 360</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="stage">
+  <div class="frame-wrap">
+    <div class="frame" id="frame" aria-live="polite"></div>
+    <p class="frame-cap" id="frameCap"></p>
+  </div>
+  <aside class="notes" id="notes" aria-label="Review notes"></aside>
+</div>
+
+<script>
+(function () {
+  // ---------- Icons (outline, Lucide-style shapes) ----------
+  const ic = {
+    ok: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="m8 12 3 3 5-6"/></svg>',
+    warn: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path d="M12 3 2 20h20L12 3z"/><path d="M12 10v4M12 17h.01"/></svg>',
+    bad: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="m9 9 6 6M15 9l-6 6"/></svg>',
+    none: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M8 12h8"/></svg>',
+    nofile: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path d="M14 3H6v18h12V7z"/><path d="m10 12 4 4M14 12l-4 4"/></svg>',
+    home: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M3 11 12 4l9 7v9H3z"/></svg>',
+    list: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></svg>',
+    plus: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>',
+    gear: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M5 5l2 2M17 17l2 2M5 19l2-2M17 7l2-2"/></svg>',
+    alert: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16h.01"/></svg>'
+  };
+  const B = (k, t) => `<span class="badge b-${k}">${ic[k === 'miss' ? 'nofile' : k]}${t}</span>`;
+  const miss = () => `<span class="badge b-warn">${ic.nofile}Receipt missing</span>`;
+
+  // ---------- Sample data (today = 27 Oct 2026, Asia/Kolkata; default alerts 30 / 7 days) ----------
+  const P = [
+    { name: 'AirPods Pro (2nd generation)', cat: 'Electronics', seller: 'Amazon', price: '₹24,900.00', date: '27 Oct 2026', ret: ['warn', 'Return closes in 7 days'], war: ['ok', 'Covered · 364 days left'], receipt: true },
+    { name: 'Nike Pegasus 41 running shoes', cat: 'Fashion', seller: 'Myntra', price: '₹11,895.00', date: '24 Oct 2026', ret: ['warn', 'Return closes in 4 days'], war: ['none', 'No warranty'], receipt: false },
+    { name: 'Philips Air Fryer HD9252', cat: 'Home & Kitchen', seller: 'Flipkart', price: '₹8,499.00', date: '12 Oct 2026', ret: ['bad', 'Return closed 22 Oct 2026'], war: ['ok', 'Covered · 715 days left'], receipt: true },
+    { name: 'iPhone 15 (128 GB)', cat: 'Mobile', seller: 'Apple Store BKC', price: '₹69,900.00', date: '15 Jan 2026', ret: ['none', 'No return window'], war: ['ok', 'Covered · 79 days left'], receipt: true },
+    { name: 'Samsung 1.5 Ton Inverter Split AC', cat: 'Appliances', seller: 'Croma', price: '₹42,990.00', date: '2 Nov 2025', ret: ['none', 'No return window'], war: ['warn', 'Warranty ends in 5 days'], receipt: true },
+    { name: 'Dell XPS 13 laptop', cat: 'Electronics', seller: 'Dell.com', price: '₹1,24,990.00', date: '10 Mar 2025', ret: ['none', 'No return window'], war: ['ok', 'Covered · 133 days left'], receipt: true },
+    { name: 'LG 8 kg Front Load Washing Machine', cat: 'Appliances', seller: 'Reliance Digital', price: '₹36,490.00', date: '20 Oct 2024', ret: ['none', 'No return window'], war: ['bad', 'Warranty ended 19 Oct 2026'], receipt: true }
+  ];
+  const needs = [
+    { name: 'Nike Pegasus 41 running shoes', what: 'Return', date: '31 Oct 2026', b: ['warn', 'Return closes in 4 days'], extra: true },
+    { name: 'Samsung 1.5 Ton Inverter Split AC', what: 'Warranty', date: '1 Nov 2026', b: ['warn', 'Warranty ends in 5 days'] },
+    { name: 'AirPods Pro (2nd generation)', what: 'Return', date: '3 Nov 2026', b: ['warn', 'Return closes in 7 days'] }
+  ];
+  const expired = [
+    { name: 'Philips Air Fryer HD9252', what: 'Return', date: '22 Oct 2026', b: ['bad', 'Return closed 22 Oct 2026'] },
+    { name: 'LG 8 kg Front Load Washing Machine', what: 'Warranty', date: '19 Oct 2026', b: ['bad', 'Warranty ended 19 Oct 2026'] }
+  ];
+  const later = [
+    { name: 'iPhone 15 (128 GB)', what: 'Warranty', date: '14 Jan 2027', b: ['ok', 'Covered · 79 days left'] },
+    { name: 'Dell XPS 13 laptop', what: 'Warranty', date: '9 Mar 2027', b: ['ok', 'Covered · 133 days left'] }
+  ];
+
+  // ---------- Screen registry ----------
+  const SCREENS = [
+    { id: 'signin', label: 'Sign in', states: ['Sign in', 'Create account', 'Wrong password'] },
+    { id: 'dashboard', label: 'Dashboard', states: ['With data', 'New user (empty)', 'Loading'], dirs: [
+      { id: 'A', name: 'A · Action list first', why: 'Fastest path to what needs doing now. Less sense of what is coming in later months.' },
+      { id: 'B', name: 'B · Deadline timeline', why: 'Shows everything coming up, grouped by when. Urgent items share the screen with later ones.' } ] },
+    { id: 'purchases', label: 'My purchases', states: ['With data', 'Empty', 'No results', 'Loading', 'Load error'] },
+    { id: 'details', label: 'Purchase details', states: ['Default', 'Receipt missing', 'Delete confirm'], dirs: [
+      { id: 'A', name: 'A · Single page', why: 'Everything is visible by scrolling, with a jump row on mobile. Longest page on a phone.' },
+      { id: 'B', name: 'B · Tabs', why: 'Shorter page; receipts and service history sit in tabs under the deadlines. One extra tap to see the other section.' } ] },
+    { id: 'add-purchase', label: 'Add / Edit', states: ['New purchase', 'Edit purchase', 'Validation errors'] },
+    { id: 'service-dialog', label: 'Service record', states: ['Add record', 'Edit record'] },
+    { id: 'alert-settings', label: 'Settings', states: ['Default', 'Saved'] }
+  ];
+  const NOTES = {
+    signin: ['Demo accounts are listed under the form in demo builds only.', 'Wrong credentials give one message that never says which field was wrong.'],
+    dashboard: ['Every deadline row opens Purchase details.', 'Counts link to My purchases with that filter applied.', 'Empty state names the next upcoming deadline when there is one.'],
+    purchases: ['Table from 768 px, cards below. Same data in both.', 'Default sort: newest first. Should it be nearest deadline instead?', 'Active filters show as removable chips.'],
+    details: ['Deadline panels show the date, how it was worked out, and days left.', 'Delete sits in a separate section at the bottom, not beside Edit.', 'Receipt missing shows a banner with an upload action.'],
+    'add-purchase': ['Return is a three-way choice: window in days, exact last date, or none.', 'Warranty start defaults to the purchase date.', 'Live preview shows the computed dates before saving.', 'On a failed save, focus moves to the error summary and all values stay.'],
+    'service-dialog': ['Date defaults to today; cost is optional.', 'Focus stays inside the dialog; Esc closes it and returns focus to the button that opened it.'],
+    'alert-settings': ['Ranges come from the locked requirements: 1–365 and 1–60 days.', 'New windows apply to statuses and the dashboard as soon as you save.']
+  };
+
+  const st = { screen: 'dashboard', dir: { dashboard: 'A', details: 'A' }, state: {}, vp: 'desktop', tab: 'receipts' };
+  SCREENS.forEach(s => (st.state[s.id] = s.states[0]));
+
+  // ---------- Shell ----------
+  const NAV = [
+    { id: 'dashboard', label: 'Dashboard', ico: 'home' },
+    { id: 'purchases', label: 'Purchases', ico: 'list' },
+    { id: 'add-purchase', label: 'Add', ico: 'plus', add: true },
+    { id: 'alert-settings', label: 'Settings', ico: 'gear' }
+  ];
+  function shell(active, inner, overlay) {
+    const cur = id => (id === active ? ' aria-current="page"' : '');
+    return `<div class="app">
+      <aside class="side" aria-label="Main navigation">
+        <div class="logo"><span class="logo-mark">P</span>Proofly</div>
+        <a class="btn primary" href="#add-purchase">${ic.plus}Add purchase</a>
+        <nav>
+          <a href="#dashboard"${cur('dashboard')}>Dashboard</a>
+          <a href="#purchases"${cur('purchases')}>My purchases</a>
+          <a href="#alert-settings"${cur('alert-settings')}>Settings</a>
+        </nav>
+        <div class="side-foot"><span>Winston</span><a href="#signin">Sign out</a></div>
+      </aside>
+      <header class="topbar">
+        <div class="logo"><span class="logo-mark">P</span>Proofly</div>
+        <span class="small muted">Winston</span>
+      </header>
+      <main class="content">${inner}</main>
+      <nav class="bottom" aria-label="Main navigation">
+        ${NAV.map(n => `<a href="#${n.id}"${cur(n.id)} class="${n.add ? 'add' : ''}"><span class="ico">${ic[n.ico]}</span>${n.label}</a>`).join('')}
+      </nav>
+    </div>${overlay || ''}`;
+  }
+
+  const drow = r => `<a class="row" href="#details"><span class="t">${r.name}</span><span class="m">${r.what} · ${r.date}</span><span class="badges">${B(...r.b)}${r.extra ? miss() : ''}</span></a>`;
+  const ph = (title, sub, action) => `<div class="ph"><div><h2>${title}</h2>${sub ? `<p>${sub}</p>` : ''}</div>${action || ''}</div>`;
+  const addBtn = '<a class="btn primary only-wide" href="#add-purchase">' + ic.plus + 'Add purchase</a>';
+  const skel = n => `<div class="rows">${Array.from({ length: n }, () => '<div class="row" aria-hidden="true"><span class="sk" style="width:60%"></span><span class="sk" style="width:110px"></span></div>').join('')}</div>`;
+
+  // ---------- Screens ----------
+  function signin() {
+    const s = st.state.signin;
+    const reg = s === 'Create account';
+    return `<div class="auth"><div class="auth-card">
+      <div style="display:grid;gap:6px;justify-items:center;text-align:center">
+        <div class="logo" style="font-size:20px"><span class="logo-mark">P</span>Proofly</div>
+        <p class="muted">Every receipt, return and warranty in one place.</p>
+      </div>
+      <form class="box" id="authForm" novalidate>
+        <h2 style="font-size:18px">${reg ? 'Create your account' : 'Sign in'}</h2>
+        ${s === 'Wrong password' ? `<div class="banner" role="alert"><p><b>Email or password is incorrect.</b> Check both and try again.</p></div>` : ''}
+        ${reg ? `<div class="field"><label for="a-name">Name</label><input id="a-name" autocomplete="name" value="Winston"></div>` : ''}
+        <div class="field"><label for="a-email">Email</label><input id="a-email" type="email" autocomplete="email" value="demo@proofly.test"></div>
+        <div class="field"><label for="a-pw">Password</label><input id="a-pw" type="password" autocomplete="${reg ? 'new-password' : 'current-password'}" value="demo1234">${reg ? '<span class="hint">8–72 characters, with at least one letter and one number.</span>' : ''}</div>
+        <button class="btn primary" type="submit">${reg ? 'Create account' : 'Sign in'}</button>
+        <p class="small muted" style="text-align:center">${reg ? 'Already have an account? <a href="#signin" data-state="Sign in">Sign in</a>' : 'New here? <a href="#signin" data-state="Create account">Create an account</a>'}</p>
+        <p class="demo">Demo build: <code>demo@proofly.test</code> / <code>demo1234</code></p>
+      </form>
+    </div></div>`;
+  }
+
+  function dashboard() {
+    const s = st.state.dashboard, d = st.dir.dashboard;
+    const head = ph('Dashboard', 'Tuesday, 27 Oct 2026', addBtn);
+    if (s === 'New user (empty)') {
+      return shell('dashboard', head + `<div class="empty"><h3>Add your first purchase</h3><p class="muted">Save the receipt and Proofly will tell you before the return window or warranty runs out.</p><a class="btn primary" href="#add-purchase">${ic.plus}Add purchase</a></div>`);
+    }
+    if (s === 'Loading') {
+      return shell('dashboard', head + `<div class="stats">${'<div class="stat" aria-hidden="true"><span class="sk h"></span></div>'.repeat(4)}</div><div class="sec"><div class="sk" style="width:140px"></div>${skel(3)}</div>`);
+    }
+    const stats = [['7', 'Total purchases', 'purchases'], ['5', 'Covered by warranty', 'purchases'], ['2', 'Returns open', 'purchases'], ['3', 'Need action', 'purchases', true]];
+    if (d === 'A') {
+      return shell('dashboard', head + `
+        <div class="stats">${stats.map(x => `<a class="stat${x[3] ? ' hot' : ''}" href="#${x[2]}"><b>${x[0]}</b><span>${x[1]}</span></a>`).join('')}</div>
+        <section class="sec" aria-labelledby="na"><div class="sec-h"><h3 id="na">Needs action · 3</h3><span class="small muted">Soonest first</span></div><div class="rows">${needs.map(drow).join('')}</div></section>
+        <div class="two">
+          <section class="sec" aria-labelledby="re"><div class="sec-h"><h3 id="re">Recently expired</h3><span class="small muted">Last 30 days</span></div><div class="rows">${expired.map(drow).join('')}</div></section>
+          <section class="sec" aria-labelledby="rp"><div class="sec-h"><h3 id="rp">Recent purchases</h3><a href="#purchases">View all</a></div><div class="rows">${P.slice(0, 5).map(p => `<a class="row" href="#details"><span class="t">${p.name}</span><span class="m num">${p.date} · ${p.price}</span><span class="badges">${p.receipt ? '' : miss()}</span></a>`).join('')}</div></section>
+        </div>`);
+    }
+    const group = (title, items, emptyMsg, now) => `<div class="tl-group${now ? ' now' : ''}"><span class="tl-dot" aria-hidden="true"></span><div class="tl-body"><h3>${title}</h3>${items.length ? `<div class="rows">${items.map(drow).join('')}</div>` : `<p class="small muted">${emptyMsg}</p>`}</div><span class="tl-line" aria-hidden="true"></span></div>`;
+    return shell('dashboard', head + `
+      <div class="tl-layout">
+        <div class="tl" aria-label="Deadlines by date">
+          ${group('Today', [], 'Nothing closes today.', true)}
+          ${group('Next 7 days · 3', needs, '')}
+          ${group('Next 30 days', [], 'Nothing else in the next 30 days.')}
+          ${group('Later', later, '')}
+          ${group('Recently expired', expired, '')}
+        </div>
+        <aside class="rail" aria-label="Summary">${stats.map(x => `<a class="stat${x[3] ? ' hot' : ''}" href="#${x[2]}"><b>${x[0]}</b><span>${x[1]}</span></a>`).join('')}</aside>
+      </div>`);
+  }
+
+  function purchases() {
+    const s = st.state.purchases;
+    const head = ph('My purchases', s === 'With data' ? '7 purchases' : (s === 'No results' ? '0 of 7 purchases' : ''), addBtn);
+    const sel = (id, label, opts, v) => `<div class="field"><label for="${id}">${label}</label><select id="${id}">${opts.map(o => `<option${o === v ? ' selected' : ''}>${o}</option>`).join('')}</select></div>`;
+    const nr = s === 'No results';
+    const tools = `<div class="toolbar" role="search">
+      <div class="field"><label for="q">Search</label><input id="q" type="search" placeholder="Product, seller or notes" value="${nr ? 'mixer' : ''}"></div>
+      ${sel('f-cat', 'Category', ['All', 'Electronics', 'Appliances', 'Mobile', 'Fashion', 'Home & Kitchen'], nr ? 'Appliances' : 'All')}
+      ${sel('f-ret', 'Return', ['Any', 'Closing soon', 'Open', 'Closed', 'No return window'], 'Any')}
+      ${sel('f-war', 'Warranty', ['Any', 'Ending soon', 'Covered', 'Ended', 'No warranty'], 'Any')}
+      ${sel('f-sort', 'Sort', ['Newest first', 'Nearest deadline', 'Price: high to low', 'Price: low to high'], 'Newest first')}
+    </div>`;
+    if (s === 'Empty') return shell('purchases', head + `<div class="empty"><h3>No purchases yet</h3><p class="muted">Add a purchase and attach its receipt to start tracking returns and warranties.</p><a class="btn primary" href="#add-purchase">${ic.plus}Add purchase</a></div>`);
+    if (s === 'Loading') return shell('purchases', head + tools + skel(5));
+    if (s === 'Load error') return shell('purchases', head + tools + `<div class="banner" role="alert"><p><b>Couldn't load your purchases.</b> Check your connection and try again.</p><button class="btn sm" type="button">Try again</button></div>`);
+    if (nr) return shell('purchases', head + tools + `<div class="chips"><span class="chip">Search: “mixer”<button type="button" aria-label="Remove search">×</button></span><span class="chip">Category: Appliances<button type="button" aria-label="Remove category filter">×</button></span><a href="#purchases" class="small" data-state="With data">Clear all</a></div><div class="empty"><h3>No purchases match</h3><p class="muted">Nothing matches “mixer” in Appliances. Try another word or clear the filters.</p><a class="btn" href="#purchases" data-state="With data">Clear filters</a></div>`);
+    const table = `<div class="tbl-wrap"><table><thead><tr><th scope="col">Product</th><th scope="col">Purchased</th><th scope="col">Price</th><th scope="col">Return</th><th scope="col">Warranty</th><th scope="col">Receipt</th></tr></thead><tbody>
+      ${P.map(p => `<tr><td><a href="#details">${p.name}</a><div class="small muted">${p.cat} · ${p.seller}</div></td><td class="num">${p.date}</td><td class="num">${p.price}</td><td>${B(...p.ret)}</td><td>${B(...p.war)}</td><td>${p.receipt ? 'Attached' : miss()}</td></tr>`).join('')}
+    </tbody></table></div>`;
+    const cards = `<div class="cards">${P.map(p => `<a class="card" href="#details"><div class="top"><b>${p.name}</b><span class="num small">${p.price}</span></div><span class="small muted">${p.cat} · ${p.seller} · ${p.date}</span><span class="badges">${p.ret[0] !== 'none' ? B(...p.ret) : ''}${B(...p.war)}${p.receipt ? '' : miss()}</span></a>`).join('')}</div>`;
+    return shell('purchases', head + tools + table + cards + `<div class="pager"><span class="muted">Showing 1–7 of 7</span><span class="filters-mini"><button class="btn sm" type="button" disabled aria-disabled="true">Previous</button><button class="btn sm" type="button" disabled aria-disabled="true">Next</button></span></div>`);
+  }
+
+  function detailsBody(overlay) {
+    const s = st.state.details, d = st.dir.details;
+    const missing = s === 'Receipt missing';
+    const head = `<div class="dhead">
+      <a class="crumb" href="#purchases">← My purchases</a>
+      <div class="dhead-top"><div style="min-width:0"><h2>Samsung 1.5 Ton Inverter Split AC</h2><p class="muted small">Appliances · Croma</p></div><a class="btn" href="#add-purchase" data-state="Edit purchase">Edit</a></div>
+      <dl class="facts"><div><dt>Price</dt><dd class="num">₹42,990.00</dd></div><div><dt>Purchased</dt><dd class="num">2 Nov 2025</dd></div><div><dt>Receipts</dt><dd>${missing ? 'None' : '2 files'}</dd></div><div><dt>Service visits</dt><dd>2</dd></div></dl>
+    </div>`;
+    const panels = `<div class="panels">
+      <section class="panel" aria-labelledby="p-ret"><h3 id="p-ret">Return</h3>${B('none', 'No return window')}<p class="small muted">No return window was recorded for this purchase.</p></section>
+      <section class="panel urgent" aria-labelledby="p-war"><h3 id="p-war">Warranty</h3>${B('warn', 'Warranty ends in 5 days')}<p class="big">1 Nov 2026</p><p class="small muted">12 months from 2 Nov 2025 · last covered day included</p></section>
+    </div>`;
+    const banner = missing ? `<div class="banner"><p><b>Receipt missing.</b> Upload the invoice now so it is ready if you need to claim the warranty.</p><button class="btn primary sm" type="button">Upload receipt</button></div>` : '';
+    const files = missing
+      ? `<div class="empty"><p class="muted">No receipts yet. PDF, JPG, PNG or WEBP, up to 5 MB each, 5 files max.</p><button class="btn sm" type="button">Upload receipt</button></div>`
+      : `<div class="files">
+          <div class="file"><span class="fi">PDF</span><div style="min-width:0"><div class="fn">Croma-invoice-INV-88213.pdf</div><div class="small muted num">412 KB · added 2 Nov 2025</div></div><div class="acts"><button class="btn ghost sm" type="button">Download</button><button class="btn ghost sm" type="button" aria-label="Delete Croma-invoice-INV-88213.pdf">Delete</button></div></div>
+          <div class="file"><span class="fi">JPG</span><div style="min-width:0"><div class="fn">Samsung-warranty-card.jpg</div><div class="small muted num">1.8 MB · added 2 Nov 2025</div></div><div class="acts"><button class="btn ghost sm" type="button">Download</button><button class="btn ghost sm" type="button" aria-label="Delete Samsung-warranty-card.jpg">Delete</button></div></div>
+        </div><div><button class="btn sm" type="button">Upload another</button> <span class="small muted">2 of 5 files</span></div>`;
+    const svc = `<div class="svc">
+        <div class="svc-item"><span class="when num">15 Jun 2026 · Samsung authorised service · ₹2,450.00</span><b>Gas top-up and coil cleaning</b><span class="small muted">Cooling was weak in the bedroom unit.</span><span><a href="#service-dialog" data-state="Edit record" class="small">Edit</a></span></div>
+        <div class="svc-item"><span class="when num">4 Mar 2026 · Croma install team · ₹0.00</span><b>Free installation check</b><span><a href="#service-dialog" data-state="Edit record" class="small">Edit</a></span></div>
+      </div>`;
+    const recSec = `<section class="sec" id="sec-rec" aria-labelledby="h-rec"><div class="sec-h"><h3 id="h-rec">Receipts</h3></div>${files}</section>`;
+    const svcSec = `<section class="sec" id="sec-svc" aria-labelledby="h-svc"><div class="sec-h"><h3 id="h-svc">Service history</h3><a class="btn sm" href="#service-dialog" data-state="Add record">${ic.plus}Add service record</a></div>${svc}</section>`;
+    const danger = `<div class="danger-zone"><p><b>Delete this purchase</b><br><span class="small muted">Removes its receipts and service history too.</span></p><button class="btn danger sm" type="button" data-state="Delete confirm">Delete purchase</button></div>`;
+    let body;
+    if (d === 'A') {
+      body = head + `<nav class="jump only-narrow" aria-label="Jump to section"><a href="#details" data-jump="p-war">Warranty</a><a href="#details" data-jump="h-rec">Receipts</a><a href="#details" data-jump="h-svc">Service history</a></nav>` + banner + panels + recSec + svcSec + danger;
+    } else {
+      const t = st.tab;
+      body = head + banner + panels + `<div class="sec"><div class="tabs" role="tablist" aria-label="Purchase records">
+          <button type="button" role="tab" id="tab-rec" aria-selected="${t === 'receipts'}" aria-controls="tp" data-tab="receipts">Receipts (${missing ? 0 : 2})</button>
+          <button type="button" role="tab" id="tab-svc" aria-selected="${t === 'service'}" aria-controls="tp" data-tab="service">Service history (2)</button>
+        </div><div id="tp" role="tabpanel" aria-labelledby="${t === 'receipts' ? 'tab-rec' : 'tab-svc'}">${t === 'receipts' ? files : `<div class="sec"><div><a class="btn sm" href="#service-dialog" data-state="Add record">${ic.plus}Add service record</a></div>${svc}</div>`}</div></div>` + danger;
+    }
+    const confirm = s === 'Delete confirm' ? `<div class="overlay"><div class="dialog" role="alertdialog" aria-modal="true" aria-labelledby="cd-t" aria-describedby="cd-d">
+        <h2 id="cd-t">Delete Samsung 1.5 Ton Inverter Split AC?</h2>
+        <p id="cd-d">This also deletes its 2 receipts and 2 service records. You can't undo this.</p>
+        <div class="actions"><button class="btn" type="button" data-state="Default">Cancel</button><a class="btn danger" href="#purchases">Delete purchase</a></div>
+      </div></div>` : '';
+    return shell('purchases', body, overlay || confirm);
+  }
+
+  function addPurchase() {
+    const s = st.state['add-purchase'];
+    const edit = s === 'Edit purchase', errs = s === 'Validation errors';
+    const v = edit
+      ? { name: 'Samsung 1.5 Ton Inverter Split AC', cat: 'Appliances', seller: 'Croma', price: '42990', date: '2025-11-02', ret: 'none', w: true, ws: '2025-11-02', wl: '12' }
+      : { name: errs ? '' : 'AirPods Pro (2nd generation)', cat: 'Electronics', seller: 'Amazon', price: '24900', date: '2026-10-27', ret: 'days', w: true, ws: '2026-10-27', wl: errs ? '' : '12' };
+    const err = (on, id, msg) => (on ? `<span class="err" id="${id}">${ic.alert}${msg}</span>` : '');
+    const inv = on => (on ? ' aria-invalid="true"' : '');
+    const cats = ['Electronics', 'Appliances', 'Mobile', 'Furniture', 'Fashion', 'Vehicle', 'Home & Kitchen', 'Other'];
+    const retPrev = v.ret === 'none' ? 'No return window will be tracked.' : '<b>Return closes 3 Nov 2026</b> · in 7 days';
+    const warPrev = edit ? '<b>Warranty ends 1 Nov 2026</b> · in 5 days' : (errs ? 'Add the warranty length to see the end date.' : '<b>Warranty ends 26 Oct 2027</b> · in 364 days');
+    return shell('add-purchase', `${ph(edit ? 'Edit purchase' : 'Add purchase', edit ? '' : 'Only product, price and purchase date are required.')}
+      <form class="form" id="pform" novalidate>
+        ${errs ? `<div class="errsum" role="alert" tabindex="-1" id="errsum"><h3>Fix 2 problems to save</h3><ul><li><a href="#add-purchase" data-focus="f-name">Enter the product name</a></li><li><a href="#add-purchase" data-focus="f-wl">Enter how long the warranty lasts</a></li></ul></div>` : ''}
+        <fieldset><legend>Product</legend>
+          <div class="field"><label for="f-name">Product name</label><input id="f-name" value="${v.name}" placeholder="e.g. AirPods Pro (2nd generation)"${inv(errs)}${errs ? ' aria-describedby="e-name"' : ''}>${err(errs, 'e-name', 'Enter the product name')}</div>
+          <div class="grid2">
+            <div class="field"><label for="f-cat">Category</label><select id="f-cat">${cats.map(c => `<option${c === v.cat ? ' selected' : ''}>${c}</option>`).join('')}</select></div>
+            <div class="field"><label for="f-seller">Seller <span class="muted">(optional)</span></label><input id="f-seller" value="${v.seller}"></div>
+            <div class="field"><label for="f-price">Price</label><div class="inline-num"><input id="f-price" inputmode="decimal" value="${v.price}" aria-describedby="h-price"><select id="f-cur" aria-label="Currency"><option>INR ₹</option><option>USD $</option></select></div><span class="hint" id="h-price">Recorded as entered; not converted.</span></div>
+            <div class="field"><label for="f-date">Purchase date</label><input id="f-date" type="date" value="${v.date}" max="2026-10-27"></div>
+          </div>
+          <div class="field"><label for="f-notes">Notes <span class="muted">(optional)</span></label><textarea id="f-notes" placeholder="Order number, serial number, where it's installed"></textarea></div>
+        </fieldset>
+        <fieldset><legend>Return</legend>
+          <div class="choice" role="radiogroup" aria-label="Return rule">
+            <label><input type="radio" name="ret" value="days"${v.ret === 'days' ? ' checked' : ''}>Return window in days</label>
+            <label><input type="radio" name="ret" value="date">Exact last date</label>
+            <label><input type="radio" name="ret" value="none"${v.ret === 'none' ? ' checked' : ''}>No return</label>
+          </div>
+          ${v.ret === 'days' ? '<div class="field"><label for="f-rw">Days to return</label><input id="f-rw" type="number" min="0" max="365" value="7" style="max-width:160px"></div>' : ''}
+          <p class="preview" aria-live="polite">${retPrev}</p>
+        </fieldset>
+        <fieldset><legend>Warranty</legend>
+          <label class="choice"><span style="display:flex;gap:10px;align-items:center;min-height:44px"><input type="checkbox" id="f-hasw"${v.w ? ' checked' : ''} style="width:18px;height:18px">Has a warranty</span></label>
+          <div class="grid2">
+            <div class="field"><label for="f-ws">Warranty starts</label><input id="f-ws" type="date" value="${v.ws}"><span class="hint">Defaults to the purchase date.</span></div>
+            <div class="field"><label for="f-wl">Length</label><div class="inline-num"><input id="f-wl" type="number" min="1" max="120" value="${v.wl}"${inv(errs)}${errs ? ' aria-describedby="e-wl"' : ''}><select id="f-wu" aria-label="Unit"><option>months</option><option>years</option></select></div>${err(errs, 'e-wl', 'Enter how long the warranty lasts (1–120 months)')}</div>
+          </div>
+          <p class="preview" aria-live="polite">${warPrev}</p>
+        </fieldset>
+        ${edit ? '' : `<fieldset><legend>Receipt <span class="muted" style="font-weight:400">(optional)</span></legend>
+          <div class="drop"><b>Drop the invoice here</b><span class="small muted">PDF, JPG, PNG or WEBP · up to 5 MB · 5 files max</span><label class="btn sm" for="f-file">Choose file</label><input id="f-file" type="file" accept=".pdf,.jpg,.jpeg,.png,.webp" hidden></div>
+        </fieldset>`}
+        <div class="actions sticky-actions"><a class="btn" href="${edit ? '#details' : '#dashboard'}">Cancel</a><button class="btn primary" type="submit">${edit ? 'Save changes' : 'Save purchase'}</button></div>
+      </form>`);
+  }
+
+  function serviceDialog() {
+    const edit = st.state['service-dialog'] === 'Edit record';
+    const dlg = `<div class="overlay"><form class="dialog" role="dialog" aria-modal="true" aria-labelledby="sd-t" id="sform" novalidate>
+      <h2 id="sd-t">${edit ? 'Edit service record' : 'Add service record'}</h2>
+      <p class="small muted">Samsung 1.5 Ton Inverter Split AC</p>
+      <div class="field"><label for="s-date">Date</label><input id="s-date" type="date" value="${edit ? '2026-06-15' : '2026-10-27'}" max="2026-10-27"></div>
+      <div class="field"><label for="s-desc">What was done</label><textarea id="s-desc" placeholder="e.g. Compressor replaced under warranty">${edit ? 'Gas top-up and coil cleaning' : ''}</textarea></div>
+      <div class="grid2">
+        <div class="field"><label for="s-prov">Service provider <span class="muted">(optional)</span></label><input id="s-prov" value="${edit ? 'Samsung authorised service' : ''}"></div>
+        <div class="field"><label for="s-cost">Cost <span class="muted">(optional)</span></label><input id="s-cost" inputmode="decimal" value="${edit ? '2450' : ''}" placeholder="₹0.00"></div>
+      </div>
+      <div class="field"><label for="s-notes">Notes <span class="muted">(optional)</span></label><textarea id="s-notes">${edit ? 'Cooling was weak in the bedroom unit.' : ''}</textarea></div>
+      <div class="actions"><a class="btn" href="#details">Cancel</a><button class="btn primary" type="submit">${edit ? 'Save changes' : 'Add record'}</button></div>
+    </form></div>`;
+    const saved = st.state.details;
+    st.state.details = 'Default';
+    const html = detailsBody(dlg);
+    st.state.details = saved;
+    return html;
+  }
+
+  function settings() {
+    const saved = st.state['alert-settings'] === 'Saved';
+    return shell('alert-settings', `${ph('Settings', '')}
+      <form class="form" id="setform" novalidate>
+        <fieldset><legend>When to warn me</legend>
+          <div class="field"><label for="w-days">Before a warranty ends</label><div class="num-row"><input id="w-days" type="number" min="1" max="365" value="30" aria-describedby="w-h"><span>days</span></div><span class="hint" id="w-h">1–365 days. Default 30.</span></div>
+          <div class="field"><label for="r-days">Before a return window closes</label><div class="num-row"><input id="r-days" type="number" min="1" max="60" value="7" aria-describedby="r-h"><span>days</span></div><span class="hint" id="r-h">1–60 days. Default 7.</span></div>
+          <p class="preview">A warranty ending on 1 Nov 2026 shows <b>Ends in N days</b> from 2 Oct 2026. A return closing on 3 Nov 2026 shows <b>Closes in N days</b> from 27 Oct 2026.</p>
+          <div class="actions"><button class="btn primary" type="submit">Save</button></div>
+        </fieldset>
+        <fieldset><legend>Account</legend>
+          <dl class="facts" style="grid-template-columns:repeat(2,minmax(0,1fr))"><div><dt>Name</dt><dd>Winston</dd></div><div><dt>Email</dt><dd style="overflow-wrap:anywhere">demo@proofly.test</dd></div></dl>
+          <div><a class="btn" href="#signin">Sign out</a></div>
+        </fieldset>
+      </form>`, saved ? '<div class="toast" role="status">Settings saved</div>' : '');
+  }
+
+  const RENDER = { signin, dashboard, purchases, details: () => detailsBody(), 'add-purchase': addPurchase, 'service-dialog': serviceDialog, 'alert-settings': settings };
+
+  // ---------- Controls ----------
+  const frame = document.getElementById('frame');
+  const screenSeg = document.getElementById('screenSeg');
+  const dirCtl = document.getElementById('dirCtl'), dirSeg = document.getElementById('dirSeg');
+  const stateSel = document.getElementById('stateSel');
+  const notes = document.getElementById('notes');
+  const cap = document.getElementById('frameCap');
+
+  screenSeg.innerHTML = SCREENS.map(s => `<button type="button" data-screen="${s.id}">${s.label}</button>`).join('');
+
+  function render() {
+    const def = SCREENS.find(s => s.id === st.screen);
+    screenSeg.querySelectorAll('button').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.screen === st.screen)));
+    dirCtl.hidden = !def.dirs;
+    if (def.dirs) dirSeg.innerHTML = def.dirs.map(x => `<button type="button" data-dir="${x.id}" aria-pressed="${st.dir[def.id] === x.id}">${x.name}</button>`).join('');
+    stateSel.innerHTML = def.states.map(x => `<option${x === st.state[def.id] ? ' selected' : ''}>${x}</option>`).join('');
+    frame.classList.toggle('is-mobile', st.vp === 'mobile');
+    document.querySelectorAll('#vpSeg button').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.vp === st.vp)));
+    frame.innerHTML = RENDER[def.id]();
+    cap.textContent = `${def.label} · ${def.dirs ? def.dirs.find(x => x.id === st.dir[def.id]).name + ' · ' : ''}${st.state[def.id]} · ${st.vp === 'mobile' ? '360 px' : 'desktop'}`;
+    const dirNote = def.dirs ? def.dirs.map(x => `<div class="dir"><b>${x.name}</b><p class="small">${x.why}</p></div>`).join('') : '';
+    notes.innerHTML = `<h2>Review: ${def.label}</h2>${dirNote}<ul>${NOTES[def.id].map(n => `<li>${n}</li>`).join('')}</ul><p class="small muted">Sample data uses today = 27 Oct 2026 and the default 30 / 7 day alert windows.</p>`;
+    const es = document.getElementById('errsum');
+    if (es && pendingFocusErr) { es.focus(); pendingFocusErr = false; }
+    const dlg = frame.querySelector('.overlay .dialog');
+    if (dlg) { const first = dlg.querySelector('input, textarea, button, a[href]'); if (first) first.focus(); }
+  }
+  let pendingFocusErr = false;
+
+  function go(screen) {
+    if (!RENDER[screen]) screen = 'dashboard';
+    if (screen !== 'details' && st.state.details === 'Delete confirm') st.state.details = 'Default';
+    st.screen = screen;
+    render();
+  }
+
+  screenSeg.addEventListener('click', e => { const b = e.target.closest('button[data-screen]'); if (b) { location.hash = b.dataset.screen; } });
+  dirSeg.addEventListener('click', e => { const b = e.target.closest('button[data-dir]'); if (b) { st.dir[st.screen] = b.dataset.dir; render(); } });
+  stateSel.addEventListener('change', () => { st.state[st.screen] = stateSel.value; render(); });
+  document.getElementById('vpSeg').addEventListener('click', e => { const b = e.target.closest('button[data-vp]'); if (b) { st.vp = b.dataset.vp; render(); } });
+
+  frame.addEventListener('click', e => {
+    const el = e.target.closest('[data-state],[data-tab],[data-jump],[data-focus]');
+    if (!el) return;
+    if (el.dataset.tab) { st.tab = el.dataset.tab; render(); frame.querySelector(`[data-tab="${st.tab}"]`).focus(); return; }
+    if (el.dataset.jump) { e.preventDefault(); const t = document.getElementById(el.dataset.jump); if (t) t.scrollIntoView({ block: 'start' }); return; }
+    if (el.dataset.focus) { e.preventDefault(); const t = document.getElementById(el.dataset.focus); if (t) t.focus(); return; }
+    // data-state: set the state of the screen the link leads to (or this one)
+    const target = (el.getAttribute('href') || '').replace('#', '') || st.screen;
+    st.state[target] = el.dataset.state;
+    if (target === st.screen) { e.preventDefault(); render(); }
+  });
+  frame.addEventListener('submit', e => {
+    e.preventDefault();
+    const id = e.target.id;
+    if (id === 'authForm') location.hash = 'dashboard';
+    else if (id === 'pform') {
+      if (st.state['add-purchase'] === 'Validation errors') { pendingFocusErr = true; render(); }
+      else location.hash = 'details';
+    } else if (id === 'sform') location.hash = 'details';
+    else if (id === 'setform') { st.state['alert-settings'] = 'Saved'; render(); }
+  });
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape' && (st.screen === 'service-dialog' || st.state.details === 'Delete confirm')) {
+      if (st.screen === 'service-dialog') location.hash = 'details';
+      else { st.state.details = 'Default'; render(); }
+    }
+  });
+
+  window.addEventListener('hashchange', () => go(location.hash.slice(1)));
+  go(location.hash.slice(1) || 'dashboard');
+})();
+</script>
