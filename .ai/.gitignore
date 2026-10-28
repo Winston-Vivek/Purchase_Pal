@@ -1,0 +1,4 @@
+.cache/
+.evidence.lock
+*.bak
+*.tmp.*
