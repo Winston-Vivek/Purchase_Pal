@@ -41,6 +41,9 @@ export const DASHBOARD_PURCHASES = [
     returnWindowDays: 10,
     warrantyStartDate: '2026-10-12',
     warrantyMonths: 24,
+    // Gives API-SRCH-03 a real phrase to find that appears in no product name
+    // or seller, so a notes match is proven rather than inferred.
+    notes: 'Bought in the Diwali sale; the extended warranty card is in the kitchen drawer',
   },
   {
     productName: 'Samsung 1.5 Ton Inverter Split AC',
