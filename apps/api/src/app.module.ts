@@ -3,6 +3,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AttachmentsModule } from './attachments/attachments.module';
 import { AuthModule } from './auth/auth.module';
+import { DashboardModule } from './dashboard/dashboard.module';
 import { DatesModule } from './common/dates/dates.module';
 import { validateEnv } from './config/env.validation';
 import { databaseOptions } from './database/data-source';
@@ -34,6 +35,7 @@ import { StorageModule } from './common/storage/storage.module';
     PurchasesModule,
     AttachmentsModule,
     ServiceRecordsModule,
+    DashboardModule,
     HealthModule,
   ],
 })

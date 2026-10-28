@@ -94,11 +94,9 @@ describe('Dashboard (e2e)', () => {
     const response = await dashboard().expect(200);
 
     expect(
-      response.body.recentlyExpired.map((i: { productName: string; kind: string; date: string }) => [
-        i.productName,
-        i.kind,
-        i.date,
-      ]),
+      response.body.recentlyExpired.map(
+        (i: { productName: string; kind: string; date: string }) => [i.productName, i.kind, i.date],
+      ),
     ).toEqual([
       ['Philips Air Fryer', 'RETURN', '2026-10-22'],
       ['LG washing machine', 'WARRANTY', '2026-10-19'],
@@ -134,9 +132,9 @@ describe('Dashboard (e2e)', () => {
 
     // Nike (4 days) and AirPods (7) both fall outside a 3 day window. The
     // Samsung warranty is unaffected — it is measured against warrantyAlertDays.
-    expect(
-      response.body.needsAction.map((i: { productName: string }) => i.productName),
-    ).toEqual(['Samsung 1.5 Ton Inverter Split AC']);
+    expect(response.body.needsAction.map((i: { productName: string }) => i.productName)).toEqual([
+      'Samsung 1.5 Ton Inverter Split AC',
+    ]);
     expect(response.body.counts.needsAction).toBe(1);
   });
 

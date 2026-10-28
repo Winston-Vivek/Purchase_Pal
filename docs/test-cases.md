@@ -87,7 +87,7 @@ All requests use `/api/v1`. "Signed in as A" = A's auth cookie. Errors must use 
 | API-AUTH-09 | GET /auth/me with cookie | 200 current user | P0 | Pass 2026-10-28 |
 | API-AUTH-10 | GET /auth/me without cookie, or a tampered/expired token | 401 | P0 | Pass 2026-10-28 |
 | API-AUTH-11 | POST /auth/logout | 204; cookie cleared; next /auth/me → 401 | P0 | Pass 2026-10-28 |
-| API-AUTH-12 | GET /purchases, /dashboard without cookie | 401 on each | P0 | Not run — see note |
+| API-AUTH-12 | GET /purchases, /dashboard without cookie | 401 on each | P0 | Pass 2026-10-28 |
 
 > **API-AUTH-12 is verified by the Day 4 gate, not Day 3.** Its `/purchases` half passes as of Day 3 Slice 5. The `/dashboard` half cannot: Nest runs guards after routing, so a route that does not exist returns 404 rather than 401. `/dashboard` is built in Day 4 Slice 4, and the test is unchanged.
 
@@ -191,14 +191,14 @@ Fixture for A (today 2026-10-27), matching the design mockups:
 
 | ID | Scenario | Expected | Pri | Status |
 | --- | --- | --- | --- | --- |
-| API-DASH-01 | Counts | total 7, underWarranty 5, openReturns 2, needsAction 3 | P0 | Not run |
-| API-DASH-02 | needsAction order | Nike (4 days), Samsung (5), AirPods (7) | P0 | Not run |
-| API-DASH-03 | needsAction items | Each has purchaseId, productName, kind (RETURN/WARRANTY), date, daysLeft | P0 | Not run |
-| API-DASH-04 | recentlyExpired | Air fryer (return, 2026-10-22), LG (warranty, 2026-10-19); nothing older than 30 days | P0 | Not run |
-| API-DASH-05 | recentPurchases | Latest 5 by purchaseDate | P0 | Not run |
-| API-DASH-06 | User with returnAlertDays 3 | Nike leaves needsAction; AirPods leaves needsAction | P0 | Not run |
-| API-DASH-07 | New user, no purchases | All counts 0, empty lists | P0 | Not run |
-| API-DASH-08 | B's dashboard | Counts only from B's purchases | P0 | Not run |
+| API-DASH-01 | Counts | total 7, underWarranty 5, openReturns 2, needsAction 3 | P0 | Pass 2026-10-28 |
+| API-DASH-02 | needsAction order | Nike (4 days), Samsung (5), AirPods (7) | P0 | Pass 2026-10-28 |
+| API-DASH-03 | needsAction items | Each has purchaseId, productName, kind (RETURN/WARRANTY), date, daysLeft | P0 | Pass 2026-10-28 |
+| API-DASH-04 | recentlyExpired | Air fryer (return, 2026-10-22), LG (warranty, 2026-10-19); nothing older than 30 days | P0 | Pass 2026-10-28 |
+| API-DASH-05 | recentPurchases | Latest 5 by purchaseDate | P0 | Pass 2026-10-28 |
+| API-DASH-06 | User with returnAlertDays 3 | Nike leaves needsAction; AirPods leaves needsAction | P0 | Pass 2026-10-28 |
+| API-DASH-07 | New user, no purchases | All counts 0, empty lists | P0 | Pass 2026-10-28 |
+| API-DASH-08 | B's dashboard | Counts only from B's purchases | P0 | Pass 2026-10-28 |
 
 ### 2.8 Search, filter, sort (`purchases-search.e2e-spec.ts`) — US-10 (P1)
 

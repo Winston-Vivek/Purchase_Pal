@@ -46,6 +46,17 @@ export class PurchaseRepository {
     return { items, total };
   }
 
+  /** Every purchase for one user, newest first. Used by the dashboard, which
+   *  has to look at all of them — see DashboardService for why that is not a
+   *  filtered query. */
+  findAllForUser(userId: string): Promise<Purchase[]> {
+    return this.purchases.find({
+      where: { userId },
+      relations: { attachments: true },
+      order: { purchaseDate: 'DESC', createdAt: 'DESC' },
+    });
+  }
+
   store(data: Partial<Purchase>): Promise<Purchase> {
     return this.purchases.save(this.purchases.create(data));
   }
