@@ -1,13 +1,11 @@
 import { execSync } from 'node:child_process';
 
 /**
- * Brings the test database's schema up to date once per `npm run test:e2e`,
- * before any test file loads.
+ * Brings proofly_test's schema up to date once per run, before any test loads.
  *
- * `migrate deploy` (not `migrate dev`) is deliberate: it only applies existing
- * migrations and never generates, renames or resets anything, so a schema drift
- * fails the run loudly instead of being silently "fixed" in a way that would
- * not happen in production (db-use-migrations).
+ * `migration:run` only applies existing migrations — it never generates or
+ * resets, so schema drift fails the run loudly instead of being silently
+ * "fixed" in a way production would never see (db-use-migrations).
  */
 export default function globalSetup(): void {
   const url = process.env.DATABASE_URL;
@@ -20,7 +18,7 @@ export default function globalSetup(): void {
 
   console.log('\n[e2e] applying migrations to proofly_test…');
 
-  execSync('npx prisma migrate deploy', {
+  execSync('npx typeorm-ts-node-commonjs -d src/database/data-source.ts migration:run', {
     stdio: 'inherit',
     env: process.env,
   });

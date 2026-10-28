@@ -15,7 +15,7 @@ Proofly is a purchase, receipt and warranty manager MVP, built in 7 days for a c
 
 ## Stack (locked)
 
-NestJS 11 + TypeScript strict · PostgreSQL 16 + Prisma · bcrypt + JWT in httpOnly cookie · Vue 3 `<script setup lang="ts">` + Vite + Pinia + Vue Router · Tailwind CSS v4 · Jest + Supertest · Vitest + Vue Test Utils · Playwright · docker-compose for Postgres.
+NestJS 11 + TypeScript strict · PostgreSQL 16 + TypeORM · bcrypt + JWT in httpOnly cookie · Vue 3 `<script setup lang="ts">` + Vite + Pinia + Vue Router · Tailwind CSS v4 · Jest + Supertest · Vitest + Vue Test Utils · Playwright · docker-compose for Postgres.
 
 ## Non-negotiables
 
@@ -31,7 +31,7 @@ NestJS 11 + TypeScript strict · PostgreSQL 16 + Prisma · bcrypt + JWT in httpO
 ## Layout
 
 ```
-apps/api/      NestJS (src/<feature>/, src/common/, prisma/, test/)
+apps/api/      NestJS (src/<feature>/, src/common/, src/database/, test/)
 apps/web/      Vue (src/pages, components, composables, stores, api)
 e2e/           Playwright
 docs/          requirements, plan, test-plan, test-cases, uat-report, SKILLS, PROMPTS, + architecture, decisions, security, ai-usage, demo-script

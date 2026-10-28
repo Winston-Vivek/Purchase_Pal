@@ -6,7 +6,7 @@
 
 ## Objective
 
-Build the Proofly MVP in 7 verified phases (greenfield build, not a legacy migration): NestJS + Prisma API, Vue 3 + Tailwind v4 web, TDD from docs/test-cases.md, each phase closed by 'npm run gate dayN'
+Build the Proofly MVP in 7 verified phases (greenfield build, not a legacy migration): NestJS + TypeORM API, Vue 3 + Tailwind v4 web, TDD from docs/test-cases.md, each phase closed by 'npm run gate dayN'
 
 ## Source Stack
 
@@ -32,7 +32,7 @@ _Greenfield build, locked in `docs/requirements.md` §5 (D-01..D-12)._
 | Component | Choice |
 |---|---|
 | API | NestJS 11, TypeScript strict, class-validator DTOs, global ValidationPipe |
-| Database | PostgreSQL 16 + Prisma, migrations only |
+| Database | PostgreSQL 16 + TypeORM, migrations only, `synchronize: false` (D-03 changed 28 Oct) |
 | Auth | bcrypt + JWT in an httpOnly, SameSite=Lax cookie |
 | Web | Vue 3 `<script setup lang="ts">`, Vite, Pinia, Vue Router, Tailwind CSS v4 |
 | Tests | Jest + Supertest (API), Vitest + Vue Test Utils (web), Playwright (E2E) |
@@ -98,10 +98,16 @@ None identified.
 _Machine-generated from `.ai/EVIDENCE.jsonl`. Do not edit by hand._
 
 ```
-9 commands recorded, of which 4 verified (3 passed, 1 failed, 0 non-binding).
+17 commands recorded, of which 5 verified (3 passed, 2 failed, 1 non-binding).
 
-Files changed since baseline `0ecc127` (git): 2
+Files changed since baseline `0ecc127` (git): 8
+  - apps/api/src/app.module.ts
+  - apps/api/src/common/dates/clock.ts
+  - apps/api/src/common/dates/dates.module.ts
+  - apps/api/src/common/dates/dates.service.spec.ts
+  - apps/api/src/common/dates/dates.service.ts
   - docs/ai-usage.md
+  - docs/test-cases.md
   - package.json
 
 Tool-observed edits: 0 across 0 files.
@@ -113,6 +119,7 @@ Most recent verified runs:
   [x] `npm run gate day2` -> exit 0  (wave 02, 2026-10-28T09:33:24Z)
   [x] `npm run test:e2e` -> exit 0  (wave 03, 2026-10-28T09:33:40Z)
   [!] `npm run gate day3` -> exit 1  (wave 03, 2026-10-28T09:33:48Z)
+  [!] probe `npm test` -> exit 1  (wave 03, 2026-10-28T09:38:07Z)
 ```
 
 **Wave verification gate**
@@ -122,6 +129,8 @@ Most recent verified runs:
 - Wave `03` — _NOT verified_: still failing —
     - `npm run gate day3` -> exit 1
     - _the gate keys on the exact command string. Re-run it verbatim to clear it, or retire it with_ `relay-gate --clear '<part of it>' --reason '<why>'`
+    - probes (recorded, non-binding):
+        - `npm test` -> exit 1
 - Wave `04` — _not verified_: declared `pending`, so no evidence binds to it.
 - Wave `05` — _not verified_: declared `pending`, so no evidence binds to it.
 - Wave `06` — _not verified_: declared `pending`, so no evidence binds to it.
@@ -136,16 +145,18 @@ Most recent verified runs:
 ```
 exit 0  npm run test:e2e  (2026-10-28T09:33:40Z)
 exit 1  npm run gate day3  (2026-10-28T09:33:48Z)
+exit 1 (probe)  npm test  (2026-10-28T09:38:07Z)
 ```
 <!-- relay:evidence:end -->
 
 ### Working tree
 
 <!-- relay:git:start -->
-- Branch `master` at `8355b9a`, 1 uncommitted path(s).
+- Branch `master` at `3933fdb`, 2 uncommitted path(s).
 - Changed now:
 
 ```
+ M .ai/EVIDENCE.jsonl
  M .ai/MIGRATION.md
 ```
 <!-- relay:git:end -->
@@ -180,5 +191,5 @@ gate currently fails 4 of 6 checks, naming all 77 cases that have no test yet.
 ## Last Updated
 
 <!-- relay:updated:start -->
-- 2026-10-28T09:34:47Z (mechanical regions refreshed by `migration-state.sh`)
+- 2026-10-28T09:44:02Z (mechanical regions refreshed by `migration-state.sh`)
 <!-- relay:updated:end -->

@@ -28,7 +28,7 @@ The challenge asks for a working MVP (frontend + backend), source code with a RE
 | Frontend | Vue 3 (Composition API, `<script setup lang="ts">`), Vite, Pinia, Vue Router |
 | Styling | Tailwind CSS v4 (`@theme` tokens from `design/ui-guide.md`), TailGrids Vue markup patterns ported to v4 |
 | Backend | NestJS 11, TypeScript strict, class-validator DTOs, global ValidationPipe |
-| Database | PostgreSQL 16 + Prisma, migrations only |
+| Database | PostgreSQL 16 + TypeORM, migrations only (D-03 changed 28 Oct) |
 | Auth | bcrypt + JWT in an httpOnly, SameSite=Lax cookie |
 | Tests | Jest + Supertest (API), Vitest + Vue Test Utils (UI), Playwright (E2E) |
 | Run target | Local via docker-compose; no deployment |
@@ -106,7 +106,7 @@ cases still marked "Not run", and areas whose first commit was `feat(` instead o
 
 | Slice | Work | Test cases |
 | --- | --- | --- |
-| 0 Setup | docker-compose (Postgres 16, `proofly` + `proofly_test`), `.env.example`, Nest scaffold (strict), ConfigModule with fail-fast env validation, Prisma schema + first migration + PrismaService, shared `setupApp()` (prefix `/api/v1`, ValidationPipe, cookie-parser, CORS), Jest e2e on the test DB, GitHub Actions (lint, unit, e2e) | — |
+| 0 Setup | docker-compose (Postgres 16, `proofly` + `proofly_test`), `.env.example`, Nest scaffold (strict), ConfigModule with fail-fast env validation, TypeORM entities + first migration + DataSource, shared `setupApp()` (prefix `/api/v1`, ValidationPipe, cookie-parser, CORS), Jest e2e on the test DB, GitHub Actions (lint, unit, e2e) | — |
 | 1 Date rules | `DatesService` + injectable clock (Asia/Kolkata) | UT-DATE-01 → 24 |
 | 2 Error shape | Global exception filter, ValidationPipe `exceptionFactory` with field errors | API-ERR-01 → 05 |
 | 3 Auth | Register, login, logout, me; bcrypt; JWT cookie; global guard + `@Public()`; `@CurrentUser()` | API-AUTH-01 → 12 |

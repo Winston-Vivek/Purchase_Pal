@@ -48,7 +48,7 @@ Email/push reminders, OCR receipt scanning, spending analytics, marketplace inte
 | --- | --- | --- |
 | D-01 | Frontend | Vue 3 (Composition API, `<script setup>`), TypeScript, Vite, Pinia, Vue Router, Tailwind CSS v4 |
 | D-02 | Backend | NestJS, TypeScript, class-validator DTOs, global ValidationPipe |
-| D-03 | Database | PostgreSQL + Prisma |
+| D-03 | Database | PostgreSQL + TypeORM (see change log, 28 Oct 2026) |
 | D-04 | Auth | bcrypt + JWT in httpOnly, SameSite=Lax cookie |
 | D-05 | Testing | TDD; Jest + Supertest (API), Vitest + Vue Test Utils (UI), Playwright (E2E) |
 | D-06 | Code | GitHub repository, one commit set per TDD slice (`test:` → `feat:` → `refactor:`) |
@@ -251,3 +251,4 @@ Indexes: purchases(userId), purchases(userId, purchaseDate), attachments(purchas
 | Date | Change | Reason |
 | --- | --- | --- |
 | 27 Oct 2026 | v1.0 locked | Day 1 gate |
+| 28 Oct 2026 | **D-03 changed: Prisma → TypeORM.** No change to the data model (§10), the API contract (§9), any business rule or P0 scope — only the library that talks to Postgres. | The `nestjs-best-practices` skill the project is built against is TypeORM-specific: 7 of its rules (`db-use-migrations`, `db-use-transactions`, `db-avoid-n-plus-one`, `arch-feature-modules`, `devops-use-config-module`, `perf-optimize-database`, `micro-use-health-checks`) are written in TypeORM and none mention Prisma, so following them under Prisma would mean translating every database rule by hand. Made on Day 3 while only the setup slice touched the database and no feature code existed, which is the cheapest point it could be done. `synchronize` stays `false` in every environment; migrations only. |

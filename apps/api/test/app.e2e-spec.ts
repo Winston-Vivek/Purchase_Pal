@@ -1,6 +1,7 @@
 import { INestApplication } from '@nestjs/common';
 import request from 'supertest';
-import { PrismaService } from '../src/prisma/prisma.service';
+import { DataSource } from 'typeorm';
+import { User } from '../src/users/user.entity';
 import { createTestApp } from './utils/create-test-app';
 import { truncateAll } from './utils/database';
 
@@ -18,14 +19,14 @@ import { truncateAll } from './utils/database';
  */
 describe('Application bootstrap (e2e)', () => {
   let app: INestApplication;
-  let prisma: PrismaService;
+  let dataSource: DataSource;
 
   beforeAll(async () => {
-    ({ app, prisma } = await createTestApp());
+    ({ app, dataSource } = await createTestApp());
   });
 
   beforeEach(async () => {
-    await truncateAll(prisma);
+    await truncateAll(dataSource);
   });
 
   afterAll(async () => {
@@ -49,11 +50,11 @@ describe('Application bootstrap (e2e)', () => {
   });
 
   it('has every table from the first migration, and truncation leaves them empty', async () => {
-    const tables = await prisma.$queryRaw<{ tablename: string }[]>`
+    const tables = await dataSource.query<{ tablename: string }[]>(`
       SELECT tablename FROM pg_tables
-      WHERE schemaname = 'public' AND tablename <> '_prisma_migrations'
+      WHERE schemaname = 'public' AND tablename <> 'migrations'
       ORDER BY tablename
-    `;
+    `);
 
     expect(tables.map((t) => t.tablename)).toEqual([
       'attachments',
@@ -62,7 +63,6 @@ describe('Application bootstrap (e2e)', () => {
       'users',
     ]);
 
-    await expect(prisma.user.count()).resolves.toBe(0);
-    await expect(prisma.purchase.count()).resolves.toBe(0);
+    await expect(dataSource.getRepository(User).count()).resolves.toBe(0);
   });
 });

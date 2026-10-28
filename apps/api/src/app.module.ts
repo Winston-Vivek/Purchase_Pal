@@ -1,26 +1,26 @@
 import { Module } from '@nestjs/common';
-import { ConfigModule } from '@nestjs/config';
+import { ConfigModule, ConfigService } from '@nestjs/config';
+import { TypeOrmModule } from '@nestjs/typeorm';
 import { DatesModule } from './common/dates/dates.module';
 import { validateEnv } from './config/env.validation';
+import { databaseOptions } from './database/data-source';
 import { HealthModule } from './health/health.module';
-import { PrismaModule } from './prisma/prisma.module';
 
-/**
- * Feature modules get added here as each slice lands: auth, users, purchases,
- * attachments, service-records, dashboard (docs/plan.md, Days 3-4).
- */
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
-      // The npm scripts load the right file with dotenv-cli (.env, or .env.test
-      // for the e2e suite), so there is exactly one place env is read from and
-      // no quiet disagreement between Nest's loader and the Prisma CLI's.
+      // npm scripts load the right file with dotenv-cli (.env, or .env.test for
+      // e2e), so env is read in exactly one place.
       ignoreEnvFile: true,
       validate: validateEnv,
       cache: true,
     }),
-    PrismaModule,
+    TypeOrmModule.forRootAsync({
+      inject: [ConfigService],
+      useFactory: (config: ConfigService) =>
+        databaseOptions(config.getOrThrow<string>('DATABASE_URL')),
+    }),
     DatesModule,
     HealthModule,
   ],

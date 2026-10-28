@@ -31,8 +31,7 @@ docker compose up -d --wait
 # 3. API
 cd apps/api
 npm install
-npx prisma generate
-npm run migrate:deploy      # applies migrations to the dev database
+npm run migration:run       # applies migrations to the dev database
 npm run start:dev           # http://localhost:3000/api/v1
 ```
 
@@ -66,9 +65,10 @@ Run from `apps/api` unless noted.
 | `npm test` | Unit tests (Jest) |
 | `npm run test:cov` | Unit tests with coverage |
 | `npm run test:e2e` | API e2e tests (Supertest, against `proofly_test`) |
-| `npm run migrate:dev -- --name <name>` | Create and apply a migration |
-| `npm run migrate:deploy` | Apply existing migrations |
-| `npm run studio` | Prisma Studio, to browse the data |
+| `npm run migration:generate -- src/database/migrations/<Name>` | Generate a migration from entity changes |
+| `npm run migration:run` | Apply pending migrations |
+| `npm run migration:revert` | Roll the last migration back |
+| `npm run migration:show` | List applied and pending migrations |
 
 The e2e suite migrates `proofly_test` itself and truncates every table between tests, so it needs no
 setup beyond `docker compose up -d`. It refuses to run against any database whose name does not
@@ -99,7 +99,7 @@ history. See [`gates/README.md`](gates/README.md).
 | Layer | Choice |
 | --- | --- |
 | API | NestJS 11, TypeScript strict, class-validator DTOs, global `ValidationPipe` |
-| Database | PostgreSQL 16 + Prisma, migrations only |
+| Database | PostgreSQL 16 + TypeORM, migrations only |
 | Auth | bcrypt + JWT in an httpOnly, SameSite=Lax cookie |
 | Web | Vue 3 (`<script setup lang="ts">`), Vite, Pinia, Vue Router, Tailwind CSS v4 *(from Day 5)* |
 | Tests | Jest + Supertest, Vitest + Vue Test Utils, Playwright |
@@ -117,7 +117,7 @@ Two decisions shape most of the code:
 ## Repository layout
 
 ```
-apps/api/      NestJS API — src/<feature>/, src/common/, prisma/, test/
+apps/api/      NestJS API — src/<feature>/, src/common/, src/database/, test/
 apps/web/      Vue app (from Day 5)
 e2e/           Playwright journeys (from Day 6)
 docs/          requirements, plan, test plan, test cases, UAT, AI usage

@@ -37,7 +37,7 @@ Bugs: write a failing test that reproduces the bug first, then fix it.
 ## 2. Backend: NestJS (from `nestjs-best-practices`)
 
 **Architecture**
-- Feature modules: `auth/`, `users/`, `purchases/`, `attachments/`, `service-records/`, `dashboard/`, plus `common/` (dates, filters, decorators) and `prisma/`. Each module owns its controller, service and DTOs (`arch-feature-modules`).
+- Feature modules: `auth/`, `users/`, `purchases/`, `attachments/`, `service-records/`, `dashboard/`, plus `common/` (dates, filters, decorators) and `database/` (DataSource, migrations). Each feature owns its entity. Each module owns its controller, service and DTOs (`arch-feature-modules`).
 - One job per service; controllers only map HTTP to service calls (`arch-single-responsibility`). No circular imports between modules (`arch-avoid-circular-deps`); export only what other modules need (`arch-module-sharing`).
 
 **Dependency injection**
@@ -57,7 +57,7 @@ Bugs: write a failing test that reproduces the bug first, then fix it.
 - Ownership in services: every query includes `userId`. Not yours → `NotFoundException` (404), never 403.
 
 **Data**
-- Prisma migrations only, never `db push` against shared data (`db-use-migrations`).
+- TypeORM migrations only. `synchronize` is `false` in every environment — it alters schemas behind the migrations and can drop columns (`db-use-migrations`).
 - Include relations in one query; no loops of queries (`db-avoid-n-plus-one`).
 - Use a transaction when a change spans tables plus files, e.g. deleting a purchase and its attachments (`db-use-transactions`).
 
@@ -133,7 +133,7 @@ Bugs: write a failing test that reproduces the bug first, then fix it.
 
 ## 6. HTML artifacts (effective-html)
 
-- `html-diagram` for `docs/architecture.md`: request flow (browser → Vue → Nest guard → pipe → service → Prisma → Postgres) and the ER diagram. Self-contained HTML, responsive, accessible.
+- `html-diagram` for `docs/architecture.md`: request flow (browser → Vue → Nest guard → pipe → service → TypeORM repository → Postgres) and the ER diagram. Self-contained HTML, responsive, accessible.
 - `html-wireframe` / `html-prototype` only if a screen changes. Update `design/wireframes.html` rather than starting a new file.
 - Use semantic landmarks, headings and real buttons, links and inputs in all HTML.
 

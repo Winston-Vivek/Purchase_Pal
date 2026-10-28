@@ -23,7 +23,7 @@ Today is Day 3: project setup and the backend core, test-first. Work in these sl
 
 Slice 0 – Setup (no TDD needed):
 - docker-compose.yml with PostgreSQL 16 (databases proofly and proofly_test), .env.example with every variable, root README setup section.
-- Scaffold apps/api with the NestJS CLI (strict TS). Add @nestjs/config with env validation that fails fast, Prisma with the schema from docs/requirements.md §10 (users with alert-day settings, purchases, attachments, service_records, cascades, indexes) and the first migration, and a PrismaService.
+- Scaffold apps/api with the NestJS CLI (strict TS). Add @nestjs/config with env validation that fails fast, TypeORM entities for docs/requirements.md §10 (users with alert-day settings, purchases, attachments, service_records, cascades, indexes), a shared DataSource with `synchronize: false`, and the first migration.
 - A shared setupApp(app) used by main.ts AND the e2e tests: global prefix /api/v1, ValidationPipe (whitelist, forbidNonWhitelisted, transform), cookie-parser, CORS limited to WEB_ORIGIN.
 - Jest e2e config that runs against proofly_test, applies migrations and truncates tables between tests.
 - GitHub Actions workflow: lint + unit + e2e with a Postgres service.
