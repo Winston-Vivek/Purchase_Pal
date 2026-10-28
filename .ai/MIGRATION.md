@@ -98,9 +98,9 @@ None identified.
 _Machine-generated from `.ai/EVIDENCE.jsonl`. Do not edit by hand._
 
 ```
-53 commands recorded, of which 8 verified (4 passed, 4 failed, 2 non-binding).
+55 commands recorded, of which 8 verified (4 passed, 4 failed, 2 non-binding).
 
-Files changed since baseline `0ecc127` (git): 71
+Files changed since baseline `0ecc127` (git): 85
   - apps/api/package.json
   - apps/api/package-lock.json
   - apps/api/prisma/migrations/20261028080043_init/migration.sql
@@ -108,12 +108,12 @@ Files changed since baseline `0ecc127` (git): 71
   - apps/api/prisma/schema.prisma
   - apps/api/src/app.module.ts
   - apps/api/src/attachments/attachment.entity.ts
+  - apps/api/src/attachments/attachment-response.ts
+  - apps/api/src/attachments/attachments.controller.ts
+  - apps/api/src/attachments/attachments.module.ts
+  - apps/api/src/attachments/attachments.service.ts
   - apps/api/src/auth/auth.constants.ts
-  - apps/api/src/auth/auth.controller.ts
-  - apps/api/src/auth/auth.module.ts
-  - apps/api/src/auth/auth.service.ts
-  - apps/api/src/auth/current-user.decorator.ts
-  ... and 59 more
+  ... and 73 more
 
 Tool-observed edits: 0 across 0 files.
   (Only Edit/Write/MultiEdit are visible to the hook. A Bash-first session
@@ -158,7 +158,7 @@ Most recent verified runs:
 ### Working tree
 
 <!-- relay:git:start -->
-- Branch `master` at `1f214e4`, 2 uncommitted path(s).
+- Branch `master` at `ab1811c`, 2 uncommitted path(s).
 - Changed now:
 
 ```
@@ -197,5 +197,5 @@ AttachmentRepository, the controller stays thin, the route param is
 ## Last Updated
 
 <!-- relay:updated:start -->
-- 2026-10-28T11:50:04Z (mechanical regions refreshed by `migration-state.sh`)
+- 2026-10-28T11:59:01Z (mechanical regions refreshed by `migration-state.sh`)
 <!-- relay:updated:end -->
