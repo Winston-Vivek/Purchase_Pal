@@ -138,8 +138,8 @@ Valid base body: `{ productName: "AirPods Pro (2nd generation)", category: "ELEC
 | API-PUR-28 | B: GET A's purchase | 404 NOT_FOUND, no data | P0 | Pass 2026-10-28 |
 | API-PUR-29 | B: PATCH and DELETE A's purchase | 404 each; A's purchase unchanged | P0 | Pass 2026-10-28 |
 | API-PUR-30 | B: list purchases | Only B's purchases (A's not included) | P0 | Pass 2026-10-28 |
-| API-PUR-31 | DELETE purchase with 2 attachments + 2 service records (Day 4) | Rows gone; stored files gone from disk | P0 | Not run |
-| API-PUR-32 | hasReceipt after one upload (Day 4) | true; false again after deleting it | P0 | Not run |
+| API-PUR-31 | DELETE purchase with 2 attachments + 2 service records (Day 4) | Rows gone; stored files gone from disk | P0 | Pass 2026-10-28 |
+| API-PUR-32 | hasReceipt after one upload (Day 4) | true; false again after deleting it | P0 | Pass 2026-10-28 |
 
 ### 2.5 Receipts (`attachments.e2e-spec.ts`) — US-03, BR-06, BR-10
 

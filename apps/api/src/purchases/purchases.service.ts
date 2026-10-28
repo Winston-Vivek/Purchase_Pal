@@ -1,6 +1,7 @@
-import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { DatesService, InvalidDateError } from '../common/dates/dates.service';
 import { ErrorCode } from '../common/errors/error-codes';
+import { STORAGE, Storage } from '../common/storage/storage.interface';
 import { PurchaseRepository } from '../repositories/purchase/purchase.repository';
 import { User } from '../users/user.entity';
 import { CreatePurchaseDto } from './dto/create-purchase.dto';
@@ -21,6 +22,7 @@ export class PurchasesService {
   constructor(
     private readonly purchases: PurchaseRepository,
     private readonly dates: DatesService,
+    @Inject(STORAGE) private readonly storage: Storage,
   ) {}
 
   async create(user: User, dto: CreatePurchaseDto): Promise<Purchase> {
@@ -103,9 +105,27 @@ export class PurchasesService {
     return this.purchases.save(purchase);
   }
 
+  /**
+   * BR-08. Deleting a purchase takes its receipts and its service history with
+   * it — rows *and* stored files.
+   *
+   * No explicit transaction, deliberately. The rows go in a single DELETE: the
+   * migration put ON DELETE CASCADE on both foreign keys, so the database
+   * removes the attachments and service records as part of that one atomic
+   * statement. Wrapping one statement in a transaction would be ceremony.
+   *
+   * The filesystem is the part that genuinely cannot join a transaction, so
+   * the files are removed only once the rows are certainly gone. That ordering
+   * is chosen for its failure mode: an orphaned file wastes disk, while a row
+   * pointing at a file that is no longer there breaks a download.
+   */
   async remove(user: User, id: string): Promise<void> {
     const purchase = await this.findOwned(user, id);
+    const storageKeys = (purchase.attachments ?? []).map((a) => a.storageKey);
+
     await this.purchases.remove(purchase);
+
+    await Promise.all(storageKeys.map((key) => this.storage.remove(key)));
   }
 
   private assertValid(state: DateState): void {
