@@ -98,7 +98,7 @@ All requests use `/api/v1`. "Signed in as A" = A's auth cookie. Errors must use 
 | API-SET-03 | PATCH warrantyAlertDays 0 or 366 | 400 fields.warrantyAlertDays | P0 | Pass 2026-10-28 |
 | API-SET-04 | PATCH returnAlertDays 0 or 61 | 400 fields.returnAlertDays | P0 | Pass 2026-10-28 |
 | API-SET-05 | PATCH with `email` or unknown field | 400 (not allowed here) | P0 | Pass 2026-10-28 |
-| API-SET-06 | After PATCH returnAlertDays 3, purchase with return in 5 days | returnStatus changes from EXPIRING_SOON to ACTIVE | P0 | Not run |
+| API-SET-06 | After PATCH returnAlertDays 3, purchase with return in 5 days | returnStatus changes from EXPIRING_SOON to ACTIVE | P0 | Pass 2026-10-28 |
 
 ### 2.4 Purchases (`purchases.e2e-spec.ts`) — US-02, US-04, US-05, US-09
 
@@ -106,36 +106,36 @@ Valid base body: `{ productName: "AirPods Pro (2nd generation)", category: "ELEC
 
 | ID | Scenario | Expected | Pri | Status |
 | --- | --- | --- | --- | --- |
-| API-PUR-01 | Create with valid base body | 201; returns id and all fields; currency INR | P0 | Not run |
-| API-PUR-02 | Computed fields on create | returnDeadline 2026-11-03, returnStatus EXPIRING_SOON, returnDaysLeft 7, warrantyExpiry 2027-10-26, warrantyStatus ACTIVE, warrantyDaysLeft 364, hasReceipt false | P0 | Not run |
-| API-PUR-03 | Create with only productName, category, purchaseDate, price | 201; return and warranty statuses NOT_SET | P0 | Not run |
-| API-PUR-04 | Missing productName | 400 fields.productName | P0 | Not run |
-| API-PUR-05 | productName 121 chars | 400 fields.productName | P1 | Not run |
-| API-PUR-06 | category "TOYS" | 400 fields.category | P0 | Not run |
-| API-PUR-07 | purchaseDate 2026-10-28 (future) | 400 fields.purchaseDate | P0 | Not run |
-| API-PUR-08 | purchaseDate "2026-02-30" or "27/10/2026" | 400 fields.purchaseDate | P0 | Not run |
-| API-PUR-09 | price −1 | 400 fields.price | P0 | Not run |
-| API-PUR-10 | price 10.999 (3 decimals) | 400 fields.price | P1 | Not run |
-| API-PUR-11 | returnWindowDays 366 | 400 fields.returnWindowDays | P1 | Not run |
-| API-PUR-12 | returnDeadline before purchaseDate | 400 fields.returnDeadline | P0 | Not run |
-| API-PUR-13 | warrantyMonths without warrantyStartDate | 400 fields.warrantyStartDate | P0 | Not run |
-| API-PUR-14 | warrantyStartDate without warrantyMonths | 400 fields.warrantyMonths | P0 | Not run |
-| API-PUR-15 | warrantyStartDate before purchaseDate | 400 fields.warrantyStartDate | P0 | Not run |
-| API-PUR-16 | warrantyMonths 0 or 121 | 400 fields.warrantyMonths | P1 | Not run |
-| API-PUR-17 | currency "RUPEE" | 400 fields.currency | P1 | Not run |
-| API-PUR-18 | notes 1001 chars | 400 fields.notes | P1 | Not run |
-| API-PUR-19 | Manual returnDeadline 2026-11-15 with window 7 | returnDeadline 2026-11-15 | P0 | Not run |
-| API-PUR-20 | Purchase 2026-10-12, window 10 (closed 2026-10-22) | returnStatus EXPIRED, returnDaysLeft −5 | P0 | Not run |
-| API-PUR-21 | List with 3 purchases | 200 `{ items, total: 3, page: 1, pageSize: 20 }`, newest purchaseDate first | P0 | Not run |
-| API-PUR-22 | List pageSize 51 | 400 | P1 | Not run |
-| API-PUR-23 | GET /purchases/:id (own) | 200 with `attachments: []`, `serviceRecords: []` | P0 | Not run |
-| API-PUR-24 | GET /purchases/not-a-uuid | 400 or 404 (never 500) | P0 | Not run |
-| API-PUR-25 | PATCH warrantyMonths 24 | 200; warrantyExpiry 2028-10-26; persists on GET | P0 | Not run |
-| API-PUR-26 | PATCH that breaks a cross-field rule (remove warrantyStartDate only) | 400 | P0 | Not run |
-| API-PUR-27 | DELETE own purchase | 204; GET → 404 | P0 | Not run |
-| API-PUR-28 | B: GET A's purchase | 404 NOT_FOUND, no data | P0 | Not run |
-| API-PUR-29 | B: PATCH and DELETE A's purchase | 404 each; A's purchase unchanged | P0 | Not run |
-| API-PUR-30 | B: list purchases | Only B's purchases (A's not included) | P0 | Not run |
+| API-PUR-01 | Create with valid base body | 201; returns id and all fields; currency INR | P0 | Pass 2026-10-28 |
+| API-PUR-02 | Computed fields on create | returnDeadline 2026-11-03, returnStatus EXPIRING_SOON, returnDaysLeft 7, warrantyExpiry 2027-10-26, warrantyStatus ACTIVE, warrantyDaysLeft 364, hasReceipt false | P0 | Pass 2026-10-28 |
+| API-PUR-03 | Create with only productName, category, purchaseDate, price | 201; return and warranty statuses NOT_SET | P0 | Pass 2026-10-28 |
+| API-PUR-04 | Missing productName | 400 fields.productName | P0 | Pass 2026-10-28 |
+| API-PUR-05 | productName 121 chars | 400 fields.productName | P1 | Pass 2026-10-28 |
+| API-PUR-06 | category "TOYS" | 400 fields.category | P0 | Pass 2026-10-28 |
+| API-PUR-07 | purchaseDate 2026-10-28 (future) | 400 fields.purchaseDate | P0 | Pass 2026-10-28 |
+| API-PUR-08 | purchaseDate "2026-02-30" or "27/10/2026" | 400 fields.purchaseDate | P0 | Pass 2026-10-28 |
+| API-PUR-09 | price −1 | 400 fields.price | P0 | Pass 2026-10-28 |
+| API-PUR-10 | price 10.999 (3 decimals) | 400 fields.price | P1 | Pass 2026-10-28 |
+| API-PUR-11 | returnWindowDays 366 | 400 fields.returnWindowDays | P1 | Pass 2026-10-28 |
+| API-PUR-12 | returnDeadline before purchaseDate | 400 fields.returnDeadline | P0 | Pass 2026-10-28 |
+| API-PUR-13 | warrantyMonths without warrantyStartDate | 400 fields.warrantyStartDate | P0 | Pass 2026-10-28 |
+| API-PUR-14 | warrantyStartDate without warrantyMonths | 400 fields.warrantyMonths | P0 | Pass 2026-10-28 |
+| API-PUR-15 | warrantyStartDate before purchaseDate | 400 fields.warrantyStartDate | P0 | Pass 2026-10-28 |
+| API-PUR-16 | warrantyMonths 0 or 121 | 400 fields.warrantyMonths | P1 | Pass 2026-10-28 |
+| API-PUR-17 | currency "RUPEE" | 400 fields.currency | P1 | Pass 2026-10-28 |
+| API-PUR-18 | notes 1001 chars | 400 fields.notes | P1 | Pass 2026-10-28 |
+| API-PUR-19 | Manual returnDeadline 2026-11-15 with window 7 | returnDeadline 2026-11-15 | P0 | Pass 2026-10-28 |
+| API-PUR-20 | Purchase 2026-10-12, window 10 (closed 2026-10-22) | returnStatus EXPIRED, returnDaysLeft −5 | P0 | Pass 2026-10-28 |
+| API-PUR-21 | List with 3 purchases | 200 `{ items, total: 3, page: 1, pageSize: 20 }`, newest purchaseDate first | P0 | Pass 2026-10-28 |
+| API-PUR-22 | List pageSize 51 | 400 | P1 | Pass 2026-10-28 |
+| API-PUR-23 | GET /purchases/:id (own) | 200 with `attachments: []`, `serviceRecords: []` | P0 | Pass 2026-10-28 |
+| API-PUR-24 | GET /purchases/not-a-uuid | 400 or 404 (never 500) | P0 | Pass 2026-10-28 |
+| API-PUR-25 | PATCH warrantyMonths 24 | 200; warrantyExpiry 2028-10-26; persists on GET | P0 | Pass 2026-10-28 |
+| API-PUR-26 | PATCH that breaks a cross-field rule (remove warrantyStartDate only) | 400 | P0 | Pass 2026-10-28 |
+| API-PUR-27 | DELETE own purchase | 204; GET → 404 | P0 | Pass 2026-10-28 |
+| API-PUR-28 | B: GET A's purchase | 404 NOT_FOUND, no data | P0 | Pass 2026-10-28 |
+| API-PUR-29 | B: PATCH and DELETE A's purchase | 404 each; A's purchase unchanged | P0 | Pass 2026-10-28 |
+| API-PUR-30 | B: list purchases | Only B's purchases (A's not included) | P0 | Pass 2026-10-28 |
 | API-PUR-31 | DELETE purchase with 2 attachments + 2 service records (Day 4) | Rows gone; stored files gone from disk | P0 | Not run |
 | API-PUR-32 | hasReceipt after one upload (Day 4) | true; false again after deleting it | P0 | Not run |
 

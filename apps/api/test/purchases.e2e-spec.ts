@@ -195,9 +195,15 @@ describe('Purchases (e2e)', () => {
 
   // -------------------------------------------------------------- list ----
   it('API-PUR-21 the list is paginated and newest first', async () => {
-    await create({ ...BASE, purchaseDate: '2026-10-20', warrantyStartDate: '2026-10-20' }).expect(201);
-    await create({ ...BASE, purchaseDate: '2026-10-27', warrantyStartDate: '2026-10-27' }).expect(201);
-    await create({ ...BASE, purchaseDate: '2026-10-24', warrantyStartDate: '2026-10-24' }).expect(201);
+    await create({ ...BASE, purchaseDate: '2026-10-20', warrantyStartDate: '2026-10-20' }).expect(
+      201,
+    );
+    await create({ ...BASE, purchaseDate: '2026-10-27', warrantyStartDate: '2026-10-27' }).expect(
+      201,
+    );
+    await create({ ...BASE, purchaseDate: '2026-10-24', warrantyStartDate: '2026-10-24' }).expect(
+      201,
+    );
 
     const response = await list().expect(200);
 

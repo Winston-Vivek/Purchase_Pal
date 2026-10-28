@@ -6,6 +6,7 @@ import { DatesModule } from './common/dates/dates.module';
 import { validateEnv } from './config/env.validation';
 import { databaseOptions } from './database/data-source';
 import { HealthModule } from './health/health.module';
+import { PurchasesModule } from './purchases/purchases.module';
 
 @Module({
   imports: [
@@ -24,6 +25,7 @@ import { HealthModule } from './health/health.module';
     }),
     DatesModule,
     AuthModule,
+    PurchasesModule,
     HealthModule,
   ],
 })
