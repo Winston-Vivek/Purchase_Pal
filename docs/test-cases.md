@@ -16,45 +16,45 @@ Contents: 1 Unit (dates) · 2 API e2e · 3 Frontend unit/component · 4 Frontend
 
 | ID | Input | Expected | Pri | Status |
 | --- | --- | --- | --- | --- |
-| UT-DATE-01 | start 2026-01-15, 12 months | 2027-01-14 | P0 | Not run |
-| UT-DATE-02 | start 2026-01-31, 1 month (Feb has no 31st) | 2026-02-28 (month end) | P0 | Not run |
-| UT-DATE-03 | start 2024-02-29, 12 months (leap day) | 2025-02-28 | P0 | Not run |
-| UT-DATE-04 | start 2026-03-31, 1 month | 2026-04-30 | P0 | Not run |
-| UT-DATE-05 | start 2025-11-02, 12 months | 2026-11-01 | P0 | Not run |
-| UT-DATE-06 | start 2024-10-20, 24 months | 2026-10-19 | P0 | Not run |
-| UT-DATE-07 | start null or months null | null (No warranty) | P0 | Not run |
+| UT-DATE-01 | start 2026-01-15, 12 months | 2027-01-14 | P0 | Pass 2026-10-28 |
+| UT-DATE-02 | start 2026-01-31, 1 month (Feb has no 31st) | 2026-02-28 (month end) | P0 | Pass 2026-10-28 |
+| UT-DATE-03 | start 2024-02-29, 12 months (leap day) | 2025-02-28 | P0 | Pass 2026-10-28 |
+| UT-DATE-04 | start 2026-03-31, 1 month | 2026-04-30 | P0 | Pass 2026-10-28 |
+| UT-DATE-05 | start 2025-11-02, 12 months | 2026-11-01 | P0 | Pass 2026-10-28 |
+| UT-DATE-06 | start 2024-10-20, 24 months | 2026-10-19 | P0 | Pass 2026-10-28 |
+| UT-DATE-07 | start null or months null | null (No warranty) | P0 | Pass 2026-10-28 |
 
 ### 1.2 Return deadline (BR-02)
 
 | ID | Input | Expected | Pri | Status |
 | --- | --- | --- | --- | --- |
-| UT-DATE-08 | purchase 2026-10-20, window 7 | 2026-10-27 | P0 | Not run |
-| UT-DATE-09 | purchase 2026-10-20, window 7, manual deadline 2026-11-15 | 2026-11-15 (manual wins) | P0 | Not run |
-| UT-DATE-10 | purchase 2026-10-20, no window, no manual | null (Not set) | P0 | Not run |
-| UT-DATE-11 | purchase 2026-10-20, window 0 | 2026-10-20 | P1 | Not run |
-| UT-DATE-12 | purchase 2026-12-28, window 10 (crosses year) | 2027-01-07 | P1 | Not run |
+| UT-DATE-08 | purchase 2026-10-20, window 7 | 2026-10-27 | P0 | Pass 2026-10-28 |
+| UT-DATE-09 | purchase 2026-10-20, window 7, manual deadline 2026-11-15 | 2026-11-15 (manual wins) | P0 | Pass 2026-10-28 |
+| UT-DATE-10 | purchase 2026-10-20, no window, no manual | null (Not set) | P0 | Pass 2026-10-28 |
+| UT-DATE-11 | purchase 2026-10-20, window 0 | 2026-10-20 | P1 | Pass 2026-10-28 |
+| UT-DATE-12 | purchase 2026-12-28, window 10 (crosses year) | 2027-01-07 | P1 | Pass 2026-10-28 |
 
 ### 1.3 Status and days left (BR-03, BR-04) — today 2026-10-27
 
 | ID | Input | Expected | Pri | Status |
 | --- | --- | --- | --- | --- |
-| UT-DATE-13 | return deadline 2026-10-27 (today) | daysLeft 0, EXPIRING_SOON (not expired) | P0 | Not run |
-| UT-DATE-14 | return deadline 2026-10-26 | daysLeft −1, EXPIRED | P0 | Not run |
-| UT-DATE-15 | return deadline 2026-11-03, alert 7 | daysLeft 7, EXPIRING_SOON (boundary in) | P0 | Not run |
-| UT-DATE-16 | return deadline 2026-11-04, alert 7 | daysLeft 8, ACTIVE (boundary out) | P0 | Not run |
-| UT-DATE-17 | warranty expiry 2026-11-26, alert 30 | daysLeft 30, EXPIRING_SOON | P0 | Not run |
-| UT-DATE-18 | warranty expiry 2026-11-27, alert 30 | daysLeft 31, ACTIVE | P0 | Not run |
-| UT-DATE-19 | warranty expiry 2026-12-20, alert 60 (user setting) | daysLeft 54, EXPIRING_SOON | P0 | Not run |
-| UT-DATE-20 | deadline null | daysLeft null, NOT_SET | P0 | Not run |
-| UT-DATE-21 | expiry 2027-01-14 | daysLeft 79 (crosses month and year) | P1 | Not run |
+| UT-DATE-13 | return deadline 2026-10-27 (today) | daysLeft 0, EXPIRING_SOON (not expired) | P0 | Pass 2026-10-28 |
+| UT-DATE-14 | return deadline 2026-10-26 | daysLeft −1, EXPIRED | P0 | Pass 2026-10-28 |
+| UT-DATE-15 | return deadline 2026-11-03, alert 7 | daysLeft 7, EXPIRING_SOON (boundary in) | P0 | Pass 2026-10-28 |
+| UT-DATE-16 | return deadline 2026-11-04, alert 7 | daysLeft 8, ACTIVE (boundary out) | P0 | Pass 2026-10-28 |
+| UT-DATE-17 | warranty expiry 2026-11-26, alert 30 | daysLeft 30, EXPIRING_SOON | P0 | Pass 2026-10-28 |
+| UT-DATE-18 | warranty expiry 2026-11-27, alert 30 | daysLeft 31, ACTIVE | P0 | Pass 2026-10-28 |
+| UT-DATE-19 | warranty expiry 2026-12-20, alert 60 (user setting) | daysLeft 54, EXPIRING_SOON | P0 | Pass 2026-10-28 |
+| UT-DATE-20 | deadline null | daysLeft null, NOT_SET | P0 | Pass 2026-10-28 |
+| UT-DATE-21 | expiry 2027-01-14 | daysLeft 79 (crosses month and year) | P1 | Pass 2026-10-28 |
 
 ### 1.4 Today in the app time zone (BR-05, D-10)
 
 | ID | Input | Expected | Pri | Status |
 | --- | --- | --- | --- | --- |
-| UT-DATE-22 | clock 2026-10-27T18:29:00Z (23:59 IST) | today = 2026-10-27 | P0 | Not run |
-| UT-DATE-23 | clock 2026-10-27T18:31:00Z (00:01 IST next day) | today = 2026-10-28 | P0 | Not run |
-| UT-DATE-24 | invalid date string "2026-02-30" passed to the parser | throws, no silent roll-over to March | P1 | Not run |
+| UT-DATE-22 | clock 2026-10-27T18:29:00Z (23:59 IST) | today = 2026-10-27 | P0 | Pass 2026-10-28 |
+| UT-DATE-23 | clock 2026-10-27T18:31:00Z (00:01 IST next day) | today = 2026-10-28 | P0 | Pass 2026-10-28 |
+| UT-DATE-24 | invalid date string "2026-02-30" passed to the parser | throws, no silent roll-over to March | P1 | Pass 2026-10-28 |
 
 ---
 

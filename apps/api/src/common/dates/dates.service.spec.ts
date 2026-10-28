@@ -1,6 +1,6 @@
 import { ConfigService } from '@nestjs/config';
 import { Test, TestingModule } from '@nestjs/testing';
-import { CLOCK, Clock } from './clock';
+import { CLOCK, Clock, SystemClock } from './clock';
 import { DatesService, DeadlineStatus, InvalidDateError } from './dates.service';
 
 /**
@@ -36,6 +36,17 @@ async function buildService(nowIso: string = NOON_IST_ON_TEST_DAY): Promise<Date
 
   return moduleRef.get(DatesService);
 }
+
+describe('SystemClock', () => {
+  it('returns the real current instant', () => {
+    const before = Date.now();
+    const now = new SystemClock().now();
+
+    expect(now).toBeInstanceOf(Date);
+    expect(now.getTime()).toBeGreaterThanOrEqual(before);
+    expect(now.getTime()).toBeLessThanOrEqual(Date.now());
+  });
+});
 
 describe('DatesService', () => {
   let dates: DatesService;
