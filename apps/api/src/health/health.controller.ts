@@ -1,5 +1,6 @@
 import { Controller, Get } from '@nestjs/common';
 import { InjectDataSource } from '@nestjs/typeorm';
+import { Public } from '../auth/public.decorator';
 import { DataSource } from 'typeorm';
 
 /**
@@ -7,8 +8,8 @@ import { DataSource } from 'typeorm';
  * CI and the Day 7 fresh-clone check all need one cheap call that proves the
  * app booted and reached the database.
  *
- * TODO(Slice 3): mark @Public() once the global auth guard exists.
  */
+@Public()
 @Controller('health')
 export class HealthController {
   constructor(@InjectDataSource() private readonly dataSource: DataSource) {}

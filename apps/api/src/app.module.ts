@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { AuthModule } from './auth/auth.module';
 import { DatesModule } from './common/dates/dates.module';
 import { validateEnv } from './config/env.validation';
 import { databaseOptions } from './database/data-source';
@@ -22,6 +23,7 @@ import { HealthModule } from './health/health.module';
         databaseOptions(config.getOrThrow<string>('DATABASE_URL')),
     }),
     DatesModule,
+    AuthModule,
     HealthModule,
   ],
 })

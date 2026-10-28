@@ -66,27 +66,27 @@ All requests use `/api/v1`. "Signed in as A" = A's auth cookie. Errors must use 
 
 | ID | Scenario | Expected | Pri | Status |
 | --- | --- | --- | --- | --- |
-| API-ERR-01 | POST /auth/register with empty body | 400, code VALIDATION_ERROR, `fields` has name, email, password | P0 | Not run |
+| API-ERR-01 | POST /auth/register with empty body | 400, code VALIDATION_ERROR, `fields` has name, email, password | P0 | Pass 2026-10-28 |
 | API-ERR-02 | GET /api/v1/unknown | 404, code NOT_FOUND | P0 | Pass 2026-10-28 |
 | API-ERR-03 | Unhandled exception thrown in a test-only route | 500, code INTERNAL, no stack trace in body | P0 | Pass 2026-10-28 |
-| API-ERR-04 | Unknown property in a body (`isAdmin: true`) | 400 VALIDATION_ERROR naming the property | P0 | Not run |
+| API-ERR-04 | Unknown property in a body (`isAdmin: true`) | 400 VALIDATION_ERROR naming the property | P0 | Pass 2026-10-28 |
 | API-ERR-05 | Malformed JSON body | 400 VALIDATION_ERROR | P1 | Pass 2026-10-28 |
 
 ### 2.2 Auth (`auth.e2e-spec.ts`) — US-01
 
 | ID | Scenario | Expected | Pri | Status |
 | --- | --- | --- | --- | --- |
-| API-AUTH-01 | Register valid name/email/password | 201; body has id, name, email, alert settings; sets httpOnly cookie | P0 | Not run |
-| API-AUTH-02 | Register response and DB | No `password`/`passwordHash` in body; stored hash ≠ password (bcrypt) | P0 | Not run |
-| API-AUTH-03 | Register with an existing email (any case) | 409 CONFLICT | P0 | Not run |
-| API-AUTH-04 | Register password "short1" (< 8) | 400, fields.password | P0 | Not run |
-| API-AUTH-05 | Register password "longpassword" (no digit) | 400, fields.password | P0 | Not run |
-| API-AUTH-06 | Register invalid email | 400, fields.email | P0 | Not run |
-| API-AUTH-07 | Login correct credentials | 200 + cookie (HttpOnly, SameSite=Lax, Path=/) | P0 | Not run |
-| API-AUTH-08 | Login wrong password / unknown email | 401 UNAUTHENTICATED, same message for both, no cookie | P0 | Not run |
-| API-AUTH-09 | GET /auth/me with cookie | 200 current user | P0 | Not run |
-| API-AUTH-10 | GET /auth/me without cookie, or a tampered/expired token | 401 | P0 | Not run |
-| API-AUTH-11 | POST /auth/logout | 204; cookie cleared; next /auth/me → 401 | P0 | Not run |
+| API-AUTH-01 | Register valid name/email/password | 201; body has id, name, email, alert settings; sets httpOnly cookie | P0 | Pass 2026-10-28 |
+| API-AUTH-02 | Register response and DB | No `password`/`passwordHash` in body; stored hash ≠ password (bcrypt) | P0 | Pass 2026-10-28 |
+| API-AUTH-03 | Register with an existing email (any case) | 409 CONFLICT | P0 | Pass 2026-10-28 |
+| API-AUTH-04 | Register password "short1" (< 8) | 400, fields.password | P0 | Pass 2026-10-28 |
+| API-AUTH-05 | Register password "longpassword" (no digit) | 400, fields.password | P0 | Pass 2026-10-28 |
+| API-AUTH-06 | Register invalid email | 400, fields.email | P0 | Pass 2026-10-28 |
+| API-AUTH-07 | Login correct credentials | 200 + cookie (HttpOnly, SameSite=Lax, Path=/) | P0 | Pass 2026-10-28 |
+| API-AUTH-08 | Login wrong password / unknown email | 401 UNAUTHENTICATED, same message for both, no cookie | P0 | Pass 2026-10-28 |
+| API-AUTH-09 | GET /auth/me with cookie | 200 current user | P0 | Pass 2026-10-28 |
+| API-AUTH-10 | GET /auth/me without cookie, or a tampered/expired token | 401 | P0 | Pass 2026-10-28 |
+| API-AUTH-11 | POST /auth/logout | 204; cookie cleared; next /auth/me → 401 | P0 | Pass 2026-10-28 |
 | API-AUTH-12 | GET /purchases, /dashboard without cookie | 401 on each | P0 | Not run |
 
 ### 2.3 Alert settings (`settings.e2e-spec.ts`) — US-08

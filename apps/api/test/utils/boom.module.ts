@@ -1,4 +1,5 @@
 import { Controller, Get, Module } from '@nestjs/common';
+import { Public } from '../../src/auth/public.decorator';
 
 /**
  * A route that throws something the app does not expect, so API-ERR-03 can
@@ -8,6 +9,7 @@ import { Controller, Get, Module } from '@nestjs/common';
  * It lives under test/ and is imported only by createTestApp, so it is never
  * compiled into dist and cannot reach a running server.
  */
+@Public()
 @Controller('boom')
 export class BoomController {
   @Get()

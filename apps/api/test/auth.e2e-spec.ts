@@ -122,7 +122,9 @@ describe('Auth (e2e)', () => {
     await register().expect(201);
 
     const wrongPassword = await login({ email: VALID.email, password: 'Wrongpass1' }).expect(401);
-    const unknownEmail = await login({ email: 'nobody@test.dev', password: VALID.password }).expect(401);
+    const unknownEmail = await login({ email: 'nobody@test.dev', password: VALID.password }).expect(
+      401,
+    );
 
     expect(wrongPassword.body.error.code).toBe('UNAUTHENTICATED');
     expect(unknownEmail.body.error.code).toBe('UNAUTHENTICATED');
