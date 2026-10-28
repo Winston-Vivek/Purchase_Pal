@@ -9,6 +9,7 @@ import { databaseOptions } from './database/data-source';
 import { HealthModule } from './health/health.module';
 import { PurchasesModule } from './purchases/purchases.module';
 import { RepositoriesModule } from './repositories/repositories.module';
+import { ServiceRecordsModule } from './service-records/service-records.module';
 import { StorageModule } from './common/storage/storage.module';
 
 @Module({
@@ -32,6 +33,7 @@ import { StorageModule } from './common/storage/storage.module';
     AuthModule,
     PurchasesModule,
     AttachmentsModule,
+    ServiceRecordsModule,
     HealthModule,
   ],
 })

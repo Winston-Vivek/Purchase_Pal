@@ -164,16 +164,16 @@ Valid base body: `{ productName: "AirPods Pro (2nd generation)", category: "ELEC
 
 | ID | Scenario | Expected | Pri | Status |
 | --- | --- | --- | --- | --- |
-| API-SVC-01 | Add valid record (date, description, provider, cost) | 201 | P0 | Not run |
-| API-SVC-02 | List for a purchase with 2 records | Newest serviceDate first; only that purchase's records | P0 | Not run |
-| API-SVC-03 | Missing description | 400 fields.description | P0 | Not run |
-| API-SVC-04 | serviceDate before purchaseDate | 400 fields.serviceDate | P0 | Not run |
-| API-SVC-05 | serviceDate in the future | 400 fields.serviceDate | P0 | Not run |
-| API-SVC-06 | cost −5 | 400 fields.cost | P1 | Not run |
-| API-SVC-07 | PATCH own record | 200; persists | P0 | Not run |
-| API-SVC-08 | DELETE own record | 204 | P0 | Not run |
-| API-SVC-09 | B: list/add on A's purchase | 404 | P0 | Not run |
-| API-SVC-10 | B: PATCH/DELETE A's record | 404; record unchanged | P0 | Not run |
+| API-SVC-01 | Add valid record (date, description, provider, cost) | 201 | P0 | Pass 2026-10-28 |
+| API-SVC-02 | List for a purchase with 2 records | Newest serviceDate first; only that purchase's records | P0 | Pass 2026-10-28 |
+| API-SVC-03 | Missing description | 400 fields.description | P0 | Pass 2026-10-28 |
+| API-SVC-04 | serviceDate before purchaseDate | 400 fields.serviceDate | P0 | Pass 2026-10-28 |
+| API-SVC-05 | serviceDate in the future | 400 fields.serviceDate | P0 | Pass 2026-10-28 |
+| API-SVC-06 | cost −5 | 400 fields.cost | P1 | Pass 2026-10-28 |
+| API-SVC-07 | PATCH own record | 200; persists | P0 | Pass 2026-10-28 |
+| API-SVC-08 | DELETE own record | 204 | P0 | Pass 2026-10-28 |
+| API-SVC-09 | B: list/add on A's purchase | 404 | P0 | Pass 2026-10-28 |
+| API-SVC-10 | B: PATCH/DELETE A's record | 404; record unchanged | P0 | Pass 2026-10-28 |
 
 ### 2.7 Dashboard (`dashboard.e2e-spec.ts`) — US-06
 
