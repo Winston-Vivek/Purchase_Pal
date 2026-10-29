@@ -100,9 +100,9 @@ None identified.
 _Machine-generated from `.ai/EVIDENCE.jsonl`. Do not edit by hand._
 
 ```
-82 commands recorded, of which 9 verified (5 passed, 4 failed, 2 non-binding).
+85 commands recorded, of which 9 verified (5 passed, 4 failed, 2 non-binding).
 
-Files changed since baseline `0ecc127` (git): 147
+Files changed since baseline `0ecc127` (git): 153
   - apps/api/package.json
   - apps/api/package-lock.json
   - apps/api/prisma/migrations/20261028080043_init/migration.sql
@@ -115,7 +115,7 @@ Files changed since baseline `0ecc127` (git): 147
   - apps/api/src/attachments/attachments.module.ts
   - apps/api/src/attachments/attachments.service.ts
   - apps/api/src/auth/auth.constants.ts
-  ... and 135 more
+  ... and 141 more
 
 Tool-observed edits: 0 across 0 files.
   (Only Edit/Write/MultiEdit are visible to the hook. A Bash-first session
@@ -160,7 +160,7 @@ Most recent verified runs:
 ### Working tree
 
 <!-- relay:git:start -->
-- Branch `master` at `adf773b`, 2 uncommitted path(s).
+- Branch `master` at `cce26c2`, 2 uncommitted path(s).
 - Changed now:
 
 ```
@@ -202,5 +202,5 @@ design/Proofly Colour Mockups.html or repoint those prompts at the HTML.
 ## Last Updated
 
 <!-- relay:updated:start -->
-- 2026-10-29T12:46:06Z (mechanical regions refreshed by `migration-state.sh`)
+- 2026-10-29T13:00:45Z (mechanical regions refreshed by `migration-state.sh`)
 <!-- relay:updated:end -->
