@@ -12,6 +12,8 @@ import type { UserResponse } from '../api/types';
 export const useAuthStore = defineStore('auth', () => {
   const user = ref<UserResponse | null>(null);
   const error = ref<string | null>(null);
+  /** Field -> message from a 400, so a form can put each beside its input. */
+  const fields = ref<Record<string, string>>({});
   const loading = ref(false);
   /** Whether restore() has run. The guard uses this so the session is checked
    *  once per page load rather than once per navigation. */
@@ -30,6 +32,7 @@ export const useAuthStore = defineStore('auth', () => {
   async function submit(path: string, body: Record<string, unknown>): Promise<boolean> {
     loading.value = true;
     error.value = null;
+    fields.value = {};
 
     try {
       user.value = await api<UserResponse>(path, { method: 'POST', body, skipAuthRedirect: true });
@@ -37,6 +40,7 @@ export const useAuthStore = defineStore('auth', () => {
     } catch (failure) {
       user.value = null;
       error.value = message(failure);
+      if (failure instanceof ApiError && failure.fields) fields.value = failure.fields;
       return false;
     } finally {
       loading.value = false;
@@ -70,8 +74,9 @@ export const useAuthStore = defineStore('auth', () => {
       // but leaving the UI signed in would be worse than a stale cookie.
       clear();
       error.value = null;
+      fields.value = {};
     }
   }
 
-  return { user, error, loading, resolved, isAuthenticated, login, register, logout, restore, clear };
+  return { user, error, fields, loading, resolved, isAuthenticated, login, register, logout, restore, clear };
 });

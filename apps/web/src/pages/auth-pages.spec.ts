@@ -1,7 +1,6 @@
-import { mount } from '@vue/test-utils';
+import { flushPromises, mount } from '@vue/test-utils';
 import { createPinia, setActivePinia } from 'pinia';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { nextTick } from 'vue';
 import LoginPage from './LoginPage.vue';
 import RegisterPage from './RegisterPage.vue';
 
@@ -39,6 +38,13 @@ describe('Auth pages', () => {
 
   afterEach(() => vi.unstubAllGlobals());
 
+  // useRouter/useRoute are mocked above, but RouterLink resolves through the
+  // injected router instance, which a composable mock does not provide.
+  const mountPage = (component: Parameters<typeof mount>[0]) =>
+    mount(component, {
+      global: { stubs: { RouterLink: { template: '<a href="#"><slot /></a>' } } },
+    });
+
   const fill = async (wrapper: ReturnType<typeof mount>, values: Record<string, string>) => {
     for (const [id, value] of Object.entries(values)) {
       await wrapper.get(`#${id}`).setValue(value);
@@ -48,12 +54,11 @@ describe('Auth pages', () => {
   describe('Sign in', () => {
     it('FE-PAGE-01 a valid submit signs in and moves on to the dashboard', async () => {
       fetchMock.mockResolvedValue(json(200, DEMO));
-      const wrapper = mount(LoginPage);
+      const wrapper = mountPage(LoginPage);
 
       await fill(wrapper, { email: 'ada@test.dev', password: 'Passw0rd1' });
       await wrapper.get('form').trigger('submit');
-      await nextTick();
-      await nextTick();
+      await flushPromises();
 
       const [url, init] = fetchMock.mock.calls[0] as [string, RequestInit];
       expect(url).toBe('/api/v1/auth/login');
@@ -64,12 +69,11 @@ describe('Auth pages', () => {
     it('FE-PAGE-01 it returns you to where you were heading', async () => {
       route.query = { redirect: '/purchases' };
       fetchMock.mockResolvedValue(json(200, DEMO));
-      const wrapper = mount(LoginPage);
+      const wrapper = mountPage(LoginPage);
 
       await fill(wrapper, { email: 'ada@test.dev', password: 'Passw0rd1' });
       await wrapper.get('form').trigger('submit');
-      await nextTick();
-      await nextTick();
+      await flushPromises();
 
       expect(push).toHaveBeenCalledWith('/purchases');
     });
@@ -80,12 +84,11 @@ describe('Auth pages', () => {
           error: { code: 'UNAUTHENTICATED', message: 'Email or password is incorrect' },
         }),
       );
-      const wrapper = mount(LoginPage);
+      const wrapper = mountPage(LoginPage);
 
       await fill(wrapper, { email: 'ada@test.dev', password: 'wrong' });
       await wrapper.get('form').trigger('submit');
-      await nextTick();
-      await nextTick();
+      await flushPromises();
 
       const text = wrapper.text();
       expect(text).toContain('Email or password is incorrect');
@@ -99,12 +102,11 @@ describe('Auth pages', () => {
       fetchMock.mockResolvedValue(
         json(401, { error: { code: 'UNAUTHENTICATED', message: 'Email or password is incorrect' } }),
       );
-      const wrapper = mount(LoginPage);
+      const wrapper = mountPage(LoginPage);
 
       await fill(wrapper, { email: 'a@b.dev', password: 'x' });
       await wrapper.get('form').trigger('submit');
-      await nextTick();
-      await nextTick();
+      await flushPromises();
 
       expect(wrapper.find('[role="alert"]').exists()).toBe(true);
     });
@@ -113,18 +115,18 @@ describe('Auth pages', () => {
       fetchMock.mockResolvedValue(
         json(401, { error: { code: 'UNAUTHENTICATED', message: 'Email or password is incorrect' } }),
       );
-      const wrapper = mount(LoginPage);
+      const wrapper = mountPage(LoginPage);
 
       await fill(wrapper, { email: 'ada@test.dev', password: 'wrong' });
       await wrapper.get('form').trigger('submit');
-      await nextTick();
+      await flushPromises();
 
       // Retyping an email after every failure is how people give up.
       expect((wrapper.get('#email').element as HTMLInputElement).value).toBe('ada@test.dev');
     });
 
     it('offers a way to the password toggle and to creating an account', () => {
-      const wrapper = mount(LoginPage);
+      const wrapper = mountPage(LoginPage);
 
       expect(wrapper.get('#password').attributes('type')).toBe('password');
       expect(wrapper.text()).toMatch(/create an account|sign up/i);
@@ -133,7 +135,7 @@ describe('Auth pages', () => {
 
   describe('Create account', () => {
     it('FE-PAGE-03 the password rule is stated before it is broken', () => {
-      const wrapper = mount(RegisterPage);
+      const wrapper = mountPage(RegisterPage);
 
       // ui-guide §6: register shows the rule as a hint, not as an error you
       // discover by failing.
@@ -153,12 +155,11 @@ describe('Auth pages', () => {
           },
         }),
       );
-      const wrapper = mount(RegisterPage);
+      const wrapper = mountPage(RegisterPage);
 
       await fill(wrapper, { name: 'Ada', email: 'nope', password: 'short' });
       await wrapper.get('form').trigger('submit');
-      await nextTick();
-      await nextTick();
+      await flushPromises();
 
       expect(wrapper.get('#email').attributes('aria-invalid')).toBe('true');
       expect(wrapper.get('#password').attributes('aria-invalid')).toBe('true');
@@ -172,12 +173,11 @@ describe('Auth pages', () => {
           error: { code: 'CONFLICT', message: 'That email address is already registered' },
         }),
       );
-      const wrapper = mount(RegisterPage);
+      const wrapper = mountPage(RegisterPage);
 
       await fill(wrapper, { name: 'Ada', email: 'ada@test.dev', password: 'Passw0rd1' });
       await wrapper.get('form').trigger('submit');
-      await nextTick();
-      await nextTick();
+      await flushPromises();
 
       expect(wrapper.text()).toContain('That email address is already registered');
       expect(push).not.toHaveBeenCalled();

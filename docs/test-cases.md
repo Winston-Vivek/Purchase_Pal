@@ -259,10 +259,10 @@ Fixture for A (today 2026-10-27), matching the design mockups:
 
 | ID | Page | Scenario | Expected | Pri | Status |
 | --- | --- | --- | --- | --- | --- |
-| FE-PAGE-01 | Sign in | Valid submit | Calls login; goes to dashboard | P0 | Not run |
-| FE-PAGE-02 | Sign in | 401 | "Email or password is incorrect" (doesn't say which) | P0 | Not run |
-| FE-PAGE-03 | Create account | Validation | Password rule hint; field errors from API shown inline | P0 | Not run |
-| FE-PAGE-04 | AppShell | Current route | aria-current="page" on the active nav item | P1 | Not run |
+| FE-PAGE-01 | Sign in | Valid submit | Calls login; goes to dashboard | P0 | Pass 2026-10-29 |
+| FE-PAGE-02 | Sign in | 401 | "Email or password is incorrect" (doesn't say which) | P0 | Pass 2026-10-29 |
+| FE-PAGE-03 | Create account | Validation | Password rule hint; field errors from API shown inline | P0 | Pass 2026-10-29 |
+| FE-PAGE-04 | AppShell | Current route | aria-current="page" on the active nav item | P1 | Pass 2026-10-29 |
 | FE-PAGE-05 | My purchases | Loading | Skeleton shown | P1 | Not run |
 | FE-PAGE-06 | My purchases | Data | Rows show name, date, price, return badge, warranty badge, receipt state | P0 | Not run |
 | FE-PAGE-07 | My purchases | Empty | "No purchases yet" + Add purchase | P0 | Not run |

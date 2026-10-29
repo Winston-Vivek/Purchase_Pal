@@ -34,6 +34,18 @@ const routes: RouteRecordRaw[] = [
     component: () => import('../pages/PurchasesPage.vue'),
     meta: { title: 'My purchases · Proofly' },
   },
+  {
+    path: '/purchases/new',
+    name: 'purchase-new',
+    component: () => import('../pages/PurchaseFormPage.vue'),
+    meta: { title: 'Add purchase · Proofly' },
+  },
+  {
+    path: '/settings',
+    name: 'settings',
+    component: () => import('../pages/SettingsPage.vue'),
+    meta: { title: 'Settings · Proofly' },
+  },
 ];
 
 /**
