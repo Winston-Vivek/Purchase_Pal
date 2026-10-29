@@ -92,7 +92,7 @@ async function signOut(): Promise<void> {
       class="flex items-center justify-between border-b border-border bg-surface px-4 py-3 lg:hidden"
     >
       <RouterLink v-slot="{ href, navigate }" to="/dashboard" custom>
-        <a :href="href" class="flex cursor-pointer items-center gap-2" @click="navigate">
+        <a :href="href" class="flex min-h-11 cursor-pointer items-center gap-2" @click="navigate">
           <span class="flex size-8 items-center justify-center rounded-md bg-primary text-white">
             <LayoutGrid :size="18" aria-hidden="true" />
           </span>

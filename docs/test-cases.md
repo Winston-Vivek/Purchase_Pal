@@ -324,18 +324,18 @@ From `design/ui-guide.md` §8 and the UI UX Pro Max pre-delivery checklist.
 
 | ID | Check | How | Pri | Status |
 | --- | --- | --- | --- | --- |
-| NFR-01 | No horizontal scroll | Every page at 360, 768, 1024, 1440 px | P0 | Not run |
-| NFR-02 | Text contrast ≥ 4.5:1, UI ≥ 3:1 | Browser devtools contrast check on badges, muted text, buttons | P0 | Not run |
-| NFR-03 | Status never by colour alone | Every badge has an icon + words | P0 | Not run |
-| NFR-04 | Keyboard only | Sign in → add purchase → upload → add service record with Tab/Enter/Esc | P0 | Not run |
-| NFR-05 | Visible focus | Focus ring on every interactive element | P0 | Not run |
-| NFR-06 | Labels | Every input has a visible label; errors linked via aria-describedby | P0 | Not run |
-| NFR-07 | Touch targets | Buttons and inputs ≥ 44 px high on mobile | P1 | Not run |
-| NFR-08 | Reduced motion | With prefers-reduced-motion, no transitions | P1 | Not run |
-| NFR-09 | Page titles | `<title>` changes per route; one h1 per page | P1 | Not run |
-| NFR-10 | Secrets | No secrets in git; `.env.example` complete; JWT secret required at boot | P0 | Not run |
-| NFR-11 | Receipts not public | Guessing `/uploads/<key>` or any static path returns 404 | P0 | Not run |
-| NFR-12 | Fresh clone | README steps alone run the app and all tests | P0 | Not run |
+| NFR-01 | No horizontal scroll | Every page at 360, 768, 1024, 1440 px | P0 | Pass 2026-10-29 |
+| NFR-02 | Text contrast ≥ 4.5:1, UI ≥ 3:1 | Browser devtools contrast check on badges, muted text, buttons | P0 | Pass 2026-10-29 |
+| NFR-03 | Status never by colour alone | Every badge has an icon + words | P0 | Pass 2026-10-29 |
+| NFR-04 | Keyboard only | Sign in → add purchase → upload → add service record with Tab/Enter/Esc | P0 | Pass 2026-10-29 |
+| NFR-05 | Visible focus | Focus ring on every interactive element | P0 | Pass 2026-10-29 |
+| NFR-06 | Labels | Every input has a visible label; errors linked via aria-describedby | P0 | Pass 2026-10-29 |
+| NFR-07 | Touch targets | Buttons and inputs ≥ 44 px high on mobile | P1 | Pass 2026-10-29 |
+| NFR-08 | Reduced motion | With prefers-reduced-motion, no transitions | P1 | Pass 2026-10-29 |
+| NFR-09 | Page titles | `<title>` changes per route; one h1 per page | P1 | Pass 2026-10-29 |
+| NFR-10 | Secrets | No secrets in git; `.env.example` complete; JWT secret required at boot | P0 | Pass 2026-10-29 |
+| NFR-11 | Receipts not public | Guessing `/uploads/<key>` or any static path returns 404 | P0 | Pass 2026-10-29 |
+| NFR-12 | Fresh clone | README steps alone run the app and all tests | P0 | Not run — Day 7 fresh-clone check |
 
 ---
 
