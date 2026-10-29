@@ -59,21 +59,40 @@ export function matchIds(expectedIds, collected) {
  * marked "Not run": the gate is checking that a human-readable record exists
  * and is current, not merely that some string is present.
  */
-export function statusOf(testCasesMarkdown, ids) {
-  const lines = testCasesMarkdown.split('\n');
+export function statusOf(markdown, ids, columnName = 'Status') {
+  const lines = markdown.split('\n');
+
+  /**
+   * The column is found by its header, not by counting from the end.
+   * docs/test-cases.md ends in Status; docs/uat-report.md ends in Evidence
+   * and keeps its verdict in Result. Counting backwards reads the wrong cell
+   * in one of them and reports every case as unrecorded.
+   */
+  const columnIndexFor = (rowIndex) => {
+    for (let i = rowIndex; i >= 0; i -= 1) {
+      const line = lines[i] ?? '';
+      if (!line.startsWith('|')) continue;
+
+      const cells = line.split('|').map((cell) => cell.trim());
+      const found = cells.findIndex((cell) => cell.toLowerCase() === columnName.toLowerCase());
+      if (found !== -1) return found;
+    }
+    return -1;
+  };
+
   const absent = [];
   const notRun = [];
   const failed = [];
 
   for (const id of ids) {
-    const row = lines.find((line) => line.startsWith(`| ${id} |`));
-    if (!row) {
+    const rowIndex = lines.findIndex((line) => line.startsWith(`| ${id} |`));
+    if (rowIndex === -1) {
       absent.push(id);
       continue;
     }
 
-    const cells = row.split('|').map((cell) => cell.trim());
-    const status = cells[cells.length - 2] ?? '';
+    const column = columnIndexFor(rowIndex);
+    const status = (lines[rowIndex].split('|')[column] ?? '').trim();
 
     if (status === '' || /not run/i.test(status)) notRun.push(id);
     else if (/^fail/i.test(status)) failed.push(id);

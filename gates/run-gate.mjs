@@ -140,12 +140,12 @@ const CHECKS = {
     };
   },
 
-  'testcases-status'({ ids, label }) {
-    const file = join(ROOT, CONFIG.testCasesFile);
-    if (!existsSync(file)) return { ok: false, label, detail: `${CONFIG.testCasesFile} not found` };
+  'testcases-status'({ ids, label, file: from, column }) {
+    const file = join(ROOT, from ?? CONFIG.testCasesFile);
+    if (!existsSync(file)) return { ok: false, label, detail: `${from ?? CONFIG.testCasesFile} not found` };
 
     const expected = expandIds(ids);
-    const { absent, notRun, failed } = statusOf(readFileSync(file, 'utf8'), expected);
+    const { absent, notRun, failed } = statusOf(readFileSync(file, 'utf8'), expected, column);
 
     const parts = [];
     if (absent.length) parts.push(`not in the file: ${summarise(absent)}`);

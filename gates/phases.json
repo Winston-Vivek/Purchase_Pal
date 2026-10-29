@@ -555,8 +555,16 @@
           "kind": "testcases-status",
           "label": "UAT results and the fresh-clone check recorded",
           "ids": [
-            "UAT-01..13",
             "NFR-12"
+          ]
+        },
+        {
+          "kind": "testcases-status",
+          "label": "Every UAT scenario has a recorded result",
+          "file": "docs/uat-report.md",
+          "column": "Result",
+          "ids": [
+            "UAT-01..13"
           ]
         }
       ]

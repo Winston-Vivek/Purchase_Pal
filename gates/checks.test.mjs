@@ -100,6 +100,39 @@ describe('statusOf', () => {
   });
 });
 
+describe('statusOf across different tables', () => {
+  // docs/uat-report.md keeps its verdict in Result and ends in Evidence.
+  const uat = [
+    '| ID | Scenario | Steps | Expected | Actual | Result | Evidence |',
+    '| --- | --- | --- | --- | --- | --- | --- |',
+    '| UAT-01 | Register and sign in | … | … | Worked | Pass | shot.png |',
+    '| UAT-02 | Add a purchase | … | … | | | |',
+    '| UAT-03 | Upload a receipt | … | … | Wrong file | Fail D-02 | |',
+  ].join('\n');
+
+  it('reads the named column, not the last but one', () => {
+    // Counting backwards would read Evidence and call UAT-01 unrecorded.
+    assert.deepEqual(statusOf(uat, ['UAT-01'], 'Result'), { absent: [], notRun: [], failed: [] });
+  });
+
+  it('REFUSES a scenario with an empty Result', () => {
+    assert.deepEqual(statusOf(uat, ['UAT-02'], 'Result').notRun, ['UAT-02']);
+  });
+
+  it('REFUSES a scenario recorded as a failure', () => {
+    assert.deepEqual(statusOf(uat, ['UAT-03'], 'Result').failed, ['UAT-03']);
+  });
+
+  it('still defaults to Status for docs/test-cases.md', () => {
+    const cases = [
+      '| ID | Input | Expected | Pri | Status |',
+      '| --- | --- | --- | --- | --- |',
+      '| UT-DATE-01 | x | y | P0 | Pass 2026-10-28 |',
+    ].join('\n');
+    assert.deepEqual(statusOf(cases, ['UT-DATE-01']), { absent: [], notRun: [], failed: [] });
+  });
+});
+
 describe('tddHistory', () => {
   it('accepts an area whose first commit is a test', () => {
     const log = ['test(dates): UT-DATE-01..24', 'feat(dates): DatesService'];
