@@ -284,9 +284,9 @@ Fixture for A (today 2026-10-27), matching the design mockups:
 | FE-PAGE-23 | Service dialog | Invalid date | Inline error; dialog stays open | P0 | Pass 2026-10-29 |
 | FE-PAGE-24 | Delete purchase | Confirm | DELETE sent; toast; back to My purchases | P0 | Pass 2026-10-29 |
 | FE-PAGE-25 | Delete purchase | Cancel | Nothing sent | P0 | Pass 2026-10-29 |
-| FE-PAGE-26 | Settings | Change return window to 3 | Preview sentence updates; Save → toast | P0 | Not run |
-| FE-PAGE-27 | Settings | Out of range (0) | Inline error; Save blocked | P0 | Not run |
-| FE-PAGE-28 | Settings | Sign out | Session cleared; at /login | P0 | Not run |
+| FE-PAGE-26 | Settings | Change return window to 3 | Preview sentence updates; Save → toast | P0 | Pass 2026-10-29 |
+| FE-PAGE-27 | Settings | Out of range (0) | Inline error; Save blocked | P0 | Pass 2026-10-29 |
+| FE-PAGE-28 | Settings | Sign out | Session cleared; at /login | P0 | Pass 2026-10-29 |
 | FE-PAGE-29 | Search | Type + filter | Query sent; chips shown for active filters | P1 | Not run |
 | FE-PAGE-30 | Search | Remove chip / Clear all | Filter removed; list refreshes | P1 | Not run |
 | FE-PAGE-31 | Search | No results | Message names the filters + Clear filters | P1 | Not run |
