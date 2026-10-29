@@ -287,10 +287,10 @@ Fixture for A (today 2026-10-27), matching the design mockups:
 | FE-PAGE-26 | Settings | Change return window to 3 | Preview sentence updates; Save → toast | P0 | Pass 2026-10-29 |
 | FE-PAGE-27 | Settings | Out of range (0) | Inline error; Save blocked | P0 | Pass 2026-10-29 |
 | FE-PAGE-28 | Settings | Sign out | Session cleared; at /login | P0 | Pass 2026-10-29 |
-| FE-PAGE-29 | Search | Type + filter | Query sent; chips shown for active filters | P1 | Not run |
-| FE-PAGE-30 | Search | Remove chip / Clear all | Filter removed; list refreshes | P1 | Not run |
-| FE-PAGE-31 | Search | No results | Message names the filters + Clear filters | P1 | Not run |
-| FE-PAGE-32 | Search | Filters in URL | Refresh keeps filters (vue-pinia skill: state-url-for-ephemeral-filters) | P1 | Not run |
+| FE-PAGE-29 | Search | Type + filter | Query sent; chips shown for active filters | P1 | Pass 2026-10-29 |
+| FE-PAGE-30 | Search | Remove chip / Clear all | Filter removed; list refreshes | P1 | Pass 2026-10-29 |
+| FE-PAGE-31 | Search | No results | Message names the filters + Clear filters | P1 | Pass 2026-10-29 |
+| FE-PAGE-32 | Search | Filters in URL | Refresh keeps filters (vue-pinia skill: state-url-for-ephemeral-filters) | P1 | Pass 2026-10-29 |
 
 ---
 

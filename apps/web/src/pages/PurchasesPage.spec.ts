@@ -169,7 +169,9 @@ describe('My purchases', () => {
     await flushPromises();
 
     fetchMock.mockResolvedValueOnce(json(200, { items: [AIRPODS], total: 1, page: 1, pageSize: 20 }));
-    await wrapper.get('button').trigger('click');
+    // By name, not by position: the search form now renders a button first.
+    const retry = wrapper.findAll('button').find((b) => /try again/i.test(b.text()));
+    await retry?.trigger('click');
     await flushPromises();
 
     expect(wrapper.text()).toContain('AirPods Pro (2nd generation)');
@@ -253,7 +255,7 @@ describe('My purchases', () => {
       // "Nothing found" leaves the user guessing which filter did it.
       expect(text).toContain('kettle');
       expect(text).toMatch(/mobile/i);
-      expect(wrapper.get('[data-testid="clear-all"]').exists()).toBe(true);
+      expect(wrapper.find('[data-testid="clear-all"]').exists()).toBe(true);
       // An empty RESULT is not an empty ACCOUNT.
       expect(text).not.toMatch(/no purchases yet/i);
     });
@@ -278,7 +280,7 @@ describe('My purchases', () => {
       await flushPromises();
 
       expect(wrapper.text()).toMatch(/21.{1,3}40 of 57/);
-      expect(wrapper.get('[data-testid="pagination"]').exists()).toBe(true);
+      expect(wrapper.find('[data-testid="pagination"]').exists()).toBe(true);
     });
 
     it('paging is hidden when everything fits on one page', async () => {
