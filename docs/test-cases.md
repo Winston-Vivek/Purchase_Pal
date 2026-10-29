@@ -263,14 +263,14 @@ Fixture for A (today 2026-10-27), matching the design mockups:
 | FE-PAGE-02 | Sign in | 401 | "Email or password is incorrect" (doesn't say which) | P0 | Pass 2026-10-29 |
 | FE-PAGE-03 | Create account | Validation | Password rule hint; field errors from API shown inline | P0 | Pass 2026-10-29 |
 | FE-PAGE-04 | AppShell | Current route | aria-current="page" on the active nav item | P1 | Pass 2026-10-29 |
-| FE-PAGE-05 | My purchases | Loading | Skeleton shown | P1 | Not run |
-| FE-PAGE-06 | My purchases | Data | Rows show name, date, price, return badge, warranty badge, receipt state | P0 | Not run |
-| FE-PAGE-07 | My purchases | Empty | "No purchases yet" + Add purchase | P0 | Not run |
-| FE-PAGE-08 | My purchases | Load error | Message + Try again | P1 | Not run |
-| FE-PAGE-09 | Add purchase | Return "Window in days" 7, date 2026-10-27 | Preview "Return closes 3 Nov 2026 · in 7 days" | P0 | Not run |
-| FE-PAGE-10 | Add purchase | Warranty 12 months from 2026-10-27 | Preview "Covered until 26 Oct 2027" | P0 | Not run |
-| FE-PAGE-11 | Add purchase | Server 400 | ErrorSummary focused; inline errors; all entered values kept | P0 | Not run |
-| FE-PAGE-12 | Edit purchase | Load existing | Fields prefilled; Save sends PATCH with changes | P0 | Not run |
+| FE-PAGE-05 | My purchases | Loading | Skeleton shown | P1 | Pass 2026-10-29 |
+| FE-PAGE-06 | My purchases | Data | Rows show name, date, price, return badge, warranty badge, receipt state | P0 | Pass 2026-10-29 |
+| FE-PAGE-07 | My purchases | Empty | "No purchases yet" + Add purchase | P0 | Pass 2026-10-29 |
+| FE-PAGE-08 | My purchases | Load error | Message + Try again | P1 | Pass 2026-10-29 |
+| FE-PAGE-09 | Add purchase | Return "Window in days" 7, date 2026-10-27 | Preview "Return closes 3 Nov 2026 · in 7 days" | P0 | Pass 2026-10-29 |
+| FE-PAGE-10 | Add purchase | Warranty 12 months from 2026-10-27 | Preview "Covered until 26 Oct 2027" | P0 | Pass 2026-10-29 |
+| FE-PAGE-11 | Add purchase | Server 400 | ErrorSummary focused; inline errors; all entered values kept | P0 | Pass 2026-10-29 |
+| FE-PAGE-12 | Edit purchase | Load existing | Fields prefilled; Save sends PATCH with changes | P0 | Pass 2026-10-29 |
 | FE-PAGE-13 | Details | Data | Header facts, warranty and return panels with date, rule text, badge | P0 | Not run |
 | FE-PAGE-14 | Details | No receipt | "Receipt missing" banner with Upload | P0 | Not run |
 | FE-PAGE-15 | Details | Upload success | File appears in list; count updates | P0 | Not run |
