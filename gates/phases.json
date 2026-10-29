@@ -300,14 +300,14 @@
     {
       "id": "day5",
       "title": "Frontend core (TDD)",
-      "status": "in-progress",
+      "status": "passed",
       "slices": [
         {
           "id": "0",
           "title": "Scaffold",
           "tdd": false,
           "testIds": [],
-          "done": false
+          "done": true
         },
         {
           "id": "1",
@@ -317,7 +317,8 @@
           "testIds": [
             "FE-API-01..04",
             "FE-AUTH-01..06"
-          ]
+          ],
+          "done": true
         },
         {
           "id": "2",
@@ -326,7 +327,8 @@
           "area": "components",
           "testIds": [
             "FE-CMP-01..16"
-          ]
+          ],
+          "done": true
         },
         {
           "id": "3",
@@ -335,7 +337,8 @@
           "area": "shell",
           "testIds": [
             "FE-PAGE-01..04"
-          ]
+          ],
+          "done": true
         },
         {
           "id": "4",
@@ -344,7 +347,8 @@
           "area": "purchases-ui",
           "testIds": [
             "FE-PAGE-05..12"
-          ]
+          ],
+          "done": true
         },
         {
           "id": "5",
@@ -353,7 +357,8 @@
           "area": "details",
           "testIds": [
             "FE-PAGE-13..17"
-          ]
+          ],
+          "done": true
         }
       ],
       "gate": [
@@ -409,7 +414,7 @@
     {
       "id": "day6",
       "title": "Frontend features and E2E",
-      "status": "pending",
+      "status": "in-progress",
       "slices": [
         {
           "id": "1",

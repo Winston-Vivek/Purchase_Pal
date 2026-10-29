@@ -64,13 +64,13 @@ _One wave per phase in `docs/plan.md`. Each closes on a verified
 - [x] 02 Design — UI guide, `@theme` tokens, status system, screens, wireframes, mockups. Gate: `npm run gate day2`
 - [x] 03 Backend core — setup, DatesService, error shape, auth, alert settings, purchases CRUD. 77 cases. Gate: `npm run gate day3`
 - [x] 04 Backend features — receipts, service records, cascade, dashboard, search, seed. 46 cases. Gate: `npm run gate day4`
-- [~] 05 Frontend core — scaffold, data layer, base components, shell, list/form, details. 43 cases. Gate: `npm run gate day5`
-- [ ] 06 Frontend features + E2E — dashboard, dialogs, settings, search UI, Playwright, quality pass. 35 cases. Gate: `npm run gate day6`
+- [x] 05 Frontend core — scaffold, data layer, base components, shell, list/form, details. 43 cases. Gate: `npm run gate day5`
+- [~] 06 Frontend features + E2E — dashboard, dialogs, settings, search UI, Playwright, quality pass. 35 cases. Gate: `npm run gate day6`
 - [ ] 07 UAT and delivery — fresh-clone check, UAT-01..13, defect fixes test-first, docs, tag v1.0.0. Gate: `npm run gate day7`
 
 ## Current Wave
 
-05 Frontend core
+06 Frontend features + E2E
 
 ## Completed
 
@@ -78,6 +78,7 @@ _One wave per phase in `docs/plan.md`. Each closes on a verified
 - [x] 02 Design
 - [x] 03 Backend core
 - [x] 04 Backend features
+- [x] 05 Frontend core
 
 ## In Progress
 
@@ -191,13 +192,15 @@ _No decisions recorded. Use `relay-decide` when a choice changes what the migrat
 
 ## Exact Next Action
 
-The backend is complete: 103 e2e + 25 unit, all green. Next is Day 5 Slice 0,
-scaffolding apps/web (Vite, Vue 3, TS, Pinia, Router, Vitest, ESLint) with
-Tailwind v4 and the @theme tokens copied exactly from design/ui-guide.md §2.
+Day 5 is closed. Start Day 6 Slice 1: the dashboard screen, matching
+design/mockups/desktop-1-dashboard.png and mobile-1-dashboard.png. The API
+already returns counts.totalValue and hasReceipt per needs-action row, which
+the mockup needs.
 
-Blocker to resolve first: design/mockups/*.png does not exist. The Day 5 and
-Day 6 prompts both reference it. Either export PNGs from
-design/Proofly Colour Mockups.html or repoint those prompts at the HTML.
+Day 6 also owes two things carried over from Day 5, both flagged rather than
+skipped quietly: the Receipt fieldset on the add form (FileDrop exists and is
+tested, it is wiring), and attachment delete, which was deliberately left to
+land with delete purchase and ConfirmDialog.
 
 ## Last Updated
 
