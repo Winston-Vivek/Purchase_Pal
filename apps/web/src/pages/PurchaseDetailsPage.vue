@@ -1,19 +1,25 @@
 <script setup lang="ts">
-import { Download, Pencil, RotateCcw, ShieldCheck, Wrench } from '@lucide/vue';
+import { Download, Pencil, Plus, RotateCcw, ShieldCheck, Trash2, Wrench } from '@lucide/vue';
 import { computed, onMounted, ref } from 'vue';
-import { RouterLink, useRoute } from 'vue-router';
+import { RouterLink, useRoute, useRouter } from 'vue-router';
 import { ApiError, api } from '../api/client';
-import type { AttachmentResponse, PurchaseDetail } from '../api/types';
+import type { AttachmentResponse, PurchaseDetail, ServiceRecordResponse } from '../api/types';
 import AppShell from '../components/AppShell.vue';
+import BaseButton from '../components/BaseButton.vue';
+import ConfirmDialog from '../components/ConfirmDialog.vue';
+import ServiceDialog, { type ServiceDraft } from '../components/ServiceDialog.vue';
+import ToastMessage from '../components/ToastMessage.vue';
 import EmptyState from '../components/EmptyState.vue';
 import FileDrop from '../components/FileDrop.vue';
 import SkeletonBlock from '../components/SkeletonBlock.vue';
 import StatusBadge from '../components/StatusBadge.vue';
 import { formatDate, formatFileSize, formatMoney } from '../lib/format';
+import { todayIso } from '../lib/deadlines';
 
 const MAX_RECEIPTS = 5;
 
 const route = useRoute();
+const router = useRouter();
 const purchaseId = computed(() => (route.params as Record<string, string>).purchaseId ?? '');
 
 const purchase = ref<PurchaseDetail | null>(null);
@@ -24,6 +30,117 @@ const uploadError = ref<string | null>(null);
 const uploading = ref(false);
 
 const attachments = computed<AttachmentResponse[]>(() => purchase.value?.attachments ?? []);
+const services = computed<ServiceRecordResponse[]>(() => purchase.value?.serviceRecords ?? []);
+
+const toast = ref<string | null>(null);
+
+/** Which record the service dialog is editing, or null for a new one. */
+const serviceDialogOpen = ref(false);
+const editingService = ref<ServiceRecordResponse | null>(null);
+const serviceErrors = ref<Record<string, string>>({});
+const savingService = ref(false);
+
+/** One confirmation at a time, so there is never a question about what the
+ *  Delete button in the dialog applies to. */
+type Pending =
+  | { kind: 'purchase' }
+  | { kind: 'attachment'; id: string; name: string }
+  | { kind: 'service'; id: string; description: string };
+
+const pending = ref<Pending | null>(null);
+
+const confirmTitle = computed(() => {
+  const p = pending.value;
+  if (!p) return '';
+  if (p.kind === 'purchase') return `Delete ${purchase.value?.productName}?`;
+  if (p.kind === 'attachment') return `Delete ${p.name}?`;
+  return `Delete "${p.description}"?`;
+});
+
+const confirmBody = computed(() => {
+  const p = pending.value;
+  if (p?.kind !== 'purchase') return 'You cannot undo this.';
+
+  // ui-guide §7 and BR-08: say what goes with it, not just "are you sure".
+  const parts = [
+    `${attachments.value.length} ${attachments.value.length === 1 ? 'receipt' : 'receipts'}`,
+    `${services.value.length} ${services.value.length === 1 ? 'service record' : 'service records'}`,
+  ];
+  return `This also deletes its ${parts.join(' and ')}. You cannot undo this.`;
+});
+
+function openServiceDialog(record: ServiceRecordResponse | null): void {
+  editingService.value = record;
+  serviceErrors.value = {};
+  serviceDialogOpen.value = true;
+}
+
+async function saveService(draft: ServiceDraft): Promise<void> {
+  savingService.value = true;
+  serviceErrors.value = {};
+
+  const editing = editingService.value;
+
+  try {
+    const saved = await api<ServiceRecordResponse>(
+      editing ? `/services/${editing.id}` : `/purchases/${purchaseId.value}/services`,
+      { method: editing ? 'PATCH' : 'POST', body: draft },
+    );
+
+    if (purchase.value) {
+      const rest = services.value.filter((r) => r.id !== saved.id);
+      // Newest first, the order the API lists them in (API-SVC-02).
+      purchase.value.serviceRecords = [saved, ...rest].sort((a, b) =>
+        b.serviceDate.localeCompare(a.serviceDate),
+      );
+    }
+
+    serviceDialogOpen.value = false;
+    toast.value = editing ? 'Service record updated' : 'Service record added';
+  } catch (failure) {
+    // The dialog stays open with what was typed; closing it would throw the
+    // user's input away over a validation message.
+    if (failure instanceof ApiError) {
+      serviceErrors.value = failure.fields ?? { description: failure.message };
+    } else {
+      serviceErrors.value = { description: 'Could not save that record.' };
+    }
+  } finally {
+    savingService.value = false;
+  }
+}
+
+async function confirmDelete(): Promise<void> {
+  const target = pending.value;
+  if (!target) return;
+  pending.value = null;
+
+  try {
+    if (target.kind === 'purchase') {
+      await api(`/purchases/${purchaseId.value}`, { method: 'DELETE' });
+      await router.push('/purchases');
+      return;
+    }
+
+    if (target.kind === 'attachment') {
+      await api(`/attachments/${target.id}`, { method: 'DELETE' });
+      if (purchase.value) {
+        purchase.value.attachments = attachments.value.filter((a) => a.id !== target.id);
+        purchase.value.hasReceipt = purchase.value.attachments.length > 0;
+      }
+      toast.value = 'Receipt deleted';
+      return;
+    }
+
+    await api(`/services/${target.id}`, { method: 'DELETE' });
+    if (purchase.value) {
+      purchase.value.serviceRecords = services.value.filter((r) => r.id !== target.id);
+    }
+    toast.value = 'Service record deleted';
+  } catch (failure) {
+    uploadError.value = failure instanceof ApiError ? failure.message : 'Could not delete that.';
+  }
+}
 
 const serviceTotal = computed(() =>
   (purchase.value?.serviceRecords ?? []).reduce((sum, record) => sum + (record.cost ?? 0), 0),
@@ -255,6 +372,7 @@ onMounted(load);
             </span>
             <!-- A plain link: the browser streams it and the cookie goes with
                  it, so the file never passes through JavaScript. -->
+            <span class="flex items-center gap-1">
             <a
               :href="`/api/v1/attachments/${attachment.id}`"
               class="inline-flex min-h-11 cursor-pointer items-center gap-2 rounded-md px-3 font-semibold text-primary hover:bg-primary-tint focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-hidden"
@@ -262,6 +380,15 @@ onMounted(load);
               <Download :size="18" aria-hidden="true" />
               Download
             </a>
+            <button
+              type="button"
+              class="flex size-11 cursor-pointer items-center justify-center rounded-md text-muted-fg hover:bg-subtle focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-hidden"
+              @click="pending = { kind: 'attachment', id: attachment.id, name: attachment.fileName }"
+            >
+              <Trash2 :size="18" aria-hidden="true" />
+              <span class="sr-only">Delete receipt {{ attachment.fileName }}</span>
+            </button>
+            </span>
           </li>
         </ul>
 
@@ -275,11 +402,20 @@ onMounted(load);
         <p v-if="uploading" class="mt-3 text-sm text-muted-fg">Uploading…</p>
       </section>
 
-      <section class="mt-6 rounded-md border border-border bg-surface p-4 lg:p-6">
-        <h2 class="font-heading text-lg font-semibold text-fg">Service history</h2>
+      <section
+        data-testid="service-history"
+        class="mt-6 rounded-md border border-border bg-surface p-4 lg:p-6"
+      >
+        <div class="flex flex-wrap items-center justify-between gap-2">
+          <h2 class="font-heading text-lg font-semibold text-fg">Service history</h2>
+          <BaseButton variant="secondary" @click="openServiceDialog(null)">
+            <Plus :size="18" aria-hidden="true" />
+            Add service record
+          </BaseButton>
+        </div>
 
-        <ul v-if="purchase.serviceRecords.length > 0" class="mt-4 flex flex-col gap-4">
-          <li v-for="record in purchase.serviceRecords" :key="record.id" class="flex gap-3">
+        <ul v-if="services.length > 0" class="mt-4 flex flex-col gap-4">
+          <li v-for="record in services" :key="record.id" class="flex gap-3">
             <Wrench :size="20" aria-hidden="true" class="mt-1 shrink-0 text-muted-fg" />
             <div class="min-w-0 flex-1">
               <div class="flex flex-wrap items-baseline justify-between gap-2">
@@ -292,11 +428,65 @@ onMounted(load);
                 {{ formatDate(record.serviceDate) }}
                 <template v-if="record.provider"> · {{ record.provider }}</template>
               </p>
+              <p class="mt-1 flex gap-2">
+                <button
+                  type="button"
+                  class="min-h-11 cursor-pointer px-1 text-sm font-semibold text-primary hover:underline focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-hidden"
+                  @click="openServiceDialog(record)"
+                >
+                  Edit
+                </button>
+                <button
+                  type="button"
+                  class="min-h-11 cursor-pointer px-1 text-sm font-semibold text-danger hover:underline focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-hidden"
+                  @click="pending = { kind: 'service', id: record.id, description: record.description }"
+                >
+                  Remove
+                </button>
+              </p>
             </div>
           </li>
         </ul>
         <p v-else class="mt-3 text-muted-fg">No repairs or services logged yet.</p>
       </section>
+
+      <!-- ui-guide §6 S4: the destructive action sits in its own zone at the
+           bottom, not next to Edit where it can be hit by accident. -->
+      <section
+        class="mt-6 flex flex-wrap items-center justify-between gap-4 rounded-md border border-danger bg-surface p-4 lg:p-6"
+      >
+        <div>
+          <h2 class="font-heading text-lg font-semibold text-fg">Delete this purchase</h2>
+          <p class="text-sm text-muted-fg">{{ confirmBody }}</p>
+        </div>
+        <BaseButton variant="danger" @click="pending = { kind: 'purchase' }">
+          <Trash2 :size="18" aria-hidden="true" />
+          Delete purchase
+        </BaseButton>
+      </section>
+
+      <ServiceDialog
+        :open="serviceDialogOpen"
+        :purchase-date="purchase.purchaseDate"
+        :today="todayIso()"
+        :record="editingService"
+        :errors="serviceErrors"
+        :saving="savingService"
+        @submit="saveService"
+        @cancel="serviceDialogOpen = false"
+      />
+
+      <ConfirmDialog
+        :open="pending !== null"
+        :title="confirmTitle"
+        :body="confirmBody"
+        @confirm="confirmDelete"
+        @cancel="pending = null"
+      />
+
+      <div v-if="toast" class="fixed right-4 bottom-20 z-50 lg:bottom-4">
+        <ToastMessage :message="toast" @dismiss="toast = null" />
+      </div>
     </template>
   </AppShell>
 </template>

@@ -12,6 +12,8 @@ const props = withDefaults(
     required?: boolean;
     inputmode?: 'text' | 'decimal' | 'numeric' | 'email';
     autocomplete?: string;
+    min?: string;
+    max?: string;
   }>(),
   { type: 'text' },
 );
@@ -44,6 +46,8 @@ const describedBy = computed(() => {
       :value="modelValue ?? ''"
       :inputmode="inputmode"
       :autocomplete="autocomplete"
+      :min="min"
+      :max="max"
       :required="required || undefined"
       :aria-invalid="error ? 'true' : undefined"
       :aria-describedby="describedBy"
