@@ -18,7 +18,7 @@ _Read from manifests by `detect-stack.sh`. Not model output._
 | - | _none detected_ | - | - |
 
 **Package manager:** `npm` (evidence: `package-lock.json`)  
-**Source files:** 2 `vue`, 8 `js`, 85 `ts`  
+**Source files:** 5 `vue`, 8 `js`, 90 `ts`  
 **Config files:** none
 
 **Migration signals detected:**
@@ -100,9 +100,9 @@ None identified.
 _Machine-generated from `.ai/EVIDENCE.jsonl`. Do not edit by hand._
 
 ```
-79 commands recorded, of which 9 verified (5 passed, 4 failed, 2 non-binding).
+81 commands recorded, of which 9 verified (5 passed, 4 failed, 2 non-binding).
 
-Files changed since baseline `0ecc127` (git): 125
+Files changed since baseline `0ecc127` (git): 133
   - apps/api/package.json
   - apps/api/package-lock.json
   - apps/api/prisma/migrations/20261028080043_init/migration.sql
@@ -115,7 +115,7 @@ Files changed since baseline `0ecc127` (git): 125
   - apps/api/src/attachments/attachments.module.ts
   - apps/api/src/attachments/attachments.service.ts
   - apps/api/src/auth/auth.constants.ts
-  ... and 113 more
+  ... and 121 more
 
 Tool-observed edits: 0 across 0 files.
   (Only Edit/Write/MultiEdit are visible to the hook. A Bash-first session
@@ -160,7 +160,7 @@ Most recent verified runs:
 ### Working tree
 
 <!-- relay:git:start -->
-- Branch `master` at `a7f5a11`, 2 uncommitted path(s).
+- Branch `master` at `16f91f7`, 2 uncommitted path(s).
 - Changed now:
 
 ```
@@ -202,5 +202,5 @@ design/Proofly Colour Mockups.html or repoint those prompts at the HTML.
 ## Last Updated
 
 <!-- relay:updated:start -->
-- 2026-10-29T09:34:10Z (mechanical regions refreshed by `migration-state.sh`)
+- 2026-10-29T11:44:32Z (mechanical regions refreshed by `migration-state.sh`)
 <!-- relay:updated:end -->
