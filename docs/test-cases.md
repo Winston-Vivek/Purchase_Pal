@@ -335,9 +335,14 @@ From `design/ui-guide.md` §8 and the UI UX Pro Max pre-delivery checklist.
 | NFR-09 | Page titles | `<title>` changes per route; one h1 per page | P1 | Pass 2026-10-29 |
 | NFR-10 | Secrets | No secrets in git; `.env.example` complete; JWT secret required at boot | P0 | Pass 2026-10-29 |
 | NFR-11 | Receipts not public | Guessing `/uploads/<key>` or any static path returns 404 | P0 | Pass 2026-10-29 |
-| NFR-12 | Fresh clone | README steps alone run the app and all tests | P0 | Not run — see note |
+| NFR-12 | Fresh clone | README steps alone run the app and all tests | P0 | Pass 2026-10-29 |
 
-> **NFR-12 is verified by the Day 7 gate, not Day 6.** It is the clean-setup check that `docs/plan.md` schedules for Day 7 morning, so it cannot run before the phase it belongs to. The check itself is unchanged.
+> **NFR-12 run on 29 Oct 2026**, three times against clean clones of the committed tree. It found two defects that no other check in the project could have found, because every other check runs against the working tree:
+>
+> 1. **Critical** — `.gitignore` had a bare `storage/`, which matched `apps/api/src/common/storage/`. The whole storage module was uncommitted and a fresh clone could not build the API. Fixed in `41f010c`.
+> 2. **Medium** — the README installed only `apps/api`, never mentioned the root or `apps/web` dependencies, and never said how to start the frontend. `docker-compose.yml` also pinned `container_name`, so a second checkout could not start. Fixed in `23ede49`.
+>
+> Re-verified after each fix: three installs clean, migrations applied, Vite 200, API `{"status":"ok","database":"up"}`.
 
 ---
 
