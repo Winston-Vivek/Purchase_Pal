@@ -101,9 +101,9 @@ None identified.
 _Machine-generated from `.ai/EVIDENCE.jsonl`. Do not edit by hand._
 
 ```
-91 commands recorded, of which 10 verified (6 passed, 4 failed, 2 non-binding).
+96 commands recorded, of which 10 verified (6 passed, 4 failed, 2 non-binding).
 
-Files changed since baseline `0ecc127` (git): 160
+Files changed since baseline `0ecc127` (git): 162
   - apps/api/package.json
   - apps/api/package-lock.json
   - apps/api/prisma/migrations/20261028080043_init/migration.sql
@@ -116,7 +116,7 @@ Files changed since baseline `0ecc127` (git): 160
   - apps/api/src/attachments/attachments.module.ts
   - apps/api/src/attachments/attachments.service.ts
   - apps/api/src/auth/auth.constants.ts
-  ... and 148 more
+  ... and 150 more
 
 Tool-observed edits: 0 across 0 files.
   (Only Edit/Write/MultiEdit are visible to the hook. A Bash-first session
@@ -161,13 +161,12 @@ Most recent verified runs:
 ### Working tree
 
 <!-- relay:git:start -->
-- Branch `master` at `fb0e207`, 3 uncommitted path(s).
+- Branch `master` at `1a63373`, 2 uncommitted path(s).
 - Changed now:
 
 ```
  M .ai/EVIDENCE.jsonl
  M .ai/MIGRATION.md
-?? apps/api/var/
 ```
 <!-- relay:git:end -->
 
@@ -206,5 +205,5 @@ land with delete purchase and ConfirmDialog.
 ## Last Updated
 
 <!-- relay:updated:start -->
-- 2026-10-29T13:17:51Z (mechanical regions refreshed by `migration-state.sh`)
+- 2026-10-29T13:27:56Z (mechanical regions refreshed by `migration-state.sh`)
 <!-- relay:updated:end -->

@@ -4,11 +4,12 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import FileDrop from '../components/FileDrop.vue';
 import PurchaseDetailsPage from './PurchaseDetailsPage.vue';
 
+const push = vi.fn();
 const route = { params: { purchaseId: 'p1' } as Record<string, string>, query: {} };
 
 vi.mock('vue-router', async (original) => ({
   ...(await original<typeof import('vue-router')>()),
-  useRouter: () => ({ push: vi.fn(), replace: vi.fn() }),
+  useRouter: () => ({ push, replace: push }),
   useRoute: () => route,
 }));
 
@@ -46,6 +47,7 @@ describe('Purchase details', () => {
     setActivePinia(createPinia());
     vi.stubGlobal('fetch', fetchMock);
     fetchMock.mockReset();
+    push.mockReset();
     route.params = { purchaseId: 'p1' };
   });
 
@@ -218,5 +220,151 @@ describe('Purchase details', () => {
     expect(wrapper.text()).toContain('Croma-invoice-INV-88213.pdf');
     expect(wrapper.text()).toMatch(/402|412|0\.4/);
     expect(wrapper.text()).toMatch(/1 of 5/);
+  });
+
+  describe('service history and destructive actions', () => {
+    const WITH_SERVICE = {
+      ...SAMSUNG,
+      serviceRecords: [
+        {
+          id: 's1', purchaseId: 'p1', serviceDate: '2026-03-04',
+          description: 'Free installation check', provider: 'Croma install team',
+          cost: 0, notes: null,
+        },
+      ],
+    };
+
+    const clickButton = async (wrapper: ReturnType<typeof mount>, label: RegExp) => {
+      const target = [...document.body.querySelectorAll('button'), ...wrapper.findAll('button').map((b) => b.element)]
+        .find((b) => label.test(b.textContent ?? ''));
+      target?.click();
+      await flushPromises();
+      return target;
+    };
+
+    it('FE-PAGE-22 a new record is added and appears at the top of the history', async () => {
+      const wrapper = await page(WITH_SERVICE);
+
+      await clickButton(wrapper, /add service record/i);
+      expect(document.body.querySelector('[role="dialog"]')).not.toBeNull();
+
+      fetchMock.mockResolvedValueOnce(
+        json(201, {
+          id: 's2', purchaseId: 'p1', serviceDate: '2026-06-15',
+          description: 'Gas top-up and coil cleaning', provider: 'Samsung authorised service',
+          cost: 2450, notes: null,
+        }),
+      );
+
+      wrapper.findComponent({ name: 'ServiceDialog' }).vm.$emit('submit', {
+        serviceDate: '2026-06-15',
+        description: 'Gas top-up and coil cleaning',
+        provider: 'Samsung authorised service',
+        cost: 2450,
+      });
+      await flushPromises();
+
+      const [url, init] = fetchMock.mock.calls[1] as [string, RequestInit];
+      expect(url).toBe('/api/v1/purchases/p1/services');
+      expect(init.method).toBe('POST');
+
+      // Newest first, matching the order the API lists them in (API-SVC-02).
+      const items = wrapper.get('[data-testid="service-history"]').findAll('li');
+      expect(items[0]?.text()).toContain('Gas top-up and coil cleaning');
+      expect(items[1]?.text()).toContain('Free installation check');
+      // And the dialog is gone once it worked.
+      expect(document.body.querySelector('[role="dialog"]')).toBeNull();
+
+      wrapper.unmount();
+    });
+
+    it('FE-PAGE-23 a rejected record keeps the dialog open with the error on its field', async () => {
+      const wrapper = await page(WITH_SERVICE);
+      await clickButton(wrapper, /add service record/i);
+
+      fetchMock.mockResolvedValueOnce(
+        json(400, {
+          error: {
+            code: 'VALIDATION_ERROR',
+            message: 'Invalid input',
+            fields: { serviceDate: 'A service cannot be in the future' },
+          },
+        }),
+      );
+
+      wrapper.findComponent({ name: 'ServiceDialog' }).vm.$emit('submit', {
+        serviceDate: '2027-01-01',
+        description: 'Too early',
+      });
+      await flushPromises();
+
+      expect(document.body.querySelector('[role="dialog"]')).not.toBeNull();
+      expect(document.body.textContent).toContain('A service cannot be in the future');
+      // Nothing was added to the history.
+      expect(wrapper.get('[data-testid="service-history"]').findAll('li')).toHaveLength(1);
+
+      wrapper.unmount();
+    });
+
+    it('FE-PAGE-24 deleting the purchase asks first, then goes back to the list', async () => {
+      const wrapper = await page(WITH_SERVICE);
+
+      await clickButton(wrapper, /delete purchase/i);
+
+      const dialog = document.body.querySelector('[role="dialog"]');
+      // ui-guide §7: name the thing and what goes with it.
+      expect(dialog?.textContent).toContain('Samsung 1.5 Ton Inverter Split AC');
+      expect(dialog?.textContent).toMatch(/1 service record/i);
+
+      fetchMock.mockResolvedValueOnce(new Response(null, { status: 204 }));
+      await clickButton(wrapper, /^delete$/i);
+
+      const [url, init] = fetchMock.mock.calls[1] as [string, RequestInit];
+      expect(url).toBe('/api/v1/purchases/p1');
+      expect(init.method).toBe('DELETE');
+      expect(push).toHaveBeenCalledWith('/purchases');
+
+      wrapper.unmount();
+    });
+
+    it('FE-PAGE-25 cancelling the delete sends nothing', async () => {
+      const wrapper = await page(WITH_SERVICE);
+
+      await clickButton(wrapper, /delete purchase/i);
+      await clickButton(wrapper, /cancel/i);
+
+      // Only the original GET.
+      expect(fetchMock.mock.calls).toHaveLength(1);
+      expect(push).not.toHaveBeenCalled();
+      expect(document.body.querySelector('[role="dialog"]')).toBeNull();
+
+      wrapper.unmount();
+    });
+
+    it('deleting a receipt asks first, and removes it from the list', async () => {
+      const wrapper = await page({
+        ...SAMSUNG,
+        hasReceipt: true,
+        attachments: [
+          { id: 'a1', fileName: 'invoice.pdf', mimeType: 'application/pdf', fileSize: 1024, uploadedAt: '2026-01-01T00:00:00.000Z' },
+        ],
+      });
+
+      await clickButton(wrapper, /delete receipt|remove invoice\.pdf/i);
+      expect(document.body.querySelector('[role="dialog"]')?.textContent).toContain('invoice.pdf');
+
+      fetchMock.mockResolvedValueOnce(new Response(null, { status: 204 }));
+      await clickButton(wrapper, /^delete$/i);
+
+      const [url, init] = fetchMock.mock.calls[1] as [string, RequestInit];
+      expect(url).toBe('/api/v1/attachments/a1');
+      expect(init.method).toBe('DELETE');
+      expect(wrapper.text()).not.toContain('invoice.pdf');
+      expect(wrapper.text()).toMatch(/0 of 5/);
+      // BR-06 again: with no receipts the banner comes back.
+      expect(wrapper.text()).toContain('Receipt missing');
+
+      wrapper.unmount();
+    });
   });
 });
