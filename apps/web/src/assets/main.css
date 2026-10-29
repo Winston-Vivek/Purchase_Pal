@@ -1,0 +1,45 @@
+/*
+ * Design tokens, copied verbatim from design/ui-guide.md §2 by
+ * `npm run tokens:check`, which also verifies they have not drifted.
+ *
+ * Tailwind v4 reads these from @theme; there is no tailwind.config.js. Each
+ * token becomes a utility: --color-primary gives bg-primary and text-primary,
+ * --font-heading gives font-heading.
+ *
+ * Components use ONLY these. No raw hex, no bg-blue-600 (ui-guide §2).
+ */
+@import "tailwindcss";
+
+@theme {
+  /* Type */
+  --font-heading: "Lexend", ui-sans-serif, system-ui, sans-serif;
+  --font-sans: "Source Sans 3", ui-sans-serif, system-ui, sans-serif;
+
+  /* Surfaces and text */
+  --color-bg: #F8FAFC;          /* page */
+  --color-surface: #FFFFFF;     /* cards, inputs */
+  --color-subtle: #F1F5F9;      /* table header, hover, neutral tint */
+  --color-fg: #0F172A;          /* primary text      17.1:1 on bg */
+  --color-muted-fg: #475569;    /* secondary text     7.2:1 on bg */
+  --color-border: #E2E8F0;      /* decorative dividers */
+  --color-input: #64748B;       /* input borders      4.8:1 on white */
+
+  /* Brand */
+  --color-primary: #1E40AF;     /* buttons, links     8.7:1 with white */
+  --color-primary-hover: #1E3A8A;
+  --color-primary-tint: #EFF6FF;
+  --color-ring: #2563EB;        /* focus ring */
+  --color-danger: #DC2626;      /* destructive button 4.8:1 with white */
+  --color-danger-hover: #B91C1C;
+
+  /* Status (text on tint, all ≥ 4.8:1) */
+  --color-ok-fg: #047857;       --color-ok-bg: #ECFDF5;
+  --color-warn-fg: #B45309;     --color-warn-bg: #FFFBEB;
+  --color-bad-fg: #B91C1C;      --color-bad-bg: #FEF2F2;
+  --color-none-fg: #475569;     --color-none-bg: #F1F5F9;
+
+  /* Shape */
+  --radius-sm: 6px;   /* inputs, badges */
+  --radius-md: 8px;   /* buttons, cards */
+  --radius-lg: 12px;  /* modals */
+}

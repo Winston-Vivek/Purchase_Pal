@@ -100,7 +100,7 @@ None identified.
 _Machine-generated from `.ai/EVIDENCE.jsonl`. Do not edit by hand._
 
 ```
-72 commands recorded, of which 9 verified (5 passed, 4 failed, 2 non-binding).
+73 commands recorded, of which 9 verified (5 passed, 4 failed, 2 non-binding).
 
 Files changed since baseline `0ecc127` (git): 109
   - apps/api/package.json
@@ -160,7 +160,7 @@ Most recent verified runs:
 ### Working tree
 
 <!-- relay:git:start -->
-- Branch `master` at `29f3d1b`, 2 uncommitted path(s).
+- Branch `master` at `02b239a`, 2 uncommitted path(s).
 - Changed now:
 
 ```
@@ -202,5 +202,5 @@ design/Proofly Colour Mockups.html or repoint those prompts at the HTML.
 ## Last Updated
 
 <!-- relay:updated:start -->
-- 2026-10-29T07:59:34Z (mechanical regions refreshed by `migration-state.sh`)
+- 2026-10-29T09:22:38Z (mechanical regions refreshed by `migration-state.sh`)
 <!-- relay:updated:end -->

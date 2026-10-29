@@ -15,7 +15,7 @@ The UI answers three questions at a glance: **What did I buy? Where is the recei
 | Mode | Light only for MVP; tokens are semantic so dark mode is a token swap later (P2) | Saves a day of contrast QA; no requirement asks for dark mode |
 | Palette | Skill's *Personal Finance Tracker* palette — trust blue + green — adapted from dark to light | Blue reads as "records you can trust"; green is reserved for status, not decoration |
 | Type | **Lexend** (headings) + **Source Sans 3** (body) — skill pairing *Corporate Trust* | Built for readability; good figures for dates and prices |
-| Icons | Lucide (`lucide-vue-next`), outline, 20 px | Skill rule: no emoji as icons |
+| Icons | Lucide (`@lucide/vue`), outline, 20 px | Skill rule: no emoji as icons. *(29 Oct 2026: `lucide-vue-next` is deprecated upstream in favour of `@lucide/vue`; same icons, same API.)* |
 | Depth | Borders, no shadows; one elevation level for modals and menus only | Swiss style; borders survive any background |
 | Motion | 150–200 ms colour/opacity transitions only; none under `prefers-reduced-motion` | Skill checklist |
 

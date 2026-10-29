@@ -359,9 +359,21 @@
       "gate": [
         {
           "kind": "command",
+          "label": "Design tokens match ui-guide \u00a72",
+          "cwd": ".",
+          "run": "node design/check-tokens.mjs"
+        },
+        {
+          "kind": "command",
           "label": "Lint clean",
           "cwd": "apps/web",
           "run": "npm run lint"
+        },
+        {
+          "kind": "command",
+          "label": "Types clean",
+          "cwd": "apps/web",
+          "run": "npm run typecheck"
         },
         {
           "kind": "test-ids",

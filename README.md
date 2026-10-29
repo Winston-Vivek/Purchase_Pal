@@ -86,6 +86,19 @@ Run from `apps/api` unless noted.
 | `npm run migration:show` | List applied and pending migrations |
 | `npm run seed` | Load demo data (idempotent) |
 
+### Web (`apps/web`)
+
+| Command | What it does |
+| --- | --- |
+| `npm run dev` | Vite dev server on http://localhost:5173, proxying `/api` to the API |
+| `npm test` | Component tests (Vitest + Vue Test Utils) |
+| `npm run typecheck` | `vue-tsc --noEmit` |
+| `npm run lint` | ESLint |
+| `npm run build` | Typecheck then production build |
+
+From the repo root, `npm run tokens:check` fails if `apps/web/src/assets/main.css` has
+drifted from the `@theme` block in `design/ui-guide.md` §2.
+
 The e2e suite migrates `proofly_test` itself and truncates every table between tests, so it needs no
 setup beyond `docker compose up -d`. It refuses to run against any database whose name does not
 contain `proofly_test`.
