@@ -313,8 +313,8 @@ Fixture for A (today 2026-10-27), matching the design mockups:
 
 | ID | Scenario | Expected | Pri | Status |
 | --- | --- | --- | --- | --- |
-| API-SEED-01 | Run seed on an empty DB | 2 users; demo user has 7 purchases; dashboard has 3 needs-action and 2 recently expired, relative to the real today | P0 | Not run |
-| API-SEED-02 | Run seed twice | No duplicates (idempotent) | P1 | Not run |
+| API-SEED-01 | Run seed on an empty DB | 2 users; demo user has 7 purchases; dashboard has 3 needs-action and 2 recently expired, relative to the real today | P0 | Pass 2026-10-29 |
+| API-SEED-02 | Run seed twice | No duplicates (idempotent) | P1 | Pass 2026-10-29 |
 
 ---
 

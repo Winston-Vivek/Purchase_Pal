@@ -46,6 +46,17 @@ Interactive API documentation is at **http://localhost:3000/api/docs**, generate
 the DTOs so it cannot drift from what the API actually accepts. It is not mounted when
 `NODE_ENV=production`.
 
+### Demo data
+
+```bash
+cd apps/api && npm run seed
+```
+
+Creates `demo@proofly.test` and `other@proofly.test`, password `demo1234`, with seven
+purchases. Every date is an offset from today rather than a fixed day, so the dashboard
+always opens with items needing action and items recently expired, whenever you run it.
+Running it twice does nothing.
+
 ### A note on the database port
 
 The container publishes Postgres on **5434**, not the usual 5432, because 5432 and 5433 are
@@ -73,6 +84,7 @@ Run from `apps/api` unless noted.
 | `npm run migration:run` | Apply pending migrations |
 | `npm run migration:revert` | Roll the last migration back |
 | `npm run migration:show` | List applied and pending migrations |
+| `npm run seed` | Load demo data (idempotent) |
 
 The e2e suite migrates `proofly_test` itself and truncates every table between tests, so it needs no
 setup beyond `docker compose up -d`. It refuses to run against any database whose name does not
