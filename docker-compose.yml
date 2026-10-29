@@ -12,7 +12,10 @@
 services:
   db:
     image: postgres:16-alpine
-    container_name: proofly-db
+    # Deliberately no container_name: a pinned one stops a second checkout of
+    # this repo from starting at all ("the container name /proofly-db is
+    # already in use"). Compose derives one from the directory instead, and
+    # `docker compose exec db …` works either way.
     restart: unless-stopped
     environment:
       POSTGRES_USER: proofly

@@ -28,18 +28,38 @@ sed -i "s|^JWT_SECRET=.*|JWT_SECRET=$(openssl rand -base64 48)|" .env
 # 2. Database (Postgres 16, creates both `proofly` and `proofly_test`)
 docker compose up -d --wait
 
-# 3. API
-cd apps/api
-npm install
-npm run migration:run       # applies migrations to the dev database
-npm run start:dev           # http://localhost:3000/api/v1
+# 3. Dependencies — three package.json files, one per workspace
+npm install                 # repo root: phase gates and Playwright
+npm --prefix apps/api install
+npm --prefix apps/web install
+
+# 4. Database schema
+npm --prefix apps/api run migration:run
+npm --prefix apps/api run seed      # optional: demo data
+
+# 5. Run it — two terminals
+npm --prefix apps/api run start:dev   # http://localhost:3000/api/v1
+npm --prefix apps/web run dev         # http://localhost:5173
 ```
+
+Open **http://localhost:5173** and sign in with `demo@proofly.test` / `demo1234`.
 
 Check it is alive:
 
 ```bash
 curl http://localhost:3000/api/v1/health
 # {"status":"ok","database":"up"}
+```
+
+Everything the project can run, from the repo root:
+
+```bash
+npm test                 # API unit tests
+npm run test:e2e         # API end-to-end against proofly_test
+npm run test:web         # Vue component tests
+npm run e2e              # Playwright — starts both servers itself
+npm run gate:status      # the phase board
+npm run testcases:check  # does docs/test-cases.md match the suites?
 ```
 
 Interactive API documentation is at **http://localhost:3000/api/docs**, generated from
