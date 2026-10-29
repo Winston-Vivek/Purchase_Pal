@@ -42,14 +42,14 @@ defineExpose({ accept });
       @drop.prevent="accept($event.dataTransfer?.files ?? null)"
     >
       <Upload :size="20" aria-hidden="true" class="text-muted-fg" />
-      <p class="text-fg">Drag a receipt here</p>
+      <p class="font-semibold text-fg">Drop the invoice here, or choose a file</p>
 
       <button
         type="button"
         class="min-h-11 cursor-pointer rounded-md px-4 font-semibold text-primary hover:bg-primary-tint focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-hidden"
         @click="input?.click()"
       >
-        Choose file
+        Choose a file
       </button>
 
       <!-- The rules are stated up front, not discovered by failing. -->

@@ -49,3 +49,10 @@ export function formatWarrantyLength(months: number | null | undefined): string 
 export function pluralDays(days: number): string {
   return `${days} ${Math.abs(days) === 1 ? 'day' : 'days'}`;
 }
+
+/** `412 KB`, `1.8 MB` — what a person would call the size of a file. */
+export function formatFileSize(bytes: number): string {
+  if (bytes < 1024) return `${bytes} B`;
+  if (bytes < 1024 * 1024) return `${Math.round(bytes / 1024)} KB`;
+  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+}

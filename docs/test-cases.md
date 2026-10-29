@@ -271,11 +271,11 @@ Fixture for A (today 2026-10-27), matching the design mockups:
 | FE-PAGE-10 | Add purchase | Warranty 12 months from 2026-10-27 | Preview "Covered until 26 Oct 2027" | P0 | Pass 2026-10-29 |
 | FE-PAGE-11 | Add purchase | Server 400 | ErrorSummary focused; inline errors; all entered values kept | P0 | Pass 2026-10-29 |
 | FE-PAGE-12 | Edit purchase | Load existing | Fields prefilled; Save sends PATCH with changes | P0 | Pass 2026-10-29 |
-| FE-PAGE-13 | Details | Data | Header facts, warranty and return panels with date, rule text, badge | P0 | Not run |
-| FE-PAGE-14 | Details | No receipt | "Receipt missing" banner with Upload | P0 | Not run |
-| FE-PAGE-15 | Details | Upload success | File appears in list; count updates | P0 | Not run |
-| FE-PAGE-16 | Details | Upload 415 | Readable error; list unchanged | P0 | Not run |
-| FE-PAGE-17 | Details | 404 | "Purchase not found" with link back | P0 | Not run |
+| FE-PAGE-13 | Details | Data | Header facts, warranty and return panels with date, rule text, badge | P0 | Pass 2026-10-29 |
+| FE-PAGE-14 | Details | No receipt | "Receipt missing" banner with Upload | P0 | Pass 2026-10-29 |
+| FE-PAGE-15 | Details | Upload success | File appears in list; count updates | P0 | Pass 2026-10-29 |
+| FE-PAGE-16 | Details | Upload 415 | Readable error; list unchanged | P0 | Pass 2026-10-29 |
+| FE-PAGE-17 | Details | 404 | "Purchase not found" with link back | P0 | Pass 2026-10-29 |
 | FE-PAGE-18 | Dashboard | Data | 4 counts; Needs action soonest first; Recently expired; Recent purchases | P0 | Not run |
 | FE-PAGE-19 | Dashboard | Row click | Goes to that purchase's details | P0 | Not run |
 | FE-PAGE-20 | Dashboard | New user | "Add your first purchase" empty state | P0 | Not run |

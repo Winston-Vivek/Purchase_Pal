@@ -48,3 +48,26 @@ export const CATEGORIES = [
   ['HOME_KITCHEN', 'Home & kitchen'],
   ['OTHER', 'Other'],
 ] as const;
+
+export interface AttachmentResponse {
+  id: string;
+  fileName: string;
+  mimeType: string;
+  fileSize: number;
+  uploadedAt: string;
+}
+
+export interface ServiceRecordResponse {
+  id: string;
+  purchaseId: string;
+  serviceDate: string;
+  description: string;
+  provider: string | null;
+  cost: number | null;
+  notes: string | null;
+}
+
+export interface PurchaseDetail extends PurchaseResponse {
+  attachments: AttachmentResponse[];
+  serviceRecords: ServiceRecordResponse[];
+}
