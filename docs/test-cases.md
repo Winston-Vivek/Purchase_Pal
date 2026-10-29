@@ -335,7 +335,9 @@ From `design/ui-guide.md` §8 and the UI UX Pro Max pre-delivery checklist.
 | NFR-09 | Page titles | `<title>` changes per route; one h1 per page | P1 | Pass 2026-10-29 |
 | NFR-10 | Secrets | No secrets in git; `.env.example` complete; JWT secret required at boot | P0 | Pass 2026-10-29 |
 | NFR-11 | Receipts not public | Guessing `/uploads/<key>` or any static path returns 404 | P0 | Pass 2026-10-29 |
-| NFR-12 | Fresh clone | README steps alone run the app and all tests | P0 | Not run — Day 7 fresh-clone check |
+| NFR-12 | Fresh clone | README steps alone run the app and all tests | P0 | Not run — see note |
+
+> **NFR-12 is verified by the Day 7 gate, not Day 6.** It is the clean-setup check that `docs/plan.md` schedules for Day 7 morning, so it cannot run before the phase it belongs to. The check itself is unchanged.
 
 ---
 

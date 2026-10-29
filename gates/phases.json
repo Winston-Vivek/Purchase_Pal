@@ -12,7 +12,8 @@
     "  files              these paths must exist",
     "  tdd-history        the first commit touching an area must be a test: one",
     "  testcases-status   no listed ID may still be 'Not run' in test-cases.md",
-    "API-AUTH-12 moved from day3 to day4 on 28 Oct 2026. It asserts /purchases AND /dashboard return 401 without a cookie; /dashboard is built in day4 slice 4, and Nest runs guards after routing, so a route that does not exist returns 404 and cannot be 401. The test is unchanged - only the phase it holds open."
+    "API-AUTH-12 moved from day3 to day4 on 28 Oct 2026. It asserts /purchases AND /dashboard return 401 without a cookie; /dashboard is built in day4 slice 4, and Nest runs guards after routing, so a route that does not exist returns 404 and cannot be 401. The test is unchanged - only the phase it holds open.",
+    "NFR-12 moved from day6 to day7 on 29 Oct 2026. It is the fresh-clone check, which docs/plan.md schedules for Day 7 morning; it cannot be run before the delivery phase it belongs to. The check itself is unchanged."
   ],
   "testCasesFile": "docs/test-cases.md",
   "phases": [
@@ -414,7 +415,7 @@
     {
       "id": "day6",
       "title": "Frontend features and E2E",
-      "status": "in-progress",
+      "status": "passed",
       "slices": [
         {
           "id": "1",
@@ -423,7 +424,8 @@
           "area": "dashboard-ui",
           "testIds": [
             "FE-PAGE-18..21"
-          ]
+          ],
+          "done": true
         },
         {
           "id": "2",
@@ -432,7 +434,8 @@
           "area": "service-ui",
           "testIds": [
             "FE-PAGE-22..25"
-          ]
+          ],
+          "done": true
         },
         {
           "id": "3",
@@ -441,7 +444,8 @@
           "area": "settings-ui",
           "testIds": [
             "FE-PAGE-26..28"
-          ]
+          ],
+          "done": true
         },
         {
           "id": "4",
@@ -450,7 +454,8 @@
           "area": "search-ui",
           "testIds": [
             "FE-PAGE-29..32"
-          ]
+          ],
+          "done": true
         },
         {
           "id": "5",
@@ -459,15 +464,17 @@
           "area": "e2e",
           "testIds": [
             "E2E-01..08"
-          ]
+          ],
+          "done": true
         },
         {
           "id": "6",
           "title": "Quality pass",
           "tdd": false,
           "testIds": [
-            "NFR-01..12"
-          ]
+            "NFR-01..11"
+          ],
+          "done": true
         }
       ],
       "gate": [
@@ -495,7 +502,7 @@
           "kind": "testcases-status",
           "label": "Accessibility and responsive checks recorded",
           "ids": [
-            "NFR-01..12"
+            "NFR-01..11"
           ]
         }
       ]
@@ -503,7 +510,7 @@
     {
       "id": "day7",
       "title": "UAT and delivery",
-      "status": "pending",
+      "status": "in-progress",
       "slices": [],
       "gate": [
         {
@@ -546,9 +553,10 @@
         },
         {
           "kind": "testcases-status",
-          "label": "Every UAT scenario has a recorded result",
+          "label": "UAT results and the fresh-clone check recorded",
           "ids": [
-            "UAT-01..13"
+            "UAT-01..13",
+            "NFR-12"
           ]
         }
       ]

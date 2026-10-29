@@ -65,12 +65,12 @@ _One wave per phase in `docs/plan.md`. Each closes on a verified
 - [x] 03 Backend core — setup, DatesService, error shape, auth, alert settings, purchases CRUD. 77 cases. Gate: `npm run gate day3`
 - [x] 04 Backend features — receipts, service records, cascade, dashboard, search, seed. 46 cases. Gate: `npm run gate day4`
 - [x] 05 Frontend core — scaffold, data layer, base components, shell, list/form, details. 43 cases. Gate: `npm run gate day5`
-- [~] 06 Frontend features + E2E — dashboard, dialogs, settings, search UI, Playwright, quality pass. 35 cases. Gate: `npm run gate day6`
-- [ ] 07 UAT and delivery — fresh-clone check, UAT-01..13, defect fixes test-first, docs, tag v1.0.0. Gate: `npm run gate day7`
+- [x] 06 Frontend features + E2E — dashboard, dialogs, settings, search UI, Playwright, quality pass. 35 cases. Gate: `npm run gate day6`
+- [~] 07 UAT and delivery — fresh-clone check, UAT-01..13, defect fixes test-first, docs, tag v1.0.0. Gate: `npm run gate day7`
 
 ## Current Wave
 
-06 Frontend features + E2E
+07 UAT and delivery
 
 ## Completed
 
@@ -79,6 +79,7 @@ _One wave per phase in `docs/plan.md`. Each closes on a verified
 - [x] 03 Backend core
 - [x] 04 Backend features
 - [x] 05 Frontend core
+- [x] 06 Frontend features + E2E
 
 ## In Progress
 
@@ -192,15 +193,18 @@ _No decisions recorded. Use `relay-decide` when a choice changes what the migrat
 
 ## Exact Next Action
 
-Day 5 is closed. Start Day 6 Slice 1: the dashboard screen, matching
-design/mockups/desktop-1-dashboard.png and mobile-1-dashboard.png. The API
-already returns counts.totalValue and hasReceipt per needs-action row, which
-the mockup needs.
+The build is complete. 265 automated tests: 25 unit, 107 API e2e, 140 web
+component, 17 Playwright (8 journeys + 9 non-functional).
 
-Day 6 also owes two things carried over from Day 5, both flagged rather than
-skipped quietly: the Receipt fieldset on the add form (FileDrop exists and is
-tested, it is wiring), and attachment delete, which was deliberately left to
-land with delete purchase and ConfirmDialog.
+Day 7, in order: the fresh-clone check (NFR-12) from the README alone, then
+Winston runs UAT-01..13 and reports results, then any Critical/High defect is
+fixed test-first, then docs/architecture.md, security.md, decisions.md,
+demo-script.md and CHANGELOG.md, then tag v1.0.0.
+
+One feature gap, flagged three times and never silently dropped: the Receipt
+fieldset on the ADD form (desktop-3-add-purchase.png shows it). FileDrop
+exists and is tested; it needs a save-then-upload step. No test case covers
+it. Decide whether it ships or goes in CHANGELOG.md as a known limitation.
 
 ## Last Updated
 
