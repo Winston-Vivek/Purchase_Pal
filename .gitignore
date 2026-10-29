@@ -14,9 +14,13 @@ build/
 !.env.example
 !.env.test.example
 
-# Uploaded receipts: private storage, never in git (BR-10, NFR-11)
-uploads/
-storage/
+# Uploaded receipts: private storage, never in git (BR-10, NFR-11).
+#
+# Anchored to var/ deliberately. A bare `storage/` here matched
+# apps/api/src/common/storage/ and kept the whole storage module out of the
+# repository — a fresh clone could not build the API, and nothing noticed
+# because the files existed locally. UPLOAD_DIR is ./var/uploads.
+var/
 
 # Test and coverage output
 coverage/
