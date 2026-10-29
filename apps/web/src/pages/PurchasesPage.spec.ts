@@ -4,10 +4,12 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import PurchasesPage from './PurchasesPage.vue';
 import type { PurchaseResponse } from '../api/types';
 
+const route = { query: {} as Record<string, string>, params: {} };
+
 vi.mock('vue-router', async (original) => ({
   ...(await original<typeof import('vue-router')>()),
   useRouter: () => ({ push: vi.fn(), replace: vi.fn() }),
-  useRoute: () => ({ query: {}, params: {} }),
+  useRoute: () => route,
 }));
 
 const AIRPODS: PurchaseResponse = {
@@ -42,6 +44,7 @@ describe('My purchases', () => {
     setActivePinia(createPinia());
     vi.stubGlobal('fetch', fetchMock);
     fetchMock.mockReset();
+    route.query = {};
   });
 
   afterEach(() => vi.unstubAllGlobals());
@@ -112,6 +115,34 @@ describe('My purchases', () => {
 
     expect(wrapper.text()).toMatch(/no purchases yet/i);
     expect(wrapper.text()).toMatch(/add/i);
+  });
+
+  it('FE-PAGE-06 the filter in the URL is actually sent to the API', async () => {
+    // The dashboard links here with a filter. A page that ignores the query
+    // shows every purchase, so a card reading 5 opens a list of 7 — which the
+    // href assertion on the dashboard cannot catch.
+    route.query = { warrantyStatus: 'ACTIVE,EXPIRING_SOON' };
+    fetchMock.mockResolvedValue(json(200, { items: [AIRPODS], total: 1, page: 1, pageSize: 20 }));
+
+    page();
+    await flushPromises();
+
+    const [url] = fetchMock.mock.calls[0] as [string];
+    expect(url).toContain('warrantyStatus=ACTIVE%2CEXPIRING_SOON');
+  });
+
+  it('FE-PAGE-06 search text and category in the URL are sent too', async () => {
+    route.query = { q: 'airpods', category: 'ELECTRONICS', sort: 'price_desc', page: '2' };
+    fetchMock.mockResolvedValue(json(200, { items: [], total: 0, page: 2, pageSize: 20 }));
+
+    page();
+    await flushPromises();
+
+    const [url] = fetchMock.mock.calls[0] as [string];
+    expect(url).toContain('q=airpods');
+    expect(url).toContain('category=ELECTRONICS');
+    expect(url).toContain('sort=price_desc');
+    expect(url).toContain('page=2');
   });
 
   it('FE-PAGE-08 a failed load says so and offers to try again', async () => {

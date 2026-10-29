@@ -276,10 +276,10 @@ Fixture for A (today 2026-10-27), matching the design mockups:
 | FE-PAGE-15 | Details | Upload success | File appears in list; count updates | P0 | Pass 2026-10-29 |
 | FE-PAGE-16 | Details | Upload 415 | Readable error; list unchanged | P0 | Pass 2026-10-29 |
 | FE-PAGE-17 | Details | 404 | "Purchase not found" with link back | P0 | Pass 2026-10-29 |
-| FE-PAGE-18 | Dashboard | Data | 4 counts; Needs action soonest first; Recently expired; Recent purchases | P0 | Not run |
-| FE-PAGE-19 | Dashboard | Row click | Goes to that purchase's details | P0 | Not run |
-| FE-PAGE-20 | Dashboard | New user | "Add your first purchase" empty state | P0 | Not run |
-| FE-PAGE-21 | Dashboard | Count click | Opens My purchases with that filter | P1 | Not run |
+| FE-PAGE-18 | Dashboard | Data | 4 counts; Needs action soonest first; Recently expired; Recent purchases | P0 | Pass 2026-10-29 |
+| FE-PAGE-19 | Dashboard | Row click | Goes to that purchase's details | P0 | Pass 2026-10-29 |
+| FE-PAGE-20 | Dashboard | New user | "Add your first purchase" empty state | P0 | Pass 2026-10-29 |
+| FE-PAGE-21 | Dashboard | Count click | Opens My purchases with that filter | P1 | Pass 2026-10-29 |
 | FE-PAGE-22 | Service dialog | Add valid | Record appears at the top of the history | P0 | Not run |
 | FE-PAGE-23 | Service dialog | Invalid date | Inline error; dialog stays open | P0 | Not run |
 | FE-PAGE-24 | Delete purchase | Confirm | DELETE sent; toast; back to My purchases | P0 | Not run |

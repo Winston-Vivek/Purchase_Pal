@@ -153,6 +153,20 @@ describe('Dashboard', () => {
     expect(hrefs).toContain('/purchases?returnStatus=ACTIVE,EXPIRING_SOON');
   });
 
+  it('FE-PAGE-18 the last day reads as "today", never "in 0 days"', async () => {
+    const wrapper = await page({
+      ...SUMMARY,
+      needsAction: [{ ...SUMMARY.needsAction[0], daysLeft: 0, date: '2026-10-29' }],
+      counts: { ...SUMMARY.counts, needsAction: 1 },
+    });
+
+    // ui-guide §3 gives the last day its own wording. The badge already does
+    // this; the count card has to agree with it.
+    const counts = wrapper.get('[data-testid="counts"]').text();
+    expect(counts).toMatch(/soonest closes today/i);
+    expect(counts).not.toMatch(/in 0 days/i);
+  });
+
   it('shows a skeleton while loading rather than four zeroes', async () => {
     fetchMock.mockReturnValue(new Promise(() => {}));
     const wrapper = mount(DashboardPage, {

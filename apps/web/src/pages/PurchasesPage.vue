@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { onMounted, ref } from 'vue';
-import { RouterLink } from 'vue-router';
+import { onMounted, ref, watch } from 'vue';
+import { RouterLink, useRoute } from 'vue-router';
 import { ApiError, api } from '../api/client';
 import type { Page, PurchaseResponse } from '../api/types';
 import AppShell from '../components/AppShell.vue';
@@ -9,6 +9,27 @@ import EmptyState from '../components/EmptyState.vue';
 import SkeletonBlock from '../components/SkeletonBlock.vue';
 import StatusBadge from '../components/StatusBadge.vue';
 import { formatDate, formatMoney } from '../lib/format';
+
+const route = useRoute();
+
+/**
+ * Filters live in the URL, not in component state, so a filtered list can be
+ * refreshed, shared and linked to — which is exactly what the dashboard's
+ * count cards do (vue-pinia-best-practices, state-url-for-ephemeral-filters).
+ */
+const ACCEPTED = ['q', 'category', 'returnStatus', 'warrantyStatus', 'sort', 'page', 'pageSize'];
+
+function queryString(): string {
+  const params = new URLSearchParams();
+
+  for (const key of ACCEPTED) {
+    const value = route.query[key];
+    if (typeof value === 'string' && value !== '') params.set(key, value);
+  }
+
+  const query = params.toString();
+  return query === '' ? '' : `?${query}`;
+}
 
 const items = ref<PurchaseResponse[]>([]);
 const total = ref(0);
@@ -20,7 +41,7 @@ async function load(): Promise<void> {
   error.value = null;
 
   try {
-    const page = await api<Page<PurchaseResponse>>('/purchases');
+    const page = await api<Page<PurchaseResponse>>(`/purchases${queryString()}`);
     items.value = page.items;
     total.value = page.total;
   } catch (failure) {
@@ -33,6 +54,11 @@ async function load(): Promise<void> {
 }
 
 onMounted(load);
+
+// The route component is reused when only the query changes, so a new filter
+// has to be watched for rather than relying on a remount
+// (vue-router-best-practices).
+watch(() => route.query, load, { deep: true });
 </script>
 
 <template>
