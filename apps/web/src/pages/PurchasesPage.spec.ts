@@ -6,9 +6,11 @@ import type { PurchaseResponse } from '../api/types';
 
 const route = { query: {} as Record<string, string>, params: {} };
 
+const push = vi.fn();
+
 vi.mock('vue-router', async (original) => ({
   ...(await original<typeof import('vue-router')>()),
-  useRouter: () => ({ push: vi.fn(), replace: vi.fn() }),
+  useRouter: () => ({ push, replace: push }),
   useRoute: () => route,
 }));
 
@@ -45,6 +47,7 @@ describe('My purchases', () => {
     vi.stubGlobal('fetch', fetchMock);
     fetchMock.mockReset();
     route.query = {};
+    push.mockReset();
   });
 
   afterEach(() => vi.unstubAllGlobals());
@@ -170,5 +173,120 @@ describe('My purchases', () => {
     await flushPromises();
 
     expect(wrapper.text()).toContain('AirPods Pro (2nd generation)');
+  });
+
+  // ------------------------------------------------ FE-PAGE-29..32 --------
+  describe('search, filters and paging', () => {
+    const withResults = (items = [AIRPODS], total = 1) =>
+      fetchMock.mockResolvedValue(json(200, { items, total, page: 1, pageSize: 20 }));
+
+    it('FE-PAGE-29 searching puts the text in the URL, not in component state', async () => {
+      withResults();
+      const wrapper = page();
+      await flushPromises();
+
+      await wrapper.get('#q').setValue('airpods');
+      await wrapper.get('[data-testid="search-form"]').trigger('submit');
+
+      // The URL is the state, so the result can be refreshed and shared
+      // (state-url-for-ephemeral-filters).
+      expect(push).toHaveBeenCalledWith({ query: { q: 'airpods' } });
+    });
+
+    it('FE-PAGE-29 choosing a filter adds it to the URL and keeps the search text', async () => {
+      route.query = { q: 'airpods' };
+      withResults();
+      const wrapper = page();
+      await flushPromises();
+
+      await wrapper.get('#category').setValue('ELECTRONICS');
+
+      expect(push).toHaveBeenCalledWith({ query: { q: 'airpods', category: 'ELECTRONICS' } });
+    });
+
+    it('FE-PAGE-29 every active filter gets a chip that says what it is', async () => {
+      route.query = { q: 'airpods', category: 'ELECTRONICS', returnStatus: 'EXPIRING_SOON' };
+      withResults();
+      const wrapper = page();
+      await flushPromises();
+
+      const chips = wrapper.get('[data-testid="chips"]').text();
+      expect(chips).toContain('airpods');
+      expect(chips).toMatch(/electronics/i);
+      expect(chips).toMatch(/expiring soon|closing soon/i);
+    });
+
+    it('FE-PAGE-30 removing one chip drops only that filter', async () => {
+      route.query = { q: 'airpods', category: 'ELECTRONICS' };
+      withResults();
+      const wrapper = page();
+      await flushPromises();
+
+      const remove = wrapper
+        .get('[data-testid="chips"]')
+        .findAll('button')
+        .find((b) => /electronics/i.test(b.attributes('aria-label') ?? ''));
+      await remove?.trigger('click');
+
+      expect(push).toHaveBeenCalledWith({ query: { q: 'airpods' } });
+    });
+
+    it('FE-PAGE-30 clear all drops every filter at once', async () => {
+      route.query = { q: 'airpods', category: 'ELECTRONICS', sort: 'price_desc' };
+      withResults();
+      const wrapper = page();
+      await flushPromises();
+
+      await wrapper.get('[data-testid="clear-all"]').trigger('click');
+
+      expect(push).toHaveBeenCalledWith({ query: {} });
+    });
+
+    it('FE-PAGE-31 no results names the filters and offers to clear them', async () => {
+      route.query = { q: 'kettle', category: 'MOBILE' };
+      fetchMock.mockResolvedValue(json(200, { items: [], total: 0, page: 1, pageSize: 20 }));
+      const wrapper = page();
+      await flushPromises();
+
+      const text = wrapper.text();
+      expect(text).toMatch(/no purchases match/i);
+      // "Nothing found" leaves the user guessing which filter did it.
+      expect(text).toContain('kettle');
+      expect(text).toMatch(/mobile/i);
+      expect(wrapper.get('[data-testid="clear-all"]').exists()).toBe(true);
+      // An empty RESULT is not an empty ACCOUNT.
+      expect(text).not.toMatch(/no purchases yet/i);
+    });
+
+    it('FE-PAGE-32 the controls show what the URL says, so a refresh keeps them', async () => {
+      route.query = { q: 'airpods', category: 'ELECTRONICS', sort: 'price_desc' };
+      withResults();
+      const wrapper = page();
+      await flushPromises();
+
+      expect((wrapper.get('#q').element as HTMLInputElement).value).toBe('airpods');
+      expect((wrapper.get('#category').element as HTMLSelectElement).value).toBe('ELECTRONICS');
+      expect((wrapper.get('#sort').element as HTMLSelectElement).value).toBe('price_desc');
+    });
+
+    it('paging says where you are, and only appears when there is more than a page', async () => {
+      fetchMock.mockResolvedValue(
+        json(200, { items: [AIRPODS], total: 57, page: 2, pageSize: 20 }),
+      );
+      route.query = { page: '2' };
+      const wrapper = page();
+      await flushPromises();
+
+      expect(wrapper.text()).toMatch(/21.{1,3}40 of 57/);
+      expect(wrapper.get('[data-testid="pagination"]').exists()).toBe(true);
+    });
+
+    it('paging is hidden when everything fits on one page', async () => {
+      withResults([AIRPODS], 1);
+      const wrapper = page();
+      await flushPromises();
+
+      expect(wrapper.find('[data-testid="pagination"]').exists()).toBe(false);
+    });
   });
 });
