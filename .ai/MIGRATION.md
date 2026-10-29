@@ -62,20 +62,21 @@ _One wave per phase in `docs/plan.md`. Each closes on a verified
 - [x] 01 Requirements — scope, business rules BR-01..10, validation, user stories, API contract, data model. Gate: `npm run gate day1`
 - [x] 02 Design — UI guide, `@theme` tokens, status system, screens, wireframes, mockups. Gate: `npm run gate day2`
 - [x] 03 Backend core — setup, DatesService, error shape, auth, alert settings, purchases CRUD. 77 cases. Gate: `npm run gate day3`
-- [~] 04 Backend features — receipts, service records, cascade, dashboard, search, seed. 46 cases. Gate: `npm run gate day4`
-- [ ] 05 Frontend core — scaffold, data layer, base components, shell, list/form, details. 43 cases. Gate: `npm run gate day5`
+- [x] 04 Backend features — receipts, service records, cascade, dashboard, search, seed. 46 cases. Gate: `npm run gate day4`
+- [~] 05 Frontend core — scaffold, data layer, base components, shell, list/form, details. 43 cases. Gate: `npm run gate day5`
 - [ ] 06 Frontend features + E2E — dashboard, dialogs, settings, search UI, Playwright, quality pass. 35 cases. Gate: `npm run gate day6`
 - [ ] 07 UAT and delivery — fresh-clone check, UAT-01..13, defect fixes test-first, docs, tag v1.0.0. Gate: `npm run gate day7`
 
 ## Current Wave
 
-04 Backend features
+05 Frontend core
 
 ## Completed
 
 - [x] 01 Requirements
 - [x] 02 Design
 - [x] 03 Backend core
+- [x] 04 Backend features
 
 ## In Progress
 
@@ -189,10 +190,13 @@ _No decisions recorded. Use `relay-decide` when a choice changes what the migrat
 
 ## Exact Next Action
 
-Start Day 4 Slice 1 (Receipts, API-ATT-01..14) test-first, under the org
-template conventions now recorded in SKILL.md: upload goes through an
-AttachmentRepository, the controller stays thin, the route param is
-`:purchaseId`, and every input has a documented DTO.
+The backend is complete: 103 e2e + 25 unit, all green. Next is Day 5 Slice 0,
+scaffolding apps/web (Vite, Vue 3, TS, Pinia, Router, Vitest, ESLint) with
+Tailwind v4 and the @theme tokens copied exactly from design/ui-guide.md §2.
+
+Blocker to resolve first: design/mockups/*.png does not exist. The Day 5 and
+Day 6 prompts both reference it. Either export PNGs from
+design/Proofly Colour Mockups.html or repoint those prompts at the HTML.
 
 ## Last Updated
 

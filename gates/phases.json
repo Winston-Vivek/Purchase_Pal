@@ -185,7 +185,7 @@
     {
       "id": "day4",
       "title": "Backend features (TDD)",
-      "status": "in-progress",
+      "status": "passed",
       "slices": [
         {
           "id": "1",
@@ -194,7 +194,8 @@
           "area": "attachments",
           "testIds": [
             "API-ATT-01..14"
-          ]
+          ],
+          "done": true
         },
         {
           "id": "2",
@@ -203,7 +204,8 @@
           "area": "services",
           "testIds": [
             "API-SVC-01..10"
-          ]
+          ],
+          "done": true
         },
         {
           "id": "3",
@@ -212,7 +214,8 @@
           "area": "purchases",
           "testIds": [
             "API-PUR-31..32"
-          ]
+          ],
+          "done": true
         },
         {
           "id": "4",
@@ -222,7 +225,8 @@
           "testIds": [
             "API-DASH-01..08",
             "API-AUTH-12"
-          ]
+          ],
+          "done": true
         },
         {
           "id": "5",
@@ -231,7 +235,8 @@
           "area": "search",
           "testIds": [
             "API-SRCH-01..10"
-          ]
+          ],
+          "done": true
         },
         {
           "id": "6",
@@ -240,7 +245,8 @@
           "area": "seed",
           "testIds": [
             "API-SEED-01..02"
-          ]
+          ],
+          "done": true
         }
       ],
       "gate": [
@@ -294,7 +300,7 @@
     {
       "id": "day5",
       "title": "Frontend core (TDD)",
-      "status": "pending",
+      "status": "in-progress",
       "slices": [
         {
           "id": "0",
