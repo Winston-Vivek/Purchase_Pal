@@ -102,9 +102,9 @@ None identified.
 _Machine-generated from `.ai/EVIDENCE.jsonl`. Do not edit by hand._
 
 ```
-129 commands recorded, of which 11 verified (7 passed, 4 failed, 2 non-binding).
+140 commands recorded, of which 11 verified (7 passed, 4 failed, 2 non-binding).
 
-Files changed since baseline `0ecc127` (git): 173
+Files changed since baseline `0ecc127` (git): 175
   - apps/api/package.json
   - apps/api/package-lock.json
   - apps/api/prisma/migrations/20261028080043_init/migration.sql
@@ -117,7 +117,7 @@ Files changed since baseline `0ecc127` (git): 173
   - apps/api/src/attachments/attachments.module.ts
   - apps/api/src/attachments/attachments.service.ts
   - apps/api/src/auth/auth.constants.ts
-  ... and 161 more
+  ... and 163 more
 
 Tool-observed edits: 0 across 0 files.
   (Only Edit/Write/MultiEdit are visible to the hook. A Bash-first session
@@ -162,14 +162,12 @@ Most recent verified runs:
 ### Working tree
 
 <!-- relay:git:start -->
-- Branch `master` at `b082639`, 4 uncommitted path(s).
+- Branch `master` at `41f010c`, 2 uncommitted path(s).
 - Changed now:
 
 ```
  M .ai/EVIDENCE.jsonl
  M .ai/MIGRATION.md
- D apps/api/var/uploads-test/19b25fe2c99a1ad57d85eabc6045ac2e
-?? apps/api/var/uploads-test/fad36f66b835075a03da30b1f5ff421c
 ```
 <!-- relay:git:end -->
 
@@ -211,5 +209,5 @@ it. Decide whether it ships or goes in CHANGELOG.md as a known limitation.
 ## Last Updated
 
 <!-- relay:updated:start -->
-- 2026-10-29T17:36:26Z (mechanical regions refreshed by `migration-state.sh`)
+- 2026-10-29T18:00:30Z (mechanical regions refreshed by `migration-state.sh`)
 <!-- relay:updated:end -->

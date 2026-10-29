@@ -86,6 +86,13 @@ jobs:
         env:
           DATABASE_URL: postgresql://proofly:proofly@localhost:5434/proofly_test?schema=public
 
+      # The gate decides whether everything else is trustworthy, so it has
+      # its own tests: fed a missing test, a failing test and a stale status
+      # column, it must refuse each one.
+      - name: Gate runner's own tests
+        run: node --test gates/checks.test.mjs
+        working-directory: .
+
       # Re-runs the gate of every phase already marked "passed" in
       # gates/phases.json. A change that breaks a signed-off phase fails here,
       # even when the work in flight belongs to a later one.

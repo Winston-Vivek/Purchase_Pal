@@ -17,7 +17,7 @@ Contents: 1 Unit (dates) · 2 API e2e · 3 Frontend unit/component · 4 Frontend
 | ID | Input | Expected | Pri | Status |
 | --- | --- | --- | --- | --- |
 | UT-DATE-01 | start 2026-01-15, 12 months | 2027-01-14 | P0 | Pass 2026-10-28 |
-| UT-DATE-02 | start 2026-01-31, 1 month (Feb has no 31st) | 2026-02-28 (month end) | P0 | Pass 2026-10-28 |
+| UT-DATE-02 | start 2026-01-31, 1 month (Feb has no 31st) | 2026-02-28 (month end) | P0 | Pass 2026-10-29 |
 | UT-DATE-03 | start 2024-02-29, 12 months (leap day) | 2025-02-28 | P0 | Pass 2026-10-28 |
 | UT-DATE-04 | start 2026-03-31, 1 month | 2026-04-30 | P0 | Pass 2026-10-28 |
 | UT-DATE-05 | start 2025-11-02, 12 months | 2026-11-01 | P0 | Pass 2026-10-28 |

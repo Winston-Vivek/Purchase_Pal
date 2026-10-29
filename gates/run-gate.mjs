@@ -19,6 +19,10 @@ import { existsSync, mkdtempSync, readFileSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
+// The decisions live in checks.mjs so they can be tested without spawning a
+// server — see checks.test.mjs. This file does the I/O and the printing.
+import { coverageFor, expandIds, matchIds, statusOf, summarise, tddHistory } from './checks.mjs';
+import { collectTestNames } from './suites.mjs';
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const CONFIG = JSON.parse(readFileSync(join(ROOT, 'gates/phases.json'), 'utf8'));
@@ -31,112 +35,8 @@ const PASS = `${C.green}✓${C.off}`;
 const FAIL = `${C.red}✗${C.off}`;
 const SKIP = `${C.yellow}−${C.off}`;
 
-/** "UT-DATE-01..24" -> ["UT-DATE-01", … "UT-DATE-24"]. Plain IDs pass through. */
-function expandIds(patterns) {
-  const out = [];
-  for (const pattern of patterns ?? []) {
-    const range = /^(.*?)(\d+)\.\.(\d+)$/.exec(pattern);
-    if (!range) {
-      out.push(pattern);
-      continue;
-    }
-    const [, prefix, from, to] = range;
-    const width = from.length;
-    for (let n = Number(from); n <= Number(to); n += 1) {
-      out.push(`${prefix}${String(n).padStart(width, '0')}`);
-    }
-  }
-  return out;
-}
-
 function sh(command, cwd = ROOT) {
   return execSync(command, { cwd, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] });
-}
-
-// ---------------------------------------------------------------- suites ---
-
-/**
- * How to run each suite so it emits machine-readable results. A suite that is
- * not built yet reports `available: false` rather than crashing the gate.
- */
-const SUITES = {
-  unit: {
-    cwd: 'apps/api',
-    exists: () => existsSync(join(ROOT, 'apps/api/package.json')),
-    run: (out) => `npx jest --passWithNoTests --json --outputFile=${out}`,
-  },
-  e2e: {
-    cwd: 'apps/api',
-    exists: () => existsSync(join(ROOT, 'apps/api/test/jest-e2e.json')),
-    // Locally the connection string comes from .env.test. CI sets DATABASE_URL
-    // directly and has no .env.test, so dotenv is only used when the file is
-    // actually there — otherwise the suite would die on a missing file.
-    run: (out) => {
-      const jest = `jest --config ./test/jest-e2e.json --runInBand --json --outputFile=${out}`;
-      return existsSync(join(ROOT, '.env.test'))
-        ? `npx dotenv -e ../../.env.test -- ${jest}`
-        : `npx ${jest}`;
-    },
-  },
-  web: {
-    cwd: 'apps/web',
-    exists: () => existsSync(join(ROOT, 'apps/web/package.json')),
-    run: (out) => `npx vitest run --reporter=json --outputFile=${out}`,
-  },
-  playwright: {
-    cwd: '.',
-    exists: () => existsSync(join(ROOT, 'e2e')),
-    run: (out) => `npx playwright test --reporter=json > ${out}`,
-  },
-};
-
-/** Collects every test name from a suite, with whether it passed. */
-function collectTestNames(suiteName) {
-  const suite = SUITES[suiteName];
-  if (!suite) return { available: false, reason: `unknown suite "${suiteName}"` };
-  if (!suite.exists()) return { available: false, reason: `${suiteName} suite does not exist yet` };
-
-  const dir = mkdtempSync(join(tmpdir(), 'proofly-gate-'));
-  const outFile = join(dir, 'results.json');
-
-  try {
-    try {
-      sh(suite.run(outFile), join(ROOT, suite.cwd));
-    } catch {
-      // A failing suite still writes its report; that is what we want to read.
-    }
-
-    if (!existsSync(outFile)) {
-      return { available: false, reason: `${suiteName} produced no report (did it fail to start?)` };
-    }
-
-    const report = JSON.parse(readFileSync(outFile, 'utf8'));
-    const names = [];
-
-    // Jest and Vitest share this shape; Playwright's differs.
-    for (const file of report.testResults ?? []) {
-      for (const assertion of file.assertionResults ?? file.tests ?? []) {
-        names.push({
-          name: assertion.fullName ?? assertion.title ?? '',
-          passed: assertion.status === 'passed',
-        });
-      }
-    }
-    for (const spec of report.suites ?? []) {
-      walkPlaywright(spec, names);
-    }
-
-    return { available: true, names };
-  } finally {
-    rmSync(dir, { recursive: true, force: true });
-  }
-}
-
-function walkPlaywright(node, out) {
-  for (const spec of node.specs ?? []) {
-    out.push({ name: spec.title ?? '', passed: spec.ok === true });
-  }
-  for (const child of node.suites ?? []) walkPlaywright(child, out);
 }
 
 // ---------------------------------------------------------------- checks ---
@@ -171,14 +71,7 @@ const CHECKS = {
       else all.push(...result.names);
     }
 
-    const missing = [];
-    const failing = [];
-
-    for (const id of expected) {
-      const matches = all.filter((t) => t.name.includes(id));
-      if (matches.length === 0) missing.push(id);
-      else if (matches.some((t) => !t.passed)) failing.push(id);
-    }
+    const { missing, failing } = matchIds(expected, all);
 
     const parts = [];
     if (unavailable.length) parts.push(unavailable.join('; '));
@@ -205,29 +98,13 @@ const CHECKS = {
     const summaryPath = join(ROOT, 'apps/api/coverage/coverage-summary.json');
     if (!existsSync(summaryPath)) return { ok: false, label, detail: 'no coverage summary produced' };
 
-    const summary = JSON.parse(readFileSync(summaryPath, 'utf8'));
-    const files = Object.entries(summary).filter(
-      ([path]) => path !== 'total' && path.includes(pattern),
-    );
+    const measured = coverageFor(JSON.parse(readFileSync(summaryPath, 'utf8')), pattern);
 
-    if (files.length === 0) {
+    if (measured === null) {
       return { ok: false, label, detail: `no files matching "${pattern}" are covered yet` };
     }
 
-    const total = files.reduce(
-      (acc, [, m]) => ({
-        lines: { covered: acc.lines.covered + m.lines.covered, total: acc.lines.total + m.lines.total },
-        branches: {
-          covered: acc.branches.covered + m.branches.covered,
-          total: acc.branches.total + m.branches.total,
-        },
-      }),
-      { lines: { covered: 0, total: 0 }, branches: { covered: 0, total: 0 } },
-    );
-
-    const pct = (c, t) => (t === 0 ? 100 : (c / t) * 100);
-    const lines = pct(total.lines.covered, total.lines.total);
-    const branches = pct(total.branches.covered, total.branches.total);
+    const { lines, branches } = measured;
     const ok = lines >= minLines && branches >= minBranches;
 
     return {
@@ -245,15 +122,7 @@ const CHECKS = {
       return { ok: false, label, detail: 'not a git repository' };
     }
 
-    const wrong = [];
-    const unstarted = [];
-
-    for (const area of areas) {
-      const pattern = new RegExp(`^(test|feat)\\(${area}\\)`);
-      const first = log.find((subject) => pattern.test(subject));
-      if (!first) unstarted.push(area);
-      else if (!first.startsWith('test(')) wrong.push(`${area} (starts with "${first.slice(0, 40)}…")`);
-    }
+    const { wrong, unstarted } = tddHistory(log, areas);
 
     if (wrong.length) {
       return { ok: false, label, detail: `${C.red}code before test${C.off}: ${wrong.join(', ')}` };
@@ -275,23 +144,8 @@ const CHECKS = {
     const file = join(ROOT, CONFIG.testCasesFile);
     if (!existsSync(file)) return { ok: false, label, detail: `${CONFIG.testCasesFile} not found` };
 
-    const text = readFileSync(file, 'utf8');
     const expected = expandIds(ids);
-    const notRun = [];
-    const absent = [];
-    const failed = [];
-
-    for (const id of expected) {
-      const row = text.split('\n').find((line) => line.includes(`| ${id} |`) || line.includes(`${id} `));
-      if (!row) {
-        absent.push(id);
-        continue;
-      }
-      const cells = row.split('|').map((c) => c.trim());
-      const status = cells[cells.length - 2] ?? '';
-      if (/not run/i.test(status) || status === '') notRun.push(id);
-      else if (/^fail/i.test(status)) failed.push(id);
-    }
+    const { absent, notRun, failed } = statusOf(readFileSync(file, 'utf8'), expected);
 
     const parts = [];
     if (absent.length) parts.push(`not in the file: ${summarise(absent)}`);
@@ -305,10 +159,6 @@ const CHECKS = {
     };
   },
 };
-
-function summarise(ids, max = 4) {
-  return ids.length <= max ? ids.join(', ') : `${ids.slice(0, max).join(', ')}, +${ids.length - max} more`;
-}
 
 // ----------------------------------------------------------------- views ---
 
