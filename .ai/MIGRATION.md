@@ -18,7 +18,7 @@ _Read from manifests by `detect-stack.sh`. Not model output._
 | - | _none detected_ | - | - |
 
 **Package manager:** `npm` (evidence: `package-lock.json`)  
-**Source files:** 19 `vue`, 8 `js`, 102 `ts`  
+**Source files:** 22 `vue`, 8 `js`, 105 `ts`  
 **Config files:** none
 
 **Migration signals detected:**
@@ -101,7 +101,7 @@ None identified.
 _Machine-generated from `.ai/EVIDENCE.jsonl`. Do not edit by hand._
 
 ```
-100 commands recorded, of which 10 verified (6 passed, 4 failed, 2 non-binding).
+103 commands recorded, of which 10 verified (6 passed, 4 failed, 2 non-binding).
 
 Files changed since baseline `0ecc127` (git): 166
   - apps/api/package.json
@@ -161,7 +161,7 @@ Most recent verified runs:
 ### Working tree
 
 <!-- relay:git:start -->
-- Branch `master` at `6e85af7`, 2 uncommitted path(s).
+- Branch `master` at `dd88e9b`, 2 uncommitted path(s).
 - Changed now:
 
 ```
@@ -205,5 +205,5 @@ land with delete purchase and ConfirmDialog.
 ## Last Updated
 
 <!-- relay:updated:start -->
-- 2026-10-29T13:40:16Z (mechanical regions refreshed by `migration-state.sh`)
+- 2026-10-29T16:09:47Z (mechanical regions refreshed by `migration-state.sh`)
 <!-- relay:updated:end -->

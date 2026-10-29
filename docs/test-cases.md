@@ -298,14 +298,14 @@ Fixture for A (today 2026-10-27), matching the design mockups:
 
 | ID | Journey | Expected | Pri | Status |
 | --- | --- | --- | --- | --- |
-| E2E-01 | Register → empty dashboard | Account created; empty state visible | P0 | Not run |
-| E2E-02 | Login (seed) → add purchase with 7-day return + 12-month warranty → save | Details show correct return deadline and warranty end | P0 | Not run |
-| E2E-03 | Upload receipt.pdf on details → download | Downloaded file matches | P0 | Not run |
-| E2E-04 | Add a service record | Appears in history after reload | P0 | Not run |
-| E2E-05 | Dashboard shows an item due in ≤ 7 days | Listed in Needs action with days left | P0 | Not run |
-| E2E-06 | Search "AirPods", edit seller | Found; change persists after reload | P1 | Not run |
-| E2E-07 | Sign in as B, open A's purchase URL and receipt URL | Not-found page; no A data in network responses | P0 | Not run |
-| E2E-08 | E2E-02 → 04 at a 390 × 844 viewport | Works; no horizontal scroll | P0 | Not run |
+| E2E-01 | Register → empty dashboard | Account created; empty state visible | P0 | Pass 2026-10-29 |
+| E2E-02 | Login (seed) → add purchase with 7-day return + 12-month warranty → save | Details show correct return deadline and warranty end | P0 | Pass 2026-10-29 |
+| E2E-03 | Upload receipt.pdf on details → download | Downloaded file matches | P0 | Pass 2026-10-29 |
+| E2E-04 | Add a service record | Appears in history after reload | P0 | Pass 2026-10-29 |
+| E2E-05 | Dashboard shows an item due in ≤ 7 days | Listed in Needs action with days left | P0 | Pass 2026-10-29 |
+| E2E-06 | Search "AirPods", edit seller | Found; change persists after reload | P1 | Pass 2026-10-29 |
+| E2E-07 | Sign in as B, open A's purchase URL and receipt URL | Not-found page; no A data in network responses | P0 | Pass 2026-10-29 |
+| E2E-08 | E2E-02 → 04 at a 390 × 844 viewport | Works; no horizontal scroll | P0 | Pass 2026-10-29 |
 
 ---
 
