@@ -9,8 +9,15 @@ import StatusBadge from './StatusBadge.vue';
  * the words say what happened rather than naming a state. "Return closes in
  * 3 days" beats "Expiring".
  */
+interface BadgeProps {
+  kind: 'RETURN' | 'WARRANTY' | 'RECEIPT';
+  status: 'NOT_SET' | 'EXPIRED' | 'EXPIRING_SOON' | 'ACTIVE' | 'MISSING';
+  daysLeft?: number | null;
+  date?: string | null;
+}
+
 describe('StatusBadge', () => {
-  const badge = (props: Record<string, unknown>) => mount(StatusBadge, { props });
+  const badge = (props: BadgeProps) => mount(StatusBadge, { props });
 
   it('FE-CMP-01 a return closing soon says how long is left, in warn tokens', () => {
     const wrapper = badge({ kind: 'RETURN', status: 'EXPIRING_SOON', daysLeft: 3 });
@@ -70,13 +77,15 @@ describe('StatusBadge', () => {
   });
 
   it('FE-CMP-06 the meaning is in the text; the icon is hidden from assistive tech', () => {
-    for (const props of [
+    const everyStatus: BadgeProps[] = [
       { kind: 'RETURN', status: 'EXPIRING_SOON', daysLeft: 3 },
       { kind: 'WARRANTY', status: 'EXPIRED', date: '2026-10-19' },
       { kind: 'WARRANTY', status: 'ACTIVE', daysLeft: 364 },
       { kind: 'RETURN', status: 'NOT_SET' },
       { kind: 'RECEIPT', status: 'MISSING' },
-    ]) {
+    ];
+
+    for (const props of everyStatus) {
       const wrapper = badge(props);
       const icon = wrapper.find('svg');
 
@@ -88,7 +97,7 @@ describe('StatusBadge', () => {
   });
 
   it('FE-CMP-06 each status gets a different icon, so shape carries meaning too', () => {
-    const iconOf = (props: Record<string, unknown>) =>
+    const iconOf = (props: BadgeProps) =>
       badge(props).find('svg').attributes('class') ?? badge(props).find('svg').html().slice(0, 200);
 
     const active = iconOf({ kind: 'WARRANTY', status: 'ACTIVE', daysLeft: 10 });

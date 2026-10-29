@@ -238,22 +238,22 @@ Fixture for A (today 2026-10-27), matching the design mockups:
 
 | ID | Component | Scenario | Expected | Pri | Status |
 | --- | --- | --- | --- | --- | --- |
-| FE-CMP-01 | StatusBadge | RETURN EXPIRING_SOON, 3 days | Text "Return closes in 3 days", warning icon, warn tokens | P0 | Not run |
-| FE-CMP-02 | StatusBadge | RETURN daysLeft 0 | "Return closes today" | P0 | Not run |
-| FE-CMP-03 | StatusBadge | WARRANTY EXPIRED 2026-10-19 | "Warranty ended 19 Oct 2026", x icon | P0 | Not run |
-| FE-CMP-04 | StatusBadge | WARRANTY ACTIVE 364 | "Covered · 364 days left" | P0 | Not run |
-| FE-CMP-05 | StatusBadge | NOT_SET | "No return window" / "No warranty" | P0 | Not run |
-| FE-CMP-06 | StatusBadge | Any status | Icon has aria-hidden; meaning is in the text | P0 | Not run |
-| FE-CMP-07 | formatDate / formatMoney | 2026-10-27 / 24900 INR | "27 Oct 2026" / "₹24,900.00" | P0 | Not run |
-| FE-CMP-08 | BaseButton | loading | Disabled, shows "Saving…", keeps width | P1 | Not run |
-| FE-CMP-09 | BaseInput | error prop | aria-invalid true, aria-describedby → error text | P0 | Not run |
-| FE-CMP-10 | ErrorSummary | 2 errors | role=alert, gets focus, each link focuses its field | P0 | Not run |
-| FE-CMP-11 | ConfirmDialog | open | Focus inside, Esc closes, focus returns to trigger | P0 | Not run |
-| FE-CMP-12 | ConfirmDialog | confirm | Emits confirm once; cancel emits nothing | P0 | Not run |
-| FE-CMP-13 | EmptyState | Renders | Message + action button/link | P1 | Not run |
-| FE-CMP-14 | Toast | success | role=status, auto-dismiss | P1 | Not run |
-| FE-CMP-15 | FileDrop | 6 MB file or .exe chosen | Inline error before upload; no request sent | P0 | Not run |
-| FE-CMP-16 | Skeleton | loading | aria-busy on the region | P1 | Not run |
+| FE-CMP-01 | StatusBadge | RETURN EXPIRING_SOON, 3 days | Text "Return closes in 3 days", warning icon, warn tokens | P0 | Pass 2026-10-29 |
+| FE-CMP-02 | StatusBadge | RETURN daysLeft 0 | "Return closes today" | P0 | Pass 2026-10-29 |
+| FE-CMP-03 | StatusBadge | WARRANTY EXPIRED 2026-10-19 | "Warranty ended 19 Oct 2026", x icon | P0 | Pass 2026-10-29 |
+| FE-CMP-04 | StatusBadge | WARRANTY ACTIVE 364 | "Covered · 364 days left" | P0 | Pass 2026-10-29 |
+| FE-CMP-05 | StatusBadge | NOT_SET | "No return window" / "No warranty" | P0 | Pass 2026-10-29 |
+| FE-CMP-06 | StatusBadge | Any status | Icon has aria-hidden; meaning is in the text | P0 | Pass 2026-10-29 |
+| FE-CMP-07 | formatDate / formatMoney | 2026-10-27 / 24900 INR | "27 Oct 2026" / "₹24,900.00" | P0 | Pass 2026-10-29 |
+| FE-CMP-08 | BaseButton | loading | Disabled, shows "Saving…", keeps width | P1 | Pass 2026-10-29 |
+| FE-CMP-09 | BaseInput | error prop | aria-invalid true, aria-describedby → error text | P0 | Pass 2026-10-29 |
+| FE-CMP-10 | ErrorSummary | 2 errors | role=alert, gets focus, each link focuses its field | P0 | Pass 2026-10-29 |
+| FE-CMP-11 | ConfirmDialog | open | Focus inside, Esc closes, focus returns to trigger | P0 | Pass 2026-10-29 |
+| FE-CMP-12 | ConfirmDialog | confirm | Emits confirm once; cancel emits nothing | P0 | Pass 2026-10-29 |
+| FE-CMP-13 | EmptyState | Renders | Message + action button/link | P1 | Pass 2026-10-29 |
+| FE-CMP-14 | Toast | success | role=status, auto-dismiss | P1 | Pass 2026-10-29 |
+| FE-CMP-15 | FileDrop | 6 MB file or .exe chosen | Inline error before upload; no request sent | P0 | Pass 2026-10-29 |
+| FE-CMP-16 | Skeleton | loading | aria-busy on the region | P1 | Pass 2026-10-29 |
 
 ## 4. Frontend pages (`apps/web/src/pages/**/*.spec.ts`)
 
