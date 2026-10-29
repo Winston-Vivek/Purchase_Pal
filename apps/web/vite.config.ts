@@ -15,7 +15,10 @@ export default defineConfig({
     proxy: {
       // The API sets an httpOnly cookie, so the browser has to see one origin.
       // Proxying in dev avoids CORS and keeps the cookie first-party.
-      '/api': { target: 'http://localhost:3000', changeOrigin: true },
+      '/api': {
+        target: process.env.VITE_API_TARGET ?? 'http://localhost:3000',
+        changeOrigin: true,
+      },
     },
   },
   test: {

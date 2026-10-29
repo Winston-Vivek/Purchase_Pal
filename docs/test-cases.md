@@ -223,16 +223,16 @@ Fixture for A (today 2026-10-27), matching the design mockups:
 
 | ID | Scenario | Expected | Pri | Status |
 | --- | --- | --- | --- | --- |
-| FE-API-01 | Requests | Sent with credentials (cookies) to `/api/v1/...` | P0 | Not run |
-| FE-API-02 | 400 response with `fields` | Throws ApiError with code, message, fields | P0 | Not run |
-| FE-API-03 | 401 on a data call | Auth store cleared; router goes to /login?redirect=<current> | P0 | Not run |
-| FE-API-04 | Network failure | ApiError code NETWORK with a readable message | P1 | Not run |
-| FE-AUTH-01 | Store login success | user set; isAuthenticated true | P0 | Not run |
-| FE-AUTH-02 | Store login 401 | Error message shown; user null | P0 | Not run |
-| FE-AUTH-03 | Guard: signed out → /purchases | Redirect to /login?redirect=/purchases | P0 | Not run |
-| FE-AUTH-04 | After login with redirect | Lands on /purchases | P0 | Not run |
-| FE-AUTH-05 | Guard: signed in → /login | Redirect to /dashboard (no redirect loop) | P0 | Not run |
-| FE-AUTH-06 | App start with valid cookie | /auth/me restores the session | P0 | Not run |
+| FE-API-01 | Requests | Sent with credentials (cookies) to `/api/v1/...` | P0 | Pass 2026-10-29 |
+| FE-API-02 | 400 response with `fields` | Throws ApiError with code, message, fields | P0 | Pass 2026-10-29 |
+| FE-API-03 | 401 on a data call | Auth store cleared; router goes to /login?redirect=<current> | P0 | Pass 2026-10-29 |
+| FE-API-04 | Network failure | ApiError code NETWORK with a readable message | P1 | Pass 2026-10-29 |
+| FE-AUTH-01 | Store login success | user set; isAuthenticated true | P0 | Pass 2026-10-29 |
+| FE-AUTH-02 | Store login 401 | Error message shown; user null | P0 | Pass 2026-10-29 |
+| FE-AUTH-03 | Guard: signed out → /purchases | Redirect to /login?redirect=/purchases | P0 | Pass 2026-10-29 |
+| FE-AUTH-04 | After login with redirect | Lands on /purchases | P0 | Pass 2026-10-29 |
+| FE-AUTH-05 | Guard: signed in → /login | Redirect to /dashboard (no redirect loop) | P0 | Pass 2026-10-29 |
+| FE-AUTH-06 | App start with valid cookie | /auth/me restores the session | P0 | Pass 2026-10-29 |
 
 ### 3.2 Base components
 
