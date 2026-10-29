@@ -1,4 +1,5 @@
 import { INestApplication } from '@nestjs/common';
+import { join, resolve } from 'node:path';
 import request from 'supertest';
 import { DataSource } from 'typeorm';
 import { signUp } from './utils/auth';
@@ -41,6 +42,10 @@ describe('Dashboard (e2e)', () => {
       underWarranty: 5,
       openReturns: 2,
       needsAction: 3,
+      // 12995 + 24900 + 8999 + 38990 + 71999 + 124990 + 32499. The dashboard
+      // card shows this, and the frontend cannot work it out: it is only sent
+      // the five most recent purchases.
+      totalValue: 315372,
     });
   });
 
@@ -73,6 +78,9 @@ describe('Dashboard (e2e)', () => {
         kind: expect.stringMatching(/^(RETURN|WARRANTY)$/),
         date: expect.stringMatching(/^\d{4}-\d{2}-\d{2}$/),
         daysLeft: expect.any(Number),
+        // The mockup puts a "Receipt missing" badge on these rows, so the row
+        // has to know (BR-06).
+        hasReceipt: expect.any(Boolean),
       });
     }
 
@@ -86,6 +94,35 @@ describe('Dashboard (e2e)', () => {
     );
     expect(kinds['Nike Pegasus 41']).toBe('RETURN');
     expect(kinds['Samsung 1.5 Ton Inverter Split AC']).toBe('WARRANTY');
+  });
+
+  it('API-DASH-03 hasReceipt on a needs-action row follows the real attachments', async () => {
+    await seedDashboard(app, cookie);
+
+    const all = await request(app.getHttpServer())
+      .get('/api/v1/purchases')
+      .set('Cookie', cookie)
+      .expect(200);
+    const airpods = all.body.items.find((p: { productName: string }) =>
+      p.productName.startsWith('AirPods'),
+    );
+
+    await request(app.getHttpServer())
+      .post(`/api/v1/purchases/${airpods.id}/attachments`)
+      .set('Cookie', cookie)
+      .attach('file', join(resolve(__dirname, 'fixtures'), 'receipt.pdf'))
+      .expect(201);
+
+    const response = await dashboard().expect(200);
+    const byName = Object.fromEntries(
+      response.body.needsAction.map((i: { productName: string; hasReceipt: boolean }) => [
+        i.productName,
+        i.hasReceipt,
+      ]),
+    );
+
+    expect(byName['AirPods Pro (2nd generation)']).toBe(true);
+    expect(byName['Nike Pegasus 41']).toBe(false);
   });
 
   it('API-DASH-04 recently expired covers the last 30 days only', async () => {
@@ -146,6 +183,7 @@ describe('Dashboard (e2e)', () => {
       underWarranty: 0,
       openReturns: 0,
       needsAction: 0,
+      totalValue: 0,
     });
     expect(response.body.needsAction).toEqual([]);
     expect(response.body.recentlyExpired).toEqual([]);

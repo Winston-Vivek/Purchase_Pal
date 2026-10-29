@@ -65,6 +65,7 @@ export class DashboardService {
     return {
       counts: {
         total: rows.length,
+        totalValue: this.totalValue(purchases),
         underWarranty: rows.filter((r) => OPEN.includes(r.warrantyStatus)).length,
         openReturns: rows.filter((r) => OPEN.includes(r.returnStatus)).length,
         needsAction: needsAction.length,
@@ -75,6 +76,13 @@ export class DashboardService {
         .slice(0, RECENT_PURCHASES)
         .map((r) => toPurchaseResponse(r.purchase, user, this.dates)),
     };
+  }
+
+  /** Summed in paise, then converted back. Adding DECIMAL values as floats is
+   *  how a total ends up at 315371.99999999994. */
+  private totalValue(purchases: Purchase[]): number {
+    const paise = purchases.reduce((sum, p) => sum + Math.round(Number(p.price) * 100), 0);
+    return paise / 100;
   }
 
   private resolve(purchase: Purchase, user: User): Resolved {
@@ -114,6 +122,7 @@ export class DashboardService {
           kind,
           date,
           daysLeft,
+          hasReceipt: (row.purchase.attachments?.length ?? 0) > 0,
         });
       };
 
