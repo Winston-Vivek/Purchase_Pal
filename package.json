@@ -8,12 +8,16 @@
     "node": ">=20"
   },
   "scripts": {
+    "db:down": "docker compose down",
+    "db:up": "docker compose up -d --wait",
     "gate": "node gates/run-gate.mjs",
     "gate:status": "node gates/run-gate.mjs --status",
-    "test": "npm --prefix apps/api test",
-    "test:e2e": "npm --prefix apps/api run test:e2e",
     "lint": "npm --prefix apps/api run lint",
-    "db:up": "docker compose up -d --wait",
-    "db:down": "docker compose down"
+    "mockups": "node design/render-mockups.mjs",
+    "test": "npm --prefix apps/api test",
+    "test:e2e": "npm --prefix apps/api run test:e2e"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.64.1"
   }
 }

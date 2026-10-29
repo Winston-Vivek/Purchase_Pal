@@ -17,7 +17,7 @@ _Read from manifests by `detect-stack.sh`. Not model output._
 |---|---|---|---|
 | - | _none detected_ | - | - |
 
-**Source files:** 0 `vue`, 5 `js`, 71 `ts`  
+**Source files:** 0 `vue`, 5 `js`, 80 `ts`  
 **Config files:** none
 
 **Migration signals detected:**
@@ -99,9 +99,9 @@ None identified.
 _Machine-generated from `.ai/EVIDENCE.jsonl`. Do not edit by hand._
 
 ```
-59 commands recorded, of which 8 verified (4 passed, 4 failed, 2 non-binding).
+62 commands recorded, of which 9 verified (5 passed, 4 failed, 2 non-binding).
 
-Files changed since baseline `0ecc127` (git): 100
+Files changed since baseline `0ecc127` (git): 102
   - apps/api/package.json
   - apps/api/package-lock.json
   - apps/api/prisma/migrations/20261028080043_init/migration.sql
@@ -114,14 +114,13 @@ Files changed since baseline `0ecc127` (git): 100
   - apps/api/src/attachments/attachments.module.ts
   - apps/api/src/attachments/attachments.service.ts
   - apps/api/src/auth/auth.constants.ts
-  ... and 88 more
+  ... and 90 more
 
 Tool-observed edits: 0 across 0 files.
   (Only Edit/Write/MultiEdit are visible to the hook. A Bash-first session
    records none of its changes here -- the git list above is the complete one.)
 
 Most recent verified runs:
-  [x] `npm run gate day1` -> exit 0  (wave 01, 2026-10-28T09:33:11Z)
   [x] `npm run gate day2` -> exit 0  (wave 02, 2026-10-28T09:33:24Z)
   [x] `npm run test:e2e` -> exit 0  (wave 03, 2026-10-28T09:33:40Z)
   [!] `npm run gate day3` -> exit 1  (wave 03, 2026-10-28T09:33:48Z)
@@ -129,6 +128,7 @@ Most recent verified runs:
   [!] probe `npm --prefix apps/api run test:e2e` -> exit 1  (wave 03, 2026-10-28T10:00:13Z)
   [!] `npm --prefix apps/api run test:e2e` -> exit 1  (wave 03, 2026-10-28T10:53:00Z)
   [x] `npm run gate day3` -> exit 0  (wave 03, 2026-10-28T11:47:47Z)
+  [x] `npm run gate day4` -> exit 0  (wave 04, 2026-10-29T07:51:40Z)
 ```
 
 **Wave verification gate**
@@ -139,8 +139,8 @@ Most recent verified runs:
     - probes (recorded, non-binding):
         - `npm --prefix apps/api run test:e2e` -> exit 1
         - `npm test` -> exit 1
-- Wave `04` — _not verified_: no passing `relay-verify` run recorded.
-- Wave `05` — _not verified_: declared `pending`, so no evidence binds to it.
+- Wave `04` — **verified**: every binding command last ran green.
+- Wave `05` — _not verified_: no passing `relay-verify` run recorded.
 - Wave `06` — _not verified_: declared `pending`, so no evidence binds to it.
 - Wave `07` — _not verified_: declared `pending`, so no evidence binds to it.
 
@@ -149,7 +149,7 @@ Most recent verified runs:
 - `tests` for `npm --prefix apps/api run test:e2e`: 56 — baseline, wave 03.
 - `tests` for `npm run test:e2e`: 4 — baseline, wave 03.
 
-**Verified runs for the current wave (`04`)**
+**Verified runs for the current wave (`05`)**
 
 ```
 (none)
@@ -159,7 +159,7 @@ Most recent verified runs:
 ### Working tree
 
 <!-- relay:git:start -->
-- Branch `master` at `413a04c`, 2 uncommitted path(s).
+- Branch `master` at `dc67848`, 2 uncommitted path(s).
 - Changed now:
 
 ```
@@ -201,5 +201,5 @@ design/Proofly Colour Mockups.html or repoint those prompts at the HTML.
 ## Last Updated
 
 <!-- relay:updated:start -->
-- 2026-10-28T12:47:28Z (mechanical regions refreshed by `migration-state.sh`)
+- 2026-10-29T07:53:18Z (mechanical regions refreshed by `migration-state.sh`)
 <!-- relay:updated:end -->
