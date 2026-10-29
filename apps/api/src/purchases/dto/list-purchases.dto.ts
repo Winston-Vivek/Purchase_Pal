@@ -1,5 +1,5 @@
 import { ApiPropertyOptional } from '@nestjs/swagger';
-import { Type } from 'class-transformer';
+import { Transform, Type } from 'class-transformer';
 import { IsEnum, IsInt, IsOptional, IsString, Max, MaxLength, Min } from 'class-validator';
 import { DeadlineStatus } from '../../common/dates/dates.service';
 import { Category } from '../purchase.entity';
@@ -9,6 +9,16 @@ export enum PurchaseSort {
   PRICE_DESC = 'price_desc',
   PRICE_ASC = 'price_asc',
   DEADLINE_ASC = 'deadline_asc',
+}
+
+/** "ACTIVE,EXPIRING_SOON" -> ["ACTIVE", "EXPIRING_SOON"]. An unknown member
+ *  survives the split and is then rejected by @IsEnum({ each: true }). */
+function splitStatuses(value: unknown): unknown {
+  if (typeof value !== 'string') return value;
+  return value
+    .split(',')
+    .map((part) => part.trim())
+    .filter(Boolean);
 }
 
 export class ListPurchasesDto {
@@ -23,15 +33,22 @@ export class ListPurchasesDto {
   @IsEnum(Category)
   category?: Category;
 
-  @ApiPropertyOptional({ enum: DeadlineStatus })
+  /**
+   * One status or several, comma separated. The dashboard needs both: "under
+   * warranty" means ACTIVE or EXPIRING_SOON, and a card that says 5 must link
+   * to a list that shows 5. A single value still works unchanged.
+   */
+  @ApiPropertyOptional({ enum: DeadlineStatus, isArray: true, example: 'ACTIVE,EXPIRING_SOON' })
   @IsOptional()
-  @IsEnum(DeadlineStatus)
-  returnStatus?: DeadlineStatus;
+  @Transform(({ value }) => splitStatuses(value))
+  @IsEnum(DeadlineStatus, { each: true })
+  returnStatus?: DeadlineStatus[];
 
-  @ApiPropertyOptional({ enum: DeadlineStatus })
+  @ApiPropertyOptional({ enum: DeadlineStatus, isArray: true, example: 'ACTIVE,EXPIRING_SOON' })
   @IsOptional()
-  @IsEnum(DeadlineStatus)
-  warrantyStatus?: DeadlineStatus;
+  @Transform(({ value }) => splitStatuses(value))
+  @IsEnum(DeadlineStatus, { each: true })
+  warrantyStatus?: DeadlineStatus[];
 
   @ApiPropertyOptional({ enum: PurchaseSort, default: PurchaseSort.NEWEST })
   @IsOptional()

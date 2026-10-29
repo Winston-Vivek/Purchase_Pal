@@ -67,11 +67,14 @@ export class PurchasesService {
 
     let resolved = matches.map((purchase) => this.resolveDeadlines(purchase, user));
 
-    if (query.returnStatus) {
-      resolved = resolved.filter((r) => r.returnStatus === query.returnStatus);
+    const returnStatuses = query.returnStatus;
+    if (returnStatuses?.length) {
+      resolved = resolved.filter((r) => returnStatuses.includes(r.returnStatus));
     }
-    if (query.warrantyStatus) {
-      resolved = resolved.filter((r) => r.warrantyStatus === query.warrantyStatus);
+
+    const warrantyStatuses = query.warrantyStatus;
+    if (warrantyStatuses?.length) {
+      resolved = resolved.filter((r) => warrantyStatuses.includes(r.warrantyStatus));
     }
 
     if (query.sort === PurchaseSort.DEADLINE_ASC) {

@@ -107,6 +107,35 @@ describe('Search, filter and sort (e2e)', () => {
     expect(names(response.body)).toEqual(['Dell XPS 13', 'LG washing machine']);
   });
 
+  it('API-SRCH-05 a status filter accepts several values, for the dashboard counts', async () => {
+    // "Under warranty" on the dashboard means ACTIVE or EXPIRING_SOON. With a
+    // single-valued filter the card would say 5 and the list it links to would
+    // show 4, which reads as a bug to anyone who clicks it.
+    const response = await search('?warrantyStatus=ACTIVE,EXPIRING_SOON').expect(200);
+
+    expect(names(response.body).sort()).toEqual([
+      'AirPods Pro (2nd generation)',
+      'Dell XPS 13',
+      'Philips Air Fryer',
+      'Samsung 1.5 Ton Inverter Split AC',
+      'iPhone 15',
+    ]);
+    expect(response.body.total).toBe(5);
+  });
+
+  it('API-SRCH-05 several return statuses work the same way', async () => {
+    const response = await search('?returnStatus=ACTIVE,EXPIRING_SOON').expect(200);
+
+    expect(names(response.body).sort()).toEqual([
+      'AirPods Pro (2nd generation)',
+      'Nike Pegasus 41',
+    ]);
+  });
+
+  it('API-SRCH-05 an unknown value in the list is still rejected', async () => {
+    await search('?warrantyStatus=ACTIVE,NONSENSE').expect(400);
+  });
+
   it("API-SRCH-10 B's search never reaches A's purchases", async () => {
     const { cookie: bCookie } = await signUp(app, { email: 'bob@test.dev', name: 'Bob' });
 
