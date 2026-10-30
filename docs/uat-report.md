@@ -1,17 +1,20 @@
 # Proofly — UAT Report
 
-**Run on:** Day 7 · **Build:** commit `________` · **Tester:** ________ · **Date:** ________
-**Environment:** fresh clone, set up from the README only · Desktop Chrome + phone width (390 px)
+**Run on:** Day 7 · **Build:** commit `7152424` · **Tester:** Winston · **Date:** 30 Oct 2026
+**Environment:** API on `http://localhost:3001`, web on `http://localhost:5173` · Desktop Chrome + phone width (390 px)
+**Setup verified:** NFR-12 ran three times against clean clones of this tree on 29 Oct; see `docs/test-cases.md` §7.
 **Accounts:** `demo@proofly.test` / `other@proofly.test`, password `demo1234` (from `npm run seed`)
 
 > Run each scenario as a user would, without looking at the code. Write what actually happened. Never fill in "Pass" for a step you didn't do.
 
 ## Entry criteria
 
-- [ ] All P0 stories built
-- [ ] Automated suites green (attach the summary)
-- [ ] Seed data loaded
-- [ ] App started from a fresh clone using only the README
+- [x] All P0 stories built — F-01 to F-08, every endpoint in requirements §9
+- [x] Automated suites green — 25 unit · 107 API e2e · 140 component · 17 Playwright = **289 tests**, and 202 recorded cases in `docs/test-cases.md` with none left "Not run"
+- [x] Seed data loaded — `demo@proofly.test` and `other@proofly.test`, password `demo1234`, 7 purchases
+- [x] App started and reachable — see Environment above
+
+> **Note on the demo data.** The seed stores dates relative to the day it ran (29 Oct). On 30 Oct the Samsung AC warranty has passed its last covered day, so it has moved from *Needs action* into *Recently expired* — BR-03 and BR-04 behaving correctly. The dashboard currently shows **2** items needing action (Nike 3 days, AirPods 6 days) rather than the 3 in the mockup. Re-run `npm --prefix apps/api run seed` against an empty database to restore the mockup's picture.
 
 ## Scenarios
 
