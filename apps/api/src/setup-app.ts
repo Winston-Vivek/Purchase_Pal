@@ -48,7 +48,7 @@ export function setupApp(app: INestApplication): INestApplication {
   // Registered after the pipe so it also catches what the pipe throws.
   app.useGlobalFilters(new AllExceptionsFilter());
 
-  // Lets Nest run onModuleDestroy (closing the Prisma pool) on SIGTERM
+  // Lets Nest run onModuleDestroy (closing the TypeORM pool) on SIGTERM
   // (devops-graceful-shutdown).
   app.enableShutdownHooks();
 

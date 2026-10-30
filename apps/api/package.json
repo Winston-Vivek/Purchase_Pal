@@ -2,7 +2,7 @@
   "name": "@proofly/api",
   "version": "0.1.0",
   "private": true,
-  "description": "Proofly API \u2014 purchases, receipts, warranty and return deadlines, service history",
+  "description": "Proofly API — purchases, receipts, warranty and return deadlines, service history",
   "license": "UNLICENSED",
   "engines": {
     "node": ">=20"
@@ -99,5 +99,9 @@
     "moduleNameMapper": {
       "^src/(.*)$": "<rootDir>/$1"
     }
+  },
+  "overrides": {
+    "multer": "2.5.0",
+    "js-yaml": "5.4.3"
   }
 }
