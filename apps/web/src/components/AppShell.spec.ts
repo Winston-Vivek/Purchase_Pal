@@ -15,6 +15,7 @@ describe('AppShell', () => {
       { path: '/dashboard', name: 'dashboard', component: blank },
       { path: '/purchases', name: 'purchases', component: blank },
       { path: '/purchases/new', name: 'purchase-new', component: blank },
+      { path: '/purchases/:purchaseId', name: 'purchase-details', component: blank },
       { path: '/settings', name: 'settings', component: blank },
     ],
   });
@@ -48,6 +49,33 @@ describe('AppShell', () => {
     const current = wrapper.findAll('[aria-current="page"]');
     expect(current.length).toBeGreaterThan(0);
     for (const link of current) expect(link.text()).toMatch(/purchases/i);
+  });
+
+  // FE-PAGE-33. /purchases/:id is a sibling route, not a child of /purchases,
+  // so vue-router's own "inclusive" match does not consider the list link
+  // active there — and the sidebar went blank on every detail page.
+  it('FE-PAGE-33 a purchase page keeps My purchases marked', async () => {
+    const wrapper = await shell('/purchases/p1');
+
+    const current = wrapper.findAll('[aria-current="page"]');
+    expect(current.length).toBeGreaterThan(0);
+    for (const link of current) expect(link.text()).toMatch(/purchases/i);
+  });
+
+  it('FE-PAGE-33 the add form keeps My purchases marked', async () => {
+    const wrapper = await shell('/purchases/new');
+
+    const current = wrapper.findAll('[aria-current="page"]');
+    expect(current.length).toBeGreaterThan(0);
+    for (const link of current) expect(link.text()).toMatch(/purchases/i);
+  });
+
+  it('FE-PAGE-33 one section at a time is current', async () => {
+    const wrapper = await shell('/purchases/p1');
+
+    // Dashboard must not light up just because /purchases/p1 is not /dashboard.
+    const current = wrapper.findAll('[aria-current="page"]');
+    for (const link of current) expect(link.text()).not.toMatch(/dashboard/i);
   });
 
   it('offers every nav target from ui-guide §5', async () => {

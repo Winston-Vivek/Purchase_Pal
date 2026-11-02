@@ -59,13 +59,47 @@ describe('Purchase details', () => {
       global: {
         stubs: {
           AppShell: { template: '<div><slot /></div>' },
-          RouterLink: { template: '<a href="#"><slot /></a>' },
+          RouterLink: { props: ['to'], template: '<a :href="to"><slot /></a>' },
         },
       },
     });
     await flushPromises();
     return wrapper;
   };
+
+  // FE-PAGE-34. vue-router records the path you came from in history state.
+  // The back link was hard-coded to the list, so arriving from the Dashboard
+  // and pressing back dropped you somewhere you had never been.
+  describe('FE-PAGE-34 the way back', () => {
+    const arriveFrom = (back: string | null) =>
+      window.history.replaceState(back === null ? {} : { back }, '');
+
+    afterEach(() => window.history.replaceState({}, ''));
+
+    it('returns to the Dashboard when that is where you came from', async () => {
+      arriveFrom('/dashboard');
+      const wrapper = await page();
+
+      const link = wrapper.findAll('a').find((a) => a.text().includes('Dashboard'));
+      expect(link?.attributes('href')).toBe('/dashboard');
+    });
+
+    it('falls back to My purchases on a direct load', async () => {
+      arriveFrom(null);
+      const wrapper = await page();
+
+      const link = wrapper.findAll('a').find((a) => a.text().includes('My purchases'));
+      expect(link?.attributes('href')).toBe('/purchases');
+    });
+
+    it('falls back to My purchases when you came from anywhere else', async () => {
+      arriveFrom('/purchases/p1/edit');
+      const wrapper = await page();
+
+      const link = wrapper.findAll('a').find((a) => a.text().includes('My purchases'));
+      expect(link?.attributes('href')).toBe('/purchases');
+    });
+  });
 
   it('FE-PAGE-13 the header carries the facts about the purchase', async () => {
     const wrapper = await page();
@@ -189,7 +223,7 @@ describe('Purchase details', () => {
       global: {
         stubs: {
           AppShell: { template: '<div><slot /></div>' },
-          RouterLink: { template: '<a href="#"><slot /></a>' },
+          RouterLink: { props: ['to'], template: '<a :href="to"><slot /></a>' },
         },
       },
     });

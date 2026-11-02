@@ -218,6 +218,22 @@ describe('My purchases', () => {
       expect(chips).toMatch(/expiring soon|closing soon/i);
     });
 
+    // FE-PAGE-35. The dashboard's "Open returns" count links here with two
+    // statuses at once, and the chip looked them up as one string — so it
+    // showed the user the raw column values.
+    it('FE-PAGE-35 a multi-value filter is still written in words', async () => {
+      route.query = { returnStatus: 'ACTIVE,EXPIRING_SOON' };
+      withResults();
+      const wrapper = page();
+      await flushPromises();
+
+      const chips = wrapper.get('[data-testid="chips"]').text();
+      expect(chips).not.toContain('_');
+      expect(chips).not.toContain('ACTIVE');
+      expect(chips).toMatch(/active/i);
+      expect(chips).toMatch(/expiring soon/i);
+    });
+
     it('FE-PAGE-30 removing one chip drops only that filter', async () => {
       route.query = { q: 'airpods', category: 'ELECTRONICS' };
       withResults();
