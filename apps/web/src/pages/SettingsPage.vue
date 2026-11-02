@@ -216,49 +216,52 @@ async function signOut(): Promise<void> {
 
         <div class="flex flex-col gap-6">
           <form
-            class="flex flex-col gap-4 rounded-md border border-border bg-surface p-4 lg:p-6"
+            class="flex flex-col gap-6"
             data-testid="password-form"
             novalidate
             @submit.prevent="changePassword"
           >
-            <div>
-              <h2 class="font-heading text-lg font-semibold text-fg">Password</h2>
+            <fieldset
+              class="flex flex-col gap-4 rounded-md border border-border bg-surface p-4 lg:p-6"
+            >
+              <legend class="px-1 font-heading text-lg font-semibold text-fg">Password</legend>
+
               <!-- Said before they start, not after: the consequence is the point. -->
-              <p class="mt-1 text-sm text-muted-fg">
+              <p class="text-sm text-muted-fg">
                 Changing it signs you out everywhere else. This device stays signed in.
               </p>
-            </div>
 
-            <BaseInput
-              id="currentPassword"
-              v-model="currentPassword"
-              label="Current password"
-              type="password"
-              autocomplete="current-password"
-              :error="passwordFields.currentPassword"
-              required
-            />
+              <BaseInput
+                id="currentPassword"
+                v-model="currentPassword"
+                label="Current password"
+                type="password"
+                autocomplete="current-password"
+                :error="passwordFields.currentPassword"
+                required
+              />
 
-            <BaseInput
-              id="newPassword"
-              v-model="newPassword"
-              label="New password"
-              type="password"
-              autocomplete="new-password"
-              hint="At least 8 characters, with a letter and a number."
-              :error="passwordFields.newPassword"
-              required
-            />
+              <BaseInput
+                id="newPassword"
+                v-model="newPassword"
+                label="New password"
+                type="password"
+                autocomplete="new-password"
+                hint="At least 8 characters, with a letter and a number."
+                :error="passwordFields.newPassword"
+                required
+              />
 
-            <BaseInput
-              id="newPasswordConfirmation"
-              v-model="newPasswordConfirmation"
-              label="Confirm new password"
-              type="password"
-              autocomplete="new-password"
-              :error="passwordFields.newPasswordConfirmation"
-              required
-            />
+              <BaseInput
+                id="newPasswordConfirmation"
+                v-model="newPasswordConfirmation"
+                label="Confirm new password"
+                type="password"
+                autocomplete="new-password"
+                :error="passwordFields.newPasswordConfirmation"
+                required
+              />
+            </fieldset>
 
             <div class="flex justify-end">
               <BaseButton type="submit" :loading="changingPassword" loading-label="Changing…">
@@ -267,21 +270,25 @@ async function signOut(): Promise<void> {
             </div>
           </form>
 
-          <section
+          <!-- A fieldset rather than a section so it carries the same notched
+               legend as the other two cards. Valid here: it groups a control
+               (sign out), which is what a fieldset is for. -->
+          <fieldset
             class="flex flex-wrap items-center justify-between gap-4 rounded-md border border-border bg-surface p-4 lg:p-6"
           >
+            <legend class="px-1 font-heading text-lg font-semibold text-fg">Account</legend>
+
             <div class="min-w-0">
-              <h2 class="font-heading text-lg font-semibold text-fg">Account</h2>
               <p class="truncate text-fg">{{ user?.name }}</p>
               <p class="truncate text-sm text-muted-fg">{{ user?.email }}</p>
             </div>
             <!-- ui-guide §5: on a phone this is the only way out, since the bottom
-           bar has no room for it. -->
+                 bar has no room for it. -->
             <BaseButton data-testid="sign-out" variant="secondary" @click="signOut">
               <LogOut :size="18" aria-hidden="true" />
               Sign out
             </BaseButton>
-          </section>
+          </fieldset>
         </div>
       </div>
     </div>
