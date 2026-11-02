@@ -155,125 +155,135 @@ async function signOut(): Promise<void> {
     <!-- ui-guide §2: one centred 640px column, so the heading, the form and
          the account card stay aligned instead of hugging the left edge of a
          wide monitor. -->
-    <div class="mx-auto max-w-[640px]">
+    <!-- One column on a phone, two from 1024px up. Alerts is the taller half
+         and takes a column of its own; the password form and the account card
+         share the other. Wider than ui-guide §2's 640px cap on purpose, the
+         same change already logged for the purchase form. -->
+    <div class="mx-auto max-w-[640px] lg:max-w-[1040px]">
       <h1 class="font-heading text-2xl font-semibold text-fg lg:text-[28px]">Settings</h1>
       <p class="mt-1 text-muted-fg">
         How far ahead Purchase Tracker warns you, and the account you are signed in to.
       </p>
 
-      <form
-        class="mt-6 flex flex-col gap-6"
-        data-testid="settings-form"
-        novalidate
-        @submit.prevent="save"
-      >
-        <fieldset class="flex flex-col gap-4 rounded-md border border-border bg-surface p-4 lg:p-6">
-          <legend class="px-1 font-heading text-lg font-semibold text-fg">Alerts</legend>
-
-          <BaseInput
-            id="warrantyAlertDays"
-            v-model="warrantyAlertDays"
-            label="Warn me before a warranty ends"
-            inputmode="numeric"
-            hint="Days, between 1 and 365."
-            :error="fields.warrantyAlertDays"
-          />
-
-          <BaseInput
-            id="returnAlertDays"
-            v-model="returnAlertDays"
-            label="Warn me before a return window closes"
-            inputmode="numeric"
-            hint="Days, between 1 and 60."
-            :error="fields.returnAlertDays"
-          />
-
-          <BaseInput
-            id="serviceAlertDays"
-            v-model="serviceAlertDays"
-            label="Warn me before a service is due"
-            inputmode="numeric"
-            hint="Days, between 1 and 365."
-            :error="fields.serviceAlertDays"
-          />
-
-          <p class="rounded-sm bg-subtle px-3 py-2 text-fg">{{ preview }}</p>
-        </fieldset>
-
-        <div class="flex justify-end">
-          <BaseButton type="submit" :loading="saving" loading-label="Saving…"
-            >Save settings</BaseButton
+      <div class="mt-6 grid items-start gap-6 lg:grid-cols-2">
+        <form
+          class="flex flex-col gap-6"
+          data-testid="settings-form"
+          novalidate
+          @submit.prevent="save"
+        >
+          <fieldset
+            class="flex flex-col gap-4 rounded-md border border-border bg-surface p-4 lg:p-6"
           >
-        </div>
-      </form>
+            <legend class="px-1 font-heading text-lg font-semibold text-fg">Alerts</legend>
 
-      <form
-        class="mt-6 flex flex-col gap-4 rounded-md border border-border bg-surface p-4 lg:p-6"
-        data-testid="password-form"
-        novalidate
-        @submit.prevent="changePassword"
-      >
-        <div>
-          <h2 class="font-heading text-lg font-semibold text-fg">Password</h2>
-          <!-- Said before they start, not after: the consequence is the point. -->
-          <p class="mt-1 text-sm text-muted-fg">
-            Changing it signs you out everywhere else. This device stays signed in.
-          </p>
-        </div>
+            <BaseInput
+              id="warrantyAlertDays"
+              v-model="warrantyAlertDays"
+              label="Warn me before a warranty ends"
+              inputmode="numeric"
+              hint="Days, between 1 and 365."
+              :error="fields.warrantyAlertDays"
+            />
 
-        <BaseInput
-          id="currentPassword"
-          v-model="currentPassword"
-          label="Current password"
-          type="password"
-          autocomplete="current-password"
-          :error="passwordFields.currentPassword"
-          required
-        />
+            <BaseInput
+              id="returnAlertDays"
+              v-model="returnAlertDays"
+              label="Warn me before a return window closes"
+              inputmode="numeric"
+              hint="Days, between 1 and 60."
+              :error="fields.returnAlertDays"
+            />
 
-        <BaseInput
-          id="newPassword"
-          v-model="newPassword"
-          label="New password"
-          type="password"
-          autocomplete="new-password"
-          hint="At least 8 characters, with a letter and a number."
-          :error="passwordFields.newPassword"
-          required
-        />
+            <BaseInput
+              id="serviceAlertDays"
+              v-model="serviceAlertDays"
+              label="Warn me before a service is due"
+              inputmode="numeric"
+              hint="Days, between 1 and 365."
+              :error="fields.serviceAlertDays"
+            />
 
-        <BaseInput
-          id="newPasswordConfirmation"
-          v-model="newPasswordConfirmation"
-          label="Confirm new password"
-          type="password"
-          autocomplete="new-password"
-          :error="passwordFields.newPasswordConfirmation"
-          required
-        />
+            <p class="rounded-sm bg-subtle px-3 py-2 text-fg">{{ preview }}</p>
+          </fieldset>
 
-        <div class="flex justify-end">
-          <BaseButton type="submit" :loading="changingPassword" loading-label="Changing…">
-            Change password
-          </BaseButton>
-        </div>
-      </form>
+          <div class="flex justify-end">
+            <BaseButton type="submit" :loading="saving" loading-label="Saving…"
+              >Save settings</BaseButton
+            >
+          </div>
+        </form>
 
-      <section
-        class="mt-6 flex flex-wrap items-center justify-between gap-4 rounded-md border border-border bg-surface p-4 lg:p-6"
-      >
-        <div class="min-w-0">
-          <h2 class="font-heading text-lg font-semibold text-fg">Account</h2>
-          <p class="truncate text-fg">{{ user?.name }}</p>
-          <p class="truncate text-sm text-muted-fg">{{ user?.email }}</p>
-        </div>
-        <!-- ui-guide §5: on a phone this is the only way out, since the bottom
+        <div class="flex flex-col gap-6">
+          <form
+            class="flex flex-col gap-4 rounded-md border border-border bg-surface p-4 lg:p-6"
+            data-testid="password-form"
+            novalidate
+            @submit.prevent="changePassword"
+          >
+            <div>
+              <h2 class="font-heading text-lg font-semibold text-fg">Password</h2>
+              <!-- Said before they start, not after: the consequence is the point. -->
+              <p class="mt-1 text-sm text-muted-fg">
+                Changing it signs you out everywhere else. This device stays signed in.
+              </p>
+            </div>
+
+            <BaseInput
+              id="currentPassword"
+              v-model="currentPassword"
+              label="Current password"
+              type="password"
+              autocomplete="current-password"
+              :error="passwordFields.currentPassword"
+              required
+            />
+
+            <BaseInput
+              id="newPassword"
+              v-model="newPassword"
+              label="New password"
+              type="password"
+              autocomplete="new-password"
+              hint="At least 8 characters, with a letter and a number."
+              :error="passwordFields.newPassword"
+              required
+            />
+
+            <BaseInput
+              id="newPasswordConfirmation"
+              v-model="newPasswordConfirmation"
+              label="Confirm new password"
+              type="password"
+              autocomplete="new-password"
+              :error="passwordFields.newPasswordConfirmation"
+              required
+            />
+
+            <div class="flex justify-end">
+              <BaseButton type="submit" :loading="changingPassword" loading-label="Changing…">
+                Change password
+              </BaseButton>
+            </div>
+          </form>
+
+          <section
+            class="flex flex-wrap items-center justify-between gap-4 rounded-md border border-border bg-surface p-4 lg:p-6"
+          >
+            <div class="min-w-0">
+              <h2 class="font-heading text-lg font-semibold text-fg">Account</h2>
+              <p class="truncate text-fg">{{ user?.name }}</p>
+              <p class="truncate text-sm text-muted-fg">{{ user?.email }}</p>
+            </div>
+            <!-- ui-guide §5: on a phone this is the only way out, since the bottom
            bar has no room for it. -->
-        <BaseButton data-testid="sign-out" variant="secondary" @click="signOut">
-          <LogOut :size="18" aria-hidden="true" />
-          Sign out
-        </BaseButton>
-      </section>
+            <BaseButton data-testid="sign-out" variant="secondary" @click="signOut">
+              <LogOut :size="18" aria-hidden="true" />
+              Sign out
+            </BaseButton>
+          </section>
+        </div>
+      </div>
     </div>
 
     <div v-if="toast" class="fixed right-4 bottom-20 z-50 lg:bottom-4">

@@ -18,7 +18,7 @@ _Read from manifests by `detect-stack.sh`. Not model output._
 | - | _none detected_ | - | - |
 
 **Package manager:** `npm` (evidence: `package-lock.json`)  
-**Source files:** 23 `vue`, 12 `js`, 121 `ts`  
+**Source files:** 25 `vue`, 12 `js`, 134 `ts`  
 **Config files:** `playwright.config.ts`
 
 **Migration signals detected:**
@@ -106,9 +106,9 @@ None identified.
 _Machine-generated from `.ai/EVIDENCE.jsonl`. Do not edit by hand._
 
 ```
-314 commands recorded, of which 11 verified (7 passed, 4 failed, 2 non-binding).
+318 commands recorded, of which 11 verified (7 passed, 4 failed, 2 non-binding).
 
-Files changed since baseline `0ecc127` (git): 214
+Files changed since baseline `0ecc127` (git): 218
   - apps/api/package.json
   - apps/api/package-lock.json
   - apps/api/prisma/migrations/20261028080043_init/migration.sql
@@ -121,7 +121,7 @@ Files changed since baseline `0ecc127` (git): 214
   - apps/api/src/attachments/attachments.module.ts
   - apps/api/src/attachments/attachments.service.ts
   - apps/api/src/auth/auth.constants.ts
-  ... and 202 more
+  ... and 206 more
 
 Tool-observed edits: 0 across 0 files.
   (Only Edit/Write/MultiEdit are visible to the hook. A Bash-first session
@@ -166,7 +166,7 @@ Most recent verified runs:
 ### Working tree
 
 <!-- relay:git:start -->
-- Branch `master` at `9913897`, 2 uncommitted path(s).
+- Branch `master` at `7bf7ffb`, 2 uncommitted path(s).
 - Changed now:
 
 ```
@@ -210,5 +210,5 @@ Write `docs/architecture.md` (request-flow and ER diagrams) to close one of the 
 ## Last Updated
 
 <!-- relay:updated:start -->
-- 2026-11-02T08:11:21Z (mechanical regions refreshed by `migration-state.sh`)
+- 2026-11-02T09:13:11Z (mechanical regions refreshed by `migration-state.sh`)
 <!-- relay:updated:end -->

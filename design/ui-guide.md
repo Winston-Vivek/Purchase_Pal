@@ -79,7 +79,7 @@ Load fonts once in `index.html`:
 | Section gap | 24 px mobile, 32 px desktop | `gap-6 lg:gap-8` |
 | Content width | max 1200 px | `max-w-[1200px] mx-auto` |
 | Sidebar | 240 px at `lg` (≥ 1024 px) | Desktop navigation |
-| Form width | max 640 px; Add/Edit widens to 1040 px from `lg` | Settings and auth stay at 640. Changed 2 Nov 2026: at 640 the purchase form used about a third of a desktop, so from `lg` it becomes two columns — Product across the top, Return and Warranty side by side. |
+| Form width | max 640 px; Add/Edit and Settings widen to 1040 px from `lg` | Auth stays at 640. Changed 2 Nov 2026: at 640 the purchase form used about a third of a desktop, so from `lg` it becomes two columns — Product across the top, Return and Warranty side by side. Settings follows the same rule: Alerts in one column, Password and Account in the other. |
 
 ### Type scale
 
