@@ -131,6 +131,9 @@ All requests use `/api/v1`. "Signed in as A" = A's auth cookie. Errors must use 
 | API-REM-06 | Two users with deadlines | Each gets only their own; neither name appears in the other's email | P0 | Pass 2026-11-02 |
 | API-REM-07 | A deadline whose date is changed afterwards | May be reminded again — it is a different deadline | P1 | Pass 2026-11-02 |
 | API-REM-08 | A user with nothing due | No email at all, rather than an empty one | P1 | Pass 2026-11-02 |
+| API-THR-01 | Repeated `POST /auth/forgot-password` | Refused with 429 past the limit; the error shape is still `{ error: { code, message } }` | P0 | Pass 2026-11-02 |
+| API-THR-02 | Repeated failed logins | Refused with 429 past the limit | P0 | Pass 2026-11-02 |
+| API-THR-03 | Ordinary reads under the same session | Not throttled by the auth limits — a normal session must not be punished for someone else's brute force | P0 | Pass 2026-11-02 |
 
 > **API-AUTH-12 is verified by the Day 4 gate, not Day 3.** Its `/purchases` half passes as of Day 3 Slice 5. The `/dashboard` half cannot: Nest runs guards after routing, so a route that does not exist returns 404 rather than 401. `/dashboard` is built in Day 4 Slice 4, and the test is unchanged.
 
@@ -422,10 +425,10 @@ From `design/ui-guide.md` §8 and the UI UX Pro Max pre-delivery checklist.
 | NFR-03 | Status never by colour alone | Every badge has an icon + words | P0 | Pass 2026-10-29 |
 | NFR-04 | Keyboard only | Sign in → add purchase → upload → add service record with Tab/Enter/Esc | P0 | Pass 2026-10-29 |
 | NFR-05 | Visible focus | Focus ring on every interactive element | P0 | Pass 2026-10-29 |
-| NFR-06 | Labels | Every input has a visible label; errors linked via aria-describedby | P0 | Pass 2026-10-29 |
-| NFR-07 | Touch targets | Buttons and inputs ≥ 44 px high on mobile | P1 | Pass 2026-10-29 |
-| NFR-08 | Reduced motion | With prefers-reduced-motion, no transitions | P1 | Pass 2026-10-29 |
-| NFR-09 | Page titles | `<title>` changes per route; one h1 per page | P1 | Pass 2026-10-29 |
+| NFR-06 | Labels | Every input has a visible label; errors linked via aria-describedby | P0 | Pass 2026-11-02 |
+| NFR-07 | Touch targets | Buttons and inputs ≥ 44 px high on mobile | P1 | Pass 2026-11-02 |
+| NFR-08 | Reduced motion | With prefers-reduced-motion, no transitions | P1 | Pass 2026-11-02 |
+| NFR-09 | Page titles | `<title>` changes per route; one h1 per page | P1 | Pass 2026-11-02 |
 | NFR-10 | Secrets | No secrets in git; `.env.example` complete; JWT secret required at boot | P0 | Pass 2026-10-29 |
 | NFR-11 | Receipts not public | Guessing `/uploads/<key>` or any static path returns 404 | P0 | Pass 2026-10-29 |
 | NFR-12 | Fresh clone | README steps alone run the app and all tests | P0 | Pass 2026-10-29 |

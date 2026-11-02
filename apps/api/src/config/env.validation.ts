@@ -1,5 +1,6 @@
 import { plainToInstance, Type } from 'class-transformer';
 import {
+  IsBoolean,
   IsEnum,
   IsInt,
   IsNotEmpty,
@@ -117,6 +118,32 @@ export class EnvironmentVariables {
   @IsString()
   @IsNotEmpty()
   UPLOAD_DIR: string = './var/uploads';
+
+  /**
+   * On for a managed Postgres, off for the one in docker-compose. Declared so
+   * a missing value is a documented default rather than a surprise at boot.
+   */
+  @Type(() => Boolean)
+  @IsBoolean()
+  DATABASE_SSL: boolean = false;
+
+  /**
+   * How many attempts an address gets at the authentication endpoints before
+   * they are refused, and over how many seconds.
+   *
+   * Five a minute is generous for a person and useless for a script. It
+   * matters most for /auth/forgot-password, which sends mail to an address an
+   * anonymous caller picks — unthrottled, that is an email-bombing tool.
+   */
+  @Type(() => Number)
+  @IsInt()
+  @Min(1)
+  THROTTLE_AUTH_LIMIT: number = 5;
+
+  @Type(() => Number)
+  @IsInt()
+  @Min(1)
+  THROTTLE_AUTH_TTL: number = 60;
 
   // ------------------------------------------------------------------ mail --
   // Defaults point at the Mailpit container in docker-compose, which catches

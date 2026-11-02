@@ -64,7 +64,16 @@ export default defineConfig({
       url: `http://localhost:${API_PORT}/api/v1/health`,
       reuseExistingServer: !process.env.CI,
       timeout: 60_000,
-      env: { ...env(), PORT: String(API_PORT), NODE_ENV: 'development' },
+      env: {
+        ...env(),
+        PORT: String(API_PORT),
+        NODE_ENV: 'development',
+        // Nineteen journeys sign in once each from one address, which a
+        // realistic ceiling would refuse — for behaving like a test suite.
+        // The limit itself is proved by API-THR-01..03, against an app built
+        // with a low one on purpose.
+        THROTTLE_AUTH_LIMIT: '100000',
+      },
     },
     {
       command: `npm --prefix apps/web run dev -- --port ${WEB_PORT} --strictPort`,

@@ -1,9 +1,10 @@
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
-import { Body, Controller, Get, HttpCode, Patch, Post, Res } from '@nestjs/common';
+import { Body, Controller, Get, HttpCode, Patch, Post, Res, UseGuards } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { CookieOptions, Response } from 'express';
 import { User } from '../users/user.entity';
 import { UserResponse, toUserResponse } from '../users/user-response';
+import { AuthThrottleGuard } from './auth-throttle.guard';
 import { authCookieOptions } from './auth-cookie';
 import { AUTH_COOKIE } from './auth.constants';
 import { AuthService } from './auth.service';
@@ -32,6 +33,7 @@ export class AuthController {
   }
 
   @Public()
+  @UseGuards(AuthThrottleGuard)
   @Post('register')
   @HttpCode(201)
   async register(
@@ -44,6 +46,7 @@ export class AuthController {
   }
 
   @Public()
+  @UseGuards(AuthThrottleGuard)
   @Post('login')
   @HttpCode(200)
   async login(
@@ -81,6 +84,7 @@ export class AuthController {
    * careful about.
    */
   @Public()
+  @UseGuards(AuthThrottleGuard)
   @Post('forgot-password')
   @HttpCode(202)
   @ApiOperation({ summary: 'Email a password reset link' })
@@ -96,6 +100,7 @@ export class AuthController {
    * silently become a signed-in browser. The user signs in afterwards.
    */
   @Public()
+  @UseGuards(AuthThrottleGuard)
   @Post('reset-password')
   @HttpCode(200)
   @ApiOperation({ summary: 'Set a new password using a reset link' })

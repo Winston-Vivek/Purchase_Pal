@@ -175,7 +175,7 @@ Honest list. None blocks the MVP; all are deliberate.
 
 | Gap | Why it is acceptable now | What production needs |
 | --- | --- | --- |
-| **No rate limiting** on login or register | Single-user local app, no public surface | `@nestjs/throttler` on `/auth/*`, plus lockout after repeated failures |
+| ~~No rate limiting~~ — **done** | `@nestjs/throttler` on `/auth/*`: 5 attempts per address per minute by default (`THROTTLE_AUTH_LIMIT`). Applied to those routes only, so an ordinary session is not refused because someone else on the same network is guessing passwords | A shared store (Redis) once there is more than one instance — the counter is per-process |
 | **No security headers** (`helmet`) | Served by Vite dev over `http://localhost` | `helmet()` with a CSP, and HSTS behind TLS |
 | **No CSRF token** | `SameSite=Lax` + one pinned origin covers the MVP | A double-submit token once the API is on a different origin |
 | **No audit log** | No multi-user or compliance requirement | Append-only log of auth events and deletions |

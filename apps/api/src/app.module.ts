@@ -29,7 +29,10 @@ import { StorageModule } from './common/storage/storage.module';
     TypeOrmModule.forRootAsync({
       inject: [ConfigService],
       useFactory: (config: ConfigService) =>
-        databaseOptions(config.getOrThrow<string>('DATABASE_URL')),
+        databaseOptions(
+          config.getOrThrow<string>('DATABASE_URL'),
+          config.get<boolean>('DATABASE_SSL') === true,
+        ),
     }),
     RepositoriesModule,
     StorageModule,
