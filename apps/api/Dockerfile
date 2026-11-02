@@ -55,4 +55,18 @@ EXPOSE 3000
 HEALTHCHECK --interval=30s --timeout=5s --start-period=20s --retries=3 \
   CMD node -e "fetch('http://127.0.0.1:'+(process.env.PORT||3000)+'/api/v1/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"
 
-CMD ["node", "dist/main.js"]
+# Migrations run here rather than as a platform pre-deploy step, because a
+# pre-deploy step is a paid feature on Render and this deploys to `free`
+# (render.yaml says the same thing from the other side). `migration:run` is
+# idempotent -- TypeORM checks its own migrations table and takes a lock -- so
+# running it on every cold start costs a second and changes nothing after the
+# first.
+#
+# `exec` so the server replaces the shell and becomes the process that receives
+# SIGTERM; without it, the shell gets the signal and the platform's graceful
+# shutdown turns into a kill.
+#
+# The trade-off, honestly: a failed migration takes the service down instead of
+# merely cancelling the release. On a paid plan, move this back to
+# preDeployCommand and restore `CMD ["node", "dist/main.js"]`.
+CMD ["sh", "-c", "npm run --silent migration:run:prod && exec node dist/main.js"]

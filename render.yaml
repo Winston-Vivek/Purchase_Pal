@@ -17,16 +17,17 @@ services:
     region: oregon
     healthCheckPath: /api/v1/health
 
-    # Runs before the new version takes traffic, from inside Render's network
-    # — which also sidesteps the flaky link between a laptop and Neon.
-    preDeployCommand: npm run migration:run:prod
-
-    # Receipts (BR-10). A container filesystem is discarded on every deploy;
-    # without this, every uploaded receipt disappears with it.
-    disk:
-      name: uploads
-      mountPath: /data
-      sizeGB: 1
+    # NO preDeployCommand: it is a paid-plan feature, so on `free` the schema
+    # would never be applied. Migrations run from the container's start command
+    # instead — see apps/api/Dockerfile. Move them back here on a paid plan,
+    # where they belong: a pre-deploy step that fails stops the release, while
+    # a start command that fails takes the service down.
+    #
+    # NO disk either — free instances cannot attach one. That makes receipt
+    # storage ephemeral, which is a KNOWN LIMITATION against BR-10, recorded in
+    # CHANGELOG.md. Uploads survive until the instance redeploys, restarts, or
+    # idles 15 minutes and spins down. A persistent disk on a paid plan is the
+    # fix; object storage behind the STORAGE token is the other.
 
     envVars:
       - key: NODE_ENV

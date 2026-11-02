@@ -1,0 +1,87 @@
+# BR-16 — the daily deadline digest.
+#
+# Why this runs here and not on the platforms:
+#
+#   - Vercel cron cannot do it. It issues a GET, cannot send a custom header,
+#     and only invokes Vercel Functions — not a rewrite to another host. The
+#     endpoint is POST and guarded by `x-cron-secret`, so a Vercel cron gets a
+#     404 and then a 401. (Verified against a container: GET -> 404.)
+#   - Render's own cron jobs are a paid feature, and the API is on `free`.
+#
+# GitHub Actions can send a POST with an arbitrary header, and the repository
+# is already mirrored here for CI.
+#
+# Two things to know:
+#   - A scheduled workflow is DISABLED after 60 days with no commits to the
+#     repository. If the digest stops arriving, check that first.
+#   - GitHub does not promise punctuality. Under load a schedule can slip by
+#     several minutes, which is harmless for a daily 08:00 digest and would
+#     not be for anything tighter.
+
+name: Daily reminders
+
+on:
+  schedule:
+    # 02:30 UTC = 08:00 Asia/Kolkata (APP_TIMEZONE). GitHub schedules are
+    # always UTC, so this is the offset written out rather than assumed.
+    - cron: '30 2 * * *'
+  # So it can be run by hand from the Actions tab, which is also how it gets
+  # proved once before the first real firing.
+  workflow_dispatch:
+
+# Never two digests at once: `sent_reminders` is what stops a user being
+# emailed twice, and overlapping runs would race it.
+concurrency:
+  group: reminders
+  cancel-in-progress: false
+
+jobs:
+  send:
+    name: Send due reminders
+    runs-on: ubuntu-latest
+    steps:
+      - name: POST /internal/reminders/run
+        env:
+          API_BASE_URL: ${{ secrets.API_BASE_URL }}
+          CRON_SECRET: ${{ secrets.CRON_SECRET }}
+        run: |
+          set -euo pipefail
+
+          if [ -z "${API_BASE_URL:-}" ] || [ -z "${CRON_SECRET:-}" ]; then
+            echo "::error::API_BASE_URL and CRON_SECRET must be set as repository secrets."
+            exit 1
+          fi
+
+          # --max-time 180 and the retries are for the free instance: it spins
+          # down after 15 minutes idle and takes about a minute to wake, so the
+          # first attempt of the day is expected to be slow, not broken.
+          #
+          # The secret goes in a header via @- on stdin, so it is never an
+          # argument in the process list or the run log.
+          printf 'x-cron-secret: %s\n' "$CRON_SECRET" > "$RUNNER_TEMP/h.txt"
+
+          http_status=$(curl --silent --show-error \
+            --request POST \
+            --header @"$RUNNER_TEMP/h.txt" \
+            --max-time 180 \
+            --retry 3 --retry-delay 20 --retry-all-errors \
+            --output "$RUNNER_TEMP/body.json" \
+            --write-out '%{http_code}' \
+            "${API_BASE_URL%/}/api/v1/internal/reminders/run")
+
+          echo "HTTP $http_status"
+          cat "$RUNNER_TEMP/body.json" || true
+          echo
+
+          # A 401 here means the secret drifted from the one on the API host;
+          # it is the failure worth distinguishing, because it looks identical
+          # to "no reminders due" if the body is ignored.
+          if [ "$http_status" = "401" ]; then
+            echo "::error::401 — CRON_SECRET does not match the value set on the API host."
+            exit 1
+          fi
+
+          if [ "$http_status" != "200" ]; then
+            echo "::error::Reminder run failed with HTTP $http_status."
+            exit 1
+          fi

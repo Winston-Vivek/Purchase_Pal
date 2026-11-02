@@ -117,18 +117,43 @@ Deliberate. Each is a decision, not an oversight.
 
 ### Not built (P2 in `requirements.md` §4)
 
-Email, push and in-app reminders · OCR of receipts · spending analytics ·
-multi-currency · shared household accounts · export · password reset · dark mode.
+OCR of receipts · spending analytics · multi-currency · shared household
+accounts · export · dark mode.
+
+(Email reminders and password reset were built after the original P2 list was
+written — BR-15 and BR-16. The daily digest is scheduled by
+`.github/workflows/reminders.yml`, because neither platform's own scheduler can
+reach the endpoint: Render's cron is paid-only and Vercel's sends a GET with no
+custom headers.)
 
 ### Operational
 
-- **CI has never run.** `.github/workflows/ci.yml` exists and does
-  `checkout → npm ci → build → test` — and *would* have caught the `.gitignore`
-  defect automatically. There is no git remote, so it has never executed. **This is
-  the single highest-value thing to do next.**
-- **No deployment.** Local only, via `docker-compose` (D-07). No hosting, no domain,
-  no TLS.
-- **No backups or restore procedure.** Data lives in one local Postgres volume.
+- **CI's first run is unconfirmed.** `.github/workflows/ci.yml` does
+  `checkout → npm ci → build → test` against a real Postgres — and *would* have
+  caught the `.gitignore` defect automatically. The code now has a GitHub mirror
+  (`Winston-Vivek/Purchase_Pal`) so the workflow can finally fire, but no run
+  has been observed passing. Check the Actions tab before trusting it.
+- **Receipt files do not survive a restart in production.** The API runs on a
+  Render **free** instance, and a free instance cannot attach a persistent disk;
+  its filesystem is discarded every time the service redeploys, restarts, or
+  idles 15 minutes and spins down. Uploading, previewing and downloading a
+  receipt all work (BR-10, and UAT-09 passed locally) — but a file uploaded to
+  the deployed app is gone by the next cold start, and its row in `attachments`
+  then points at nothing.
+
+  **Accepted, not overlooked.** The choice was a $7/month paid instance, an
+  object-storage adapter behind the existing `STORAGE` token, or this. The
+  deployment is a demonstration, and the two real fixes are both ready to take:
+  `plan: starter` plus the `disk:` block that `render.yaml` documents, or a
+  second `Storage` implementation — the interface is three methods wide
+  (`save`, `createReadStream`, `remove`) precisely so that swap is a new class
+  and not a refactor.
+- **Database rows outlive the files they describe.** Following from the above:
+  nothing reconciles `attachments` against storage, so a receipt lost to a cold
+  start fails on download rather than disappearing from the list.
+- **No backups or restore procedure.** Data lives in one local Postgres volume;
+  the deployed database is Neon's free tier, whose own backups are whatever
+  that tier provides — unverified, and no restore has been rehearsed.
 - **Migrations have never been rolled back in anger.** `migration:revert` exists and
   is untested against real data.
 

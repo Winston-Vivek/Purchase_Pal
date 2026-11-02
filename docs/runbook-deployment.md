@@ -1,7 +1,10 @@
 # Runbook — from here to live
 
-Every step, in order, with who does it and roughly how long. Nothing here is
-built yet; this is the list.
+Every step, in order, with who does it and roughly how long.
+
+**Phases 0–3 are done. Phase 1's code is written and verified against a real
+container.** What is left is Phase 4 (Render) and Phase 5 (Vercel), which are
+both dashboard work, plus the Phase 6 smoke test.
 
 **Two things to know before you start.**
 
@@ -11,17 +14,26 @@ Railway is GitHub-only too. There are two ways round it:
 
 | | Push-to-deploy | CI runs | Effort |
 | --- | --- | --- | --- |
-| **Mirror to a private GitHub repo** (recommended) | yes | yes — `ci.yml` is already a GitHub Actions workflow and has never run | 10 min |
+| **Mirror to a private GitHub repo** (recommended) | yes | yes — `ci.yml` is already a GitHub Actions workflow | 10 min |
 | Deploy from your machine with the Vercel/Railway CLIs | no | no | 0 min, but every release is manual |
 
 Gitea stays the place you push; GitHub becomes a mirror that exists so robots
 can read it. One extra `git push` per release, or a `git remote` that pushes to
 both at once.
 
-**2. `migration:run` will not work in production as written.** It is
-`dotenv -e ../../.env -- …`, and a deployed container has no `.env` — its
-environment comes from the platform. It needs a sibling script that reads
-`process.env` directly. Small, but it is the step that would fail first.
+**2. The free tier shapes three things.** Verified against Render's docs, not
+assumed:
+
+| Free instance cannot | Consequence | What was done |
+| --- | --- | --- |
+| attach a persistent disk | receipts die on every restart / 15-min spin-down | accepted and recorded in `CHANGELOG.md` (BR-10) |
+| run a pre-deploy command | the schema would never be applied | migrations moved into the container's start command |
+| run Render cron jobs | BR-16's daily digest never fires | moved to `.github/workflows/reminders.yml` |
+
+Vercel's own cron could not do the digest either: it sends a **GET**, cannot
+send a custom header, and only invokes Vercel Functions — while the endpoint is
+a `POST` guarded by `x-cron-secret`. Confirmed by hand against the container: a
+GET returns 404.
 
 ---
 
@@ -29,10 +41,10 @@ environment comes from the platform. It needs a sibling script that reads
 
 | Service | For | Status |
 | --- | --- | --- |
-| **GitHub** | deployment mirror + CI | repo created: `Winston-Vivek/Purchase_Pal` (private, empty) — **the SSH key still needs adding** |
+| **GitHub** | deployment mirror + CI | **done.** `Winston-Vivek/Purchase_Pal`, SSH key working, `master` and `v1.0.0` pushed |
 | **Neon** | Postgres | **done.** Project `soft-king-41645725`, branch `production`, Postgres 18.6, 7 migrations applied, 0 users |
-| **Render** | the API container | account ready (`winston.vivek@rubicotech.in`); blocked on the GitHub push |
-| **Brevo** | SMTP | host, port and login known — **the SMTP key is still needed** |
+| **Render** | the API container | account ready (`winston.vivek@rubicotech.in`); unblocked — the mirror exists |
+| **Brevo** | SMTP | **done.** Host, port, login and SMTP key held in the untracked `.env` |
 | **Vercel** | the web app | account ready (`winston.vivek@rubicotech.in`) |
 
 **Neon notes.** Use the **pooled** endpoint, not the direct one: an instance
@@ -45,13 +57,17 @@ runtimes talking over HTTP; this is a long-lived Node container, where plain
 `pg` against the pooler is both correct and faster. No application code
 changed to use Neon.
 
-## Phase 1 — Code changes before anything is deployed (me, ~3h)
+## Phase 1 — Code changes before anything is deployed (me) — **done**
 
-These are real changes, each with tests.
+All six landed. The container was then built and run against an empty database
+to prove it: 7/7 migrations applied by the start command, `/api/v1/health`
+returned `{"status":"ok","database":"up"}`, `/api/docs` correctly 404'd, and the
+reminders endpoint answered 401 / 404 / 200 to no-secret / GET / correct-POST.
 
-1. **A production migration script** (~15 min). `migration:run:prod` reading
-   `process.env`, run as the release command so the schema is applied before
-   the new version serves traffic.
+1. **A production migration script.** `migration:run:prod` reads `process.env`,
+   and runs from the container's `CMD` — *not* as a pre-deploy command, which
+   is a paid feature. It is idempotent, so running it on every cold start is
+   free after the first.
 2. **Rate limiting** (~1h). `@nestjs/throttler` on `/auth/*`: 3 reset requests
    per hour, tight limits on login and register. This is listed as a gap in
    `security.md` §8 and it stops mattering theoretically the moment the reset
@@ -81,20 +97,31 @@ git remote add github git@github.com:<you>/purchase-tracker.git
 git push github master --tags
 ```
 
-Watch the Actions tab. **This is the first time CI has ever run**, and it is
-worth watching rather than assuming: it does `npm ci` on a clean checkout,
-which is exactly the check that caught the `.gitignore` defect (D-01).
+**The push is done** — the mirror holds `master` and the `v1.0.0` tag.
 
-Fix whatever it finds before going further. A clean machine fails differently
-from yours.
+What is *not* confirmed is CI. Open the Actions tab and look: the workflow does
+`npm ci` on a clean checkout, which is exactly the check that caught the
+`.gitignore` defect (D-01). A clean machine fails differently from yours, so fix
+whatever it finds before going further.
+
+Two repository **secrets** are needed for the reminders workflow (Settings →
+Secrets and variables → Actions):
+
+| Secret | Value |
+| --- | --- |
+| `API_BASE_URL` | the Render URL, e.g. `https://purchase-tracker-api.onrender.com` |
+| `CRON_SECRET` | the exact `CRON_SECRET` Render generated — copy it from Render's dashboard |
 
 ---
 
 ## Phase 3 — Database (me + you, ~20 min)
 
-1. You create the Postgres instance and copy the **pooled** connection string.
-2. I set `DATABASE_URL` on the API host and run the migrations once.
-3. Verify: `/api/v1/health` returns `{"status":"ok","database":"up"}`.
+**Done.** Neon project `soft-king-41645725`, branch `production`, 7 migrations
+applied, 0 users. Use the **pooled** connection string as `DATABASE_URL`, and
+keep `DATABASE_SSL=true`.
+
+The container now applies migrations itself on boot, so there is nothing to run
+by hand for the next schema change — deploying is enough.
 
 **Do not run the seed.** `npm run seed` creates `demo@proofly.test` with a
 password published in this repository. It is useful locally and an open door
@@ -113,7 +140,7 @@ JWT_SECRET=…                 # openssl rand -base64 48 — NEW, never the dev 
 JWT_EXPIRES_IN=7d
 BCRYPT_ROUNDS=12
 APP_TIMEZONE=Asia/Kolkata
-UPLOAD_DIR=/data/uploads     # a mounted volume, not the container filesystem
+UPLOAD_DIR=/data/uploads     # EPHEMERAL on free — no disk can be attached
 WEB_ORIGIN=https://<your-vercel-domain>
 APP_URL=https://<your-vercel-domain>
 SMTP_HOST=smtp-relay.brevo.com
@@ -123,14 +150,32 @@ SMTP_PASS=…
 MAIL_FROM=Purchase Tracker <no-reply@…>
 ```
 
-**`UPLOAD_DIR` must be a mounted volume.** A container filesystem is thrown
-away on every deploy; receipts written there vanish with it.
+**`UPLOAD_DIR` is ephemeral here, and that is a known limitation.** A free
+instance cannot attach a disk, so receipts live only until the next redeploy,
+restart or 15-minute spin-down. Recorded in `CHANGELOG.md` against BR-10. The
+fix, when it matters, is `plan: starter` plus the `disk:` block that
+`render.yaml` still documents in a comment.
+
+**Most of this is already in `render.yaml`.** Create the service from the
+blueprint (Render → New → Blueprint) rather than filling in a form, and only
+the five `sync: false` values need typing: `DATABASE_URL`, `WEB_ORIGIN`,
+`APP_URL`, `SMTP_PASS`, `MAIL_FROM`. `JWT_SECRET` and `CRON_SECRET` are
+generated by Render and should never be seen or copied from the dev ones.
+
+**Chicken and egg:** `WEB_ORIGIN` and `APP_URL` need the Vercel domain, which
+does not exist until Phase 5. Deploy the API first with placeholders, then come
+back and set them. The API will not serve the browser correctly until you do.
 
 **`WEB_ORIGIN` and `APP_URL` are not cosmetic.** The first is the CORS
 allow-list, the second is what password-reset links are built from — pointing
 it at the wrong host makes every reset link useless.
 
-Verify: `/api/v1/health`, then `/api/v1/docs`.
+Verify: `/api/v1/health` returns `{"status":"ok","database":"up"}`.
+
+**Not** `/api/v1/docs` — Swagger is deliberately not mounted when
+`NODE_ENV=production` (`main.ts`), so a 404 there is the correct answer. The
+startup log still prints an "API docs at …" line regardless; it is wrong in
+production and harmless.
 
 ---
 
@@ -159,8 +204,11 @@ In this order, because each one fails differently:
    nothing happening.
 4. **Change the email address and confirm it.** Second mail path.
 5. **Open a purchase on a phone.**
-6. `npm run reminders:send` against production **once**, to prove the digest
-   works before the cron first fires at 08:00.
+6. **Trigger the reminders workflow by hand** — Actions → *Daily reminders* →
+   Run workflow — to prove the digest works before 08:00 comes round. It prints
+   the HTTP status and body, and it tells a 401 (mismatched secret) apart from
+   a quiet `{"users":0,"reminders":0}`, which is the distinction that otherwise
+   looks identical to success.
 
 ---
 

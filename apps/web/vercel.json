@@ -7,7 +7,7 @@
   "rewrites": [
     {
       "source": "/api/:path*",
-      "destination": "https://REPLACE-WITH-API-HOST/api/:path*"
+      "destination": "https://purchase-tracker-api.onrender.com/api/:path*"
     },
     { "source": "/(.*)", "destination": "/index.html" }
   ],
@@ -31,9 +31,5 @@
         { "key": "Cache-Control", "value": "public, max-age=31536000, immutable" }
       ]
     }
-  ],
-
-  "crons": [
-    { "path": "/api/v1/internal/reminders/run", "schedule": "30 2 * * *" }
   ]
 }
