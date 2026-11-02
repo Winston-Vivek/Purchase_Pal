@@ -25,19 +25,25 @@ environment comes from the platform. It needs a sibling script that reads
 
 ---
 
-## Phase 0 — Accounts (you, ~15 min)
+## Phase 0 — Accounts (you) — **done, except two keys**
 
-Free tiers are enough for all four.
-
-| Service | For | Note |
+| Service | For | Status |
 | --- | --- | --- |
-| **GitHub** | the deployment mirror, and CI | Private repo is fine |
-| **Neon** or **Supabase** | Postgres | Both give a pooled connection string, which is what to use |
-| **Railway** or **Render** | the API container | Needs to keep a process alive — that is why not Vercel |
-| **Brevo** | SMTP | 300/day free, no domain needed to start |
-| **Vercel** | the web app | |
+| **GitHub** | deployment mirror + CI | repo created: `Winston-Vivek/Purchase_Pal` (private, empty) — **the SSH key still needs adding** |
+| **Neon** | Postgres | **done.** Project `soft-king-41645725`, branch `production`, Postgres 18.6, 7 migrations applied, 0 users |
+| **Render** | the API container | account ready (`winston.vivek@rubicotech.in`); blocked on the GitHub push |
+| **Brevo** | SMTP | host, port and login known — **the SMTP key is still needed** |
+| **Vercel** | the web app | account ready (`winston.vivek@rubicotech.in`) |
 
----
+**Neon notes.** Use the **pooled** endpoint, not the direct one: an instance
+allowed to sleep reconnects often, and the pooler is what keeps that from
+exhausting connections. `DATABASE_SSL=true`, with certificates verified —
+turning verification off would make the encryption decorative.
+
+The Neon **serverless driver was deliberately not adopted.** It is for edge
+runtimes talking over HTTP; this is a long-lived Node container, where plain
+`pg` against the pooler is both correct and faster. No application code
+changed to use Neon.
 
 ## Phase 1 — Code changes before anything is deployed (me, ~3h)
 

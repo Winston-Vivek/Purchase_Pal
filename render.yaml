@@ -1,0 +1,81 @@
+# Render blueprint. Create the service from this rather than clicking through
+# the dashboard, so the configuration is in the repository and reviewable.
+#
+#   Render → New → Blueprint → pick this repo
+#
+# The database is NOT here on purpose: it is on Neon, which has a free tier
+# that does not expire and a pooled endpoint that suits an instance allowed to
+# sleep.
+
+services:
+  - type: web
+    name: purchase-tracker-api
+    runtime: docker
+    dockerfilePath: ./apps/api/Dockerfile
+    dockerContext: .
+    plan: free
+    region: oregon
+    healthCheckPath: /api/v1/health
+
+    # Runs before the new version takes traffic, from inside Render's network
+    # — which also sidesteps the flaky link between a laptop and Neon.
+    preDeployCommand: npm run migration:run:prod
+
+    # Receipts (BR-10). A container filesystem is discarded on every deploy;
+    # without this, every uploaded receipt disappears with it.
+    disk:
+      name: uploads
+      mountPath: /data
+      sizeGB: 1
+
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 3000
+      - key: APP_TIMEZONE
+        value: Asia/Kolkata
+      - key: UPLOAD_DIR
+        value: /data/uploads
+      - key: BCRYPT_ROUNDS
+        value: 12
+      - key: JWT_EXPIRES_IN
+        value: 7d
+
+      # Managed Postgres refuses an unencrypted connection.
+      - key: DATABASE_SSL
+        value: true
+
+      # Generated once by Render and never seen by anyone. Reusing the
+      # development secret would make every cookie ever issued on a laptop
+      # valid in production.
+      - key: JWT_SECRET
+        generateValue: true
+      - key: CRON_SECRET
+        generateValue: true
+
+      # Set by hand in the dashboard — they are secrets, or they are not known
+      # until the other services exist.
+      - key: DATABASE_URL        # Neon, the POOLED connection string
+        sync: false
+      - key: WEB_ORIGIN          # the Vercel domain; this is the CORS allow-list
+        sync: false
+      - key: APP_URL             # the Vercel domain; reset links are built from it
+        sync: false
+      - key: SMTP_HOST
+        value: smtp-relay.brevo.com
+      - key: SMTP_PORT
+        value: 587
+      - key: SMTP_USER
+        value: c11764001@smtp-brevo.com
+      - key: SMTP_PASS           # the Brevo SMTP key
+        sync: false
+      - key: MAIL_FROM
+        sync: false
+
+      # Five attempts a minute at /auth/*. Generous for a person, useless for
+      # a script (security.md §8).
+      - key: THROTTLE_AUTH_LIMIT
+        value: 5
+      - key: THROTTLE_AUTH_TTL
+        value: 60
