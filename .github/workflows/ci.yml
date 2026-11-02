@@ -57,7 +57,11 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          # 24, matching apps/api/Dockerfile: the lock files were written by
+          # npm 11, and the npm 10 that ships with node 20 reads them as out of
+          # sync and refuses `npm ci` ("Missing: webpack@5.112.2 from lock
+          # file"). The toolchain has to match the one that produced the lock.
+          node-version: '24'
           cache: npm
           cache-dependency-path: apps/api/package-lock.json
 
@@ -123,7 +127,11 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          # 24, matching apps/api/Dockerfile: the lock files were written by
+          # npm 11, and the npm 10 that ships with node 20 reads them as out of
+          # sync and refuses `npm ci` ("Missing: webpack@5.112.2 from lock
+          # file"). The toolchain has to match the one that produced the lock.
+          node-version: '24'
           cache: npm
           cache-dependency-path: apps/web/package-lock.json
 
@@ -131,8 +139,11 @@ jobs:
         run: npm ci
 
       # Fails if the stylesheet has drifted from the locked design guide.
+      # check-tokens.mjs reads design/ui-guide.md and apps/web/src/assets/main.css
+      # as paths from the repository root, so it runs from there -- and the path
+      # to it is from there too. `../../` climbed two levels OUT of the checkout.
       - name: Design tokens match ui-guide §2
-        run: node ../../design/check-tokens.mjs
+        run: node design/check-tokens.mjs
         working-directory: .
 
       - name: Lint

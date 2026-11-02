@@ -18,7 +18,7 @@ _Read from manifests by `detect-stack.sh`. Not model output._
 | - | _none detected_ | - | - |
 
 **Package manager:** `npm` (evidence: `package-lock.json`)  
-**Source files:** 27 `vue`, 12 `js`, 158 `ts`  
+**Source files:** 27 `vue`, 12 `js`, 159 `ts`  
 **Config files:** `playwright.config.ts`
 
 **Migration signals detected:**
@@ -42,10 +42,13 @@ _Read from manifests by `detect-stack.sh`. Not model output._
      version on this machine. `relay-verify relay-runtime` checks the repo
      against these; until they are set it reports a gap rather than a pass. -->
 
-    node: 20
+    node: 24
 
-_No PHP in this stack. CI pins node 20; `apps/api/package.json` declares
-`engines.node >= 20`._
+_No PHP in this stack. The deployed container is `node:24-alpine` and CI pins
+24 to match. It is not a preference: the lock files were written by npm 11, and
+the npm 10 that ships with node 20 reads them as out of sync and refuses
+`npm ci`. `apps/api/package.json` still declares `engines.node >= 20`, which is
+true of the running app — it is installing from the lock that needs npm 11._
 
 ## Selected Skills / References
 
@@ -106,9 +109,9 @@ None identified.
 _Machine-generated from `.ai/EVIDENCE.jsonl`. Do not edit by hand._
 
 ```
-411 commands recorded, of which 11 verified (7 passed, 4 failed, 2 non-binding).
+476 commands recorded, of which 11 verified (7 passed, 4 failed, 2 non-binding).
 
-Files changed since baseline `0ecc127` (git): 252
+Files changed since baseline `0ecc127` (git): 254
   - apps/api/Dockerfile
   - apps/api/.dockerignore
   - apps/api/package.json
@@ -121,9 +124,9 @@ Files changed since baseline `0ecc127` (git): 252
   - apps/api/src/attachments/attachment-response.ts
   - apps/api/src/attachments/attachments.controller.ts
   - apps/api/src/attachments/attachments.module.ts
-  ... and 240 more
+  ... and 242 more
 
-Tool-observed edits: 0 across 0 files.
+Tool-observed edits: 3 across 3 files.
   (Only Edit/Write/MultiEdit are visible to the hook. A Bash-first session
    records none of its changes here -- the git list above is the complete one.)
 
@@ -166,13 +169,12 @@ Most recent verified runs:
 ### Working tree
 
 <!-- relay:git:start -->
-- Branch `master` at `3ac49de`, 3 uncommitted path(s).
+- Branch `master` at `5607727`, 2 uncommitted path(s).
 - Changed now:
 
 ```
  M .ai/EVIDENCE.jsonl
  M .ai/MIGRATION.md
- M .env.example
 ```
 <!-- relay:git:end -->
 
@@ -224,5 +226,5 @@ After the Vercel domain exists, set `WEB_ORIGIN` and `APP_URL` on Render to it
 ## Last Updated
 
 <!-- relay:updated:start -->
-- 2026-11-02T13:39:40Z (mechanical regions refreshed by `migration-state.sh`)
+- 2026-11-02T15:42:49Z (mechanical regions refreshed by `migration-state.sh`)
 <!-- relay:updated:end -->
