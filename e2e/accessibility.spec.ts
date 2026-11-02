@@ -264,4 +264,41 @@ test.describe('Non-functional checks', () => {
     // which screen it is (ui-guide §8).
     expect(seen.size).toBe(SIGNED_IN.length);
   });
+
+  // NFR-13. A control that spills out of its card does not make the page
+  // scroll, so NFR-01 never saw it: the warranty unit select sat 64px outside
+  // the Warranty fieldset at every desktop width and the suite stayed green.
+  test('NFR-13 no control escapes the card it belongs to', async ({ page, context }) => {
+    await signIn(context);
+
+    for (const width of WIDTHS) {
+      await page.setViewportSize({ width, height: 1000 });
+      await page.goto('/purchases/new');
+      await page.waitForLoadState('networkidle');
+      // The warranty fields only exist once there is a warranty to describe.
+      await page.locator('#hasWarranty').check();
+
+      const escapees = await page.evaluate(() => {
+        const bad: string[] = [];
+
+        for (const control of document.querySelectorAll('input, select, textarea, button')) {
+          const card = control.closest('fieldset, section');
+          if (!card) continue;
+
+          const a = control.getBoundingClientRect();
+          const b = card.getBoundingClientRect();
+          if (a.width === 0) continue;
+
+          // 1px for sub-pixel rounding; anything more is a real overflow.
+          if (a.right > b.right + 1 || a.left < b.left - 1) {
+            bad.push(`${control.id || control.tagName} spills out of its card`);
+          }
+        }
+
+        return bad;
+      });
+
+      expect(escapees, `at ${width}px`).toEqual([]);
+    }
+  });
 });
