@@ -3,7 +3,7 @@
 All notable changes to Proofly. Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/);
 this project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [1.0.0] — 2026-10-30
+## [1.0.0] — 2026-11-02
 
 First release. The complete P0 scope from `docs/requirements.md` §4, built over
 seven days, test-first, with each day closed by an executable gate.
@@ -46,6 +46,25 @@ cookie. Per-user alert windows (warranty 1–365 days, return 1–60).
 targets; visible focus; no horizontal scroll at 360, 768, 1024 or 1440 px;
 `prefers-reduced-motion` respected. Checklist in `design/ui-guide.md` §8, results in
 `docs/test-cases.md` §6.
+
+**Closing a return by hand** (BR-11) — "Keeping it" stops a decided return
+counting as open, and reopening restores the computed status exactly.
+
+**Service deadlines** (BR-12) — a service record can say when the next service
+is due, and a purchase can carry that date from the day it is bought, for
+anything never serviced. A third alert window, a Service panel, and a Service
+column showing whichever of the last and next service is nearer.
+
+**Accounts** — forgot password and reset (BR-14), change password (BR-13), and
+a profile with a verified email change (BR-15). A password change ends every
+session issued under the old password.
+
+**Email** — Mailpit locally, any SMTP provider in production. Daily deadline
+reminders on a cron (BR-16), one digest per person, sent once.
+
+**Interface** — clickable table rows with a View/Edit/Delete menu, an account
+menu on the sidebar, receipt thumbnails, and two-column layouts on desktop for
+the purchase form and Settings.
 
 ### Testing
 
