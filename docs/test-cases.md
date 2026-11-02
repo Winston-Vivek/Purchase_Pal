@@ -259,6 +259,7 @@ Fixture for A (today 2026-10-27), matching the design mockups:
 | FE-CMP-14 | Toast | success | role=status, auto-dismiss | P1 | Pass 2026-10-29 |
 | FE-CMP-15 | FileDrop | 6 MB file or .exe chosen | Inline error before upload; no request sent | P0 | Pass 2026-10-29 |
 | FE-CMP-16 | Skeleton | loading | aria-busy on the region | P1 | Pass 2026-10-29 |
+| FE-CMP-17 | StatusBadge | Return with status CLOSED (BR-11) | Reads "Keeping it" in a neutral tone — never confused with an expired window's "Return closed <date>" | P1 | Not run |
 
 ## 4. Frontend pages (`apps/web/src/pages/**/*.spec.ts`)
 
@@ -302,6 +303,7 @@ Fixture for A (today 2026-10-27), matching the design mockups:
 | FE-PAGE-36 | Settings | Alert window of 1 | Preview reads "1 day", not "1 days" | P2 | Pass 2026-11-02 |
 | FE-PAGE-37 | Details | Category of a HOME_KITCHEN purchase | Header reads "Home & kitchen" — the label the form offered, never the stored value | P1 | Pass 2026-11-02 |
 | FE-PAGE-38 | Details | "Keeping it" on an open return | PATCHes `returnClosed: true`; panel reads Closed and offers to reopen | P1 | Not run |
+| FE-PAGE-39 | Details | Reopen on a closed return | PATCHes `returnClosed: false`; the countdown comes back | P1 | Not run |
 
 ---
 

@@ -11,13 +11,25 @@ import StatusBadge from './StatusBadge.vue';
  */
 interface BadgeProps {
   kind: 'RETURN' | 'WARRANTY' | 'RECEIPT';
-  status: 'NOT_SET' | 'EXPIRED' | 'EXPIRING_SOON' | 'ACTIVE' | 'MISSING';
+  status: 'NOT_SET' | 'EXPIRED' | 'EXPIRING_SOON' | 'ACTIVE' | 'CLOSED' | 'MISSING';
   daysLeft?: number | null;
   date?: string | null;
 }
 
 describe('StatusBadge', () => {
   const badge = (props: BadgeProps) => mount(StatusBadge, { props });
+
+  // FE-CMP-17. An expired window already reads "Return closed <date>", so a
+  // return the user chose to close has to say something you cannot mistake
+  // for it.
+  it('FE-CMP-17 a return kept on purpose says so, in neutral tokens', () => {
+    const wrapper = badge({ kind: 'RETURN', status: 'CLOSED', daysLeft: null, date: '2026-11-03' });
+
+    expect(wrapper.text()).toContain('Keeping it');
+    expect(wrapper.text()).not.toContain('Return closed');
+    expect(wrapper.text()).not.toMatch(/days? left|closes in/);
+    expect(wrapper.classes().join(' ')).toContain('bg-none-bg');
+  });
 
   it('FE-CMP-01 a return closing soon says how long is left, in warn tokens', () => {
     const wrapper = badge({ kind: 'RETURN', status: 'EXPIRING_SOON', daysLeft: 3 });

@@ -101,6 +101,59 @@ describe('Purchase details', () => {
     });
   });
 
+  // FE-PAGE-38/39. BR-11: a user who has decided to keep the item needs a way
+  // to stop Proofly counting the return as open.
+  describe('FE-PAGE-38/39 closing a return by hand', () => {
+    const OPEN_RETURN = {
+      ...SAMSUNG,
+      returnDeadline: '2026-11-05',
+      returnStatus: 'EXPIRING_SOON',
+      returnDaysLeft: 3,
+    };
+
+    it('FE-PAGE-38 "Keeping it" closes the return', async () => {
+      const wrapper = await page(OPEN_RETURN);
+
+      fetchMock.mockResolvedValueOnce(
+        json(200, { ...OPEN_RETURN, returnStatus: 'CLOSED', returnDaysLeft: null }),
+      );
+      const button = wrapper.findAll('button').find((b) => /keeping it/i.test(b.text()));
+      expect(button).toBeDefined();
+      await button!.trigger('click');
+      await flushPromises();
+
+      const [url, init] = fetchMock.mock.calls.at(-1)!;
+      expect(url).toContain('/purchases/p1');
+      expect(init.method).toBe('PATCH');
+      expect(JSON.parse(init.body)).toEqual({ returnClosed: true });
+      expect(wrapper.text()).toContain('Keeping it');
+    });
+
+    it('FE-PAGE-39 a closed return offers to reopen, and does', async () => {
+      const wrapper = await page({
+        ...OPEN_RETURN,
+        returnStatus: 'CLOSED',
+        returnDaysLeft: null,
+      });
+
+      fetchMock.mockResolvedValueOnce(json(200, OPEN_RETURN));
+      const button = wrapper.findAll('button').find((b) => /reopen/i.test(b.text()));
+      expect(button).toBeDefined();
+      await button!.trigger('click');
+      await flushPromises();
+
+      const [, init] = fetchMock.mock.calls.at(-1)!;
+      expect(JSON.parse(init.body)).toEqual({ returnClosed: false });
+      expect(wrapper.text()).toContain('Return closes in 3 days');
+    });
+
+    it('FE-PAGE-38 a purchase with no return window is not offered the button', async () => {
+      const wrapper = await page(SAMSUNG);
+
+      expect(wrapper.findAll('button').find((b) => /keeping it/i.test(b.text()))).toBeUndefined();
+    });
+  });
+
   // FE-PAGE-37. The header printed the stored value, so a kitchen purchase
   // announced itself as HOME_KITCHEN.
   it('FE-PAGE-37 the category reads as the words the form offered', async () => {
