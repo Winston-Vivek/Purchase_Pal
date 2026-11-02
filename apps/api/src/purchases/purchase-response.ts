@@ -22,6 +22,7 @@ export interface PurchaseResponse {
   returnDeadline: string | null;
   returnStatus: DeadlineStatus;
   returnDaysLeft: number | null;
+  scheduledServiceDate: string | null;
   nextServiceDate: string | null;
   serviceStatus: DeadlineStatus;
   serviceDaysLeft: number | null;
@@ -60,7 +61,10 @@ export function nextServiceOf(purchase: Purchase): string | null {
   const scheduled = (purchase.serviceRecords ?? []).filter(
     (record) => record.nextServiceDate !== null,
   );
-  if (scheduled.length === 0) return null;
+  // Nothing logged yet, so fall back to the plan made at purchase. A brand
+  // new thing has no service record to carry a date, which is exactly when
+  // knowing the first service date matters most.
+  if (scheduled.length === 0) return purchase.scheduledServiceDate;
 
   const newest = scheduled.reduce((latest, record) =>
     record.serviceDate > latest.serviceDate ||
@@ -112,6 +116,7 @@ export function toPurchaseResponse(
     price: Number(purchase.price),
     currency: purchase.currency,
     returnWindowDays: purchase.returnWindowDays,
+    scheduledServiceDate: purchase.scheduledServiceDate,
     warrantyStartDate: purchase.warrantyStartDate,
     warrantyMonths: purchase.warrantyMonths,
     notes: purchase.notes,

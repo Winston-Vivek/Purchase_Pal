@@ -73,6 +73,11 @@ export class Purchase {
   @Column({ name: 'return_closed', type: 'boolean', default: false })
   returnClosed!: boolean;
 
+  /** BR-12: a service scheduled when the thing was bought, for anything that
+   *  has never been serviced and so has no record to hang a date on. */
+  @Column({ name: 'scheduled_service_date', type: 'date', nullable: true })
+  scheduledServiceDate!: string | null;
+
   @Column({ name: 'warranty_start_date', type: 'date', nullable: true })
   warrantyStartDate!: string | null;
 

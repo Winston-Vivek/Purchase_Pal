@@ -404,7 +404,13 @@ onMounted(load);
               {{ formatDate(purchase.nextServiceDate) }}
             </p>
             <p class="mt-3 text-sm text-muted-fg">
-              Set on the service of {{ formatDate(scheduledBy?.serviceDate ?? null) }}
+              <!-- BR-12: it came either from a logged visit or from the date
+                   set when the purchase was added. Saying which beats an
+                   em dash where a date should be. -->
+              <template v-if="scheduledBy">
+                Set on the service of {{ formatDate(scheduledBy.serviceDate) }}
+              </template>
+              <template v-else>Scheduled when this purchase was added</template>
             </p>
           </template>
           <p v-else class="mt-4 text-muted-fg">

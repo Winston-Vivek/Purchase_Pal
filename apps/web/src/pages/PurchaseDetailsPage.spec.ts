@@ -98,6 +98,22 @@ describe('Purchase details', () => {
       expect(panel).toContain('15 May 2026');
     });
 
+    it('FE-PAGE-47 a date set at purchase says where it came from', async () => {
+      const wrapper = await page({
+        ...SAMSUNG,
+        scheduledServiceDate: '2026-11-15',
+        nextServiceDate: '2026-11-15',
+        serviceStatus: 'EXPIRING_SOON',
+        serviceDaysLeft: 4,
+        serviceRecords: [],
+      });
+
+      const panel = wrapper.get('[data-testid="service-panel"]').text();
+      expect(panel).toContain('Scheduled when this purchase was added');
+      // An em dash where a date should be is what this replaced.
+      expect(panel).not.toContain('Set on the service of');
+    });
+
     it('FE-PAGE-45 nothing scheduled says so, rather than showing an empty date', async () => {
       const wrapper = await page({ ...SAMSUNG, nextServiceDate: null, serviceStatus: 'NOT_SET' });
 

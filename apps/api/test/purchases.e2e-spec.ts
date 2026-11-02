@@ -395,6 +395,61 @@ describe('Purchases (e2e)', () => {
       expect(response.body.serviceDaysLeft).toBeNull();
     });
 
+    it('API-PUR-39 a service can be scheduled when the thing is bought', async () => {
+      // The case that made this necessary: a new motorcycle whose first
+      // service is months out and which has never been serviced, so there is
+      // no record to hang the date on.
+      const created = await request(app.getHttpServer())
+        .post('/api/v1/purchases')
+        .set('Cookie', cookie)
+        .send({ ...BASE, scheduledServiceDate: '2026-11-05' })
+        .expect(201);
+
+      expect(created.body.scheduledServiceDate).toBe('2026-11-05');
+      expect(created.body.nextServiceDate).toBe('2026-11-05');
+      expect(created.body.serviceDaysLeft).toBe(9);
+      expect(created.body.serviceStatus).toBe('EXPIRING_SOON');
+    });
+
+    it('API-PUR-40 an actual service supersedes the date set at purchase', async () => {
+      const created = await request(app.getHttpServer())
+        .post('/api/v1/purchases')
+        .set('Cookie', cookie)
+        .send({ ...BASE, purchaseDate: '2026-01-05', scheduledServiceDate: '2026-11-05' })
+        .expect(201);
+      const id = created.body.id;
+
+      const record = await service(id, {
+        serviceDate: '2026-10-20',
+        description: 'Serviced early',
+        nextServiceDate: '2027-04-20',
+      }).expect(201);
+
+      expect((await get(id).expect(200)).body.nextServiceDate).toBe('2027-04-20');
+
+      // Clearing the record's date falls back to the plan made at purchase,
+      // which was never overwritten.
+      await request(app.getHttpServer())
+        .patch(`/api/v1/services/${record.body.id}`)
+        .set('Cookie', cookie)
+        .send({ nextServiceDate: null })
+        .expect(200);
+
+      const after = await get(id).expect(200);
+      expect(after.body.nextServiceDate).toBe('2026-11-05');
+      expect(after.body.scheduledServiceDate).toBe('2026-11-05');
+    });
+
+    it('API-PUR-41 a scheduled service before the purchase is rejected', async () => {
+      const response = await request(app.getHttpServer())
+        .post('/api/v1/purchases')
+        .set('Cookie', cookie)
+        .send({ ...BASE, scheduledServiceDate: '2026-10-26' })
+        .expect(400);
+
+      expect(response.body.error.fields).toHaveProperty('scheduledServiceDate');
+    });
+
     it('API-PUR-37 a service date already past reads as overdue', async () => {
       const id = await buyInJanuary();
       await service(id, {

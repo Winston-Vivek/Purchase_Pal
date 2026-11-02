@@ -147,6 +147,9 @@ Valid base body: `{ productName: "AirPods Pro (2nd generation)", category: "ELEC
 | API-PUR-36 | B closes A's return | 404; A's purchase untouched | P1 | Pass 2026-11-02 |
 | API-PUR-37 | Purchase with two services, the newer one giving a next date (BR-12) | `nextServiceDate` is the newer one's; `serviceStatus` and `serviceDaysLeft` follow it | P1 | Pass 2026-11-02 |
 | API-PUR-38 | Newest service has no next date, an older one does | Newest record WITH a date wins; a purchase with none reads NOT_SET and null | P1 | Pass 2026-11-02 |
+| API-PUR-39 | Purchase with `scheduledServiceDate` and no service records (BR-12) | That date is the next service, with status and days left from it | P1 | Pass 2026-11-02 |
+| API-PUR-40 | A service record schedules a visit on a purchase that already had a date | The record wins; clearing the record's date falls back to the purchase's | P1 | Pass 2026-11-02 |
+| API-PUR-41 | `scheduledServiceDate` before the purchase date | 400 naming the field | P1 | Pass 2026-11-02 |
 
 ### 2.5 Receipts (`attachments.e2e-spec.ts`) — US-03, BR-06, BR-10
 
@@ -320,6 +323,7 @@ Fixture for A (today 2026-10-27), matching the design mockups:
 | FE-PAGE-44 | My purchases | Delete from the row menu | Asks first; on confirm sends DELETE and the row leaves the list | P1 | Pass 2026-11-02 |
 | FE-PAGE-45 | Service dialog | Add a record with a next-service date | Sent on create; shown on the record and in the Service panel | P1 | Pass 2026-11-02 |
 | FE-PAGE-46 | Settings | Service warning days | Third alert window, saved with the others | P1 | Pass 2026-11-02 |
+| FE-PAGE-47 | Add purchase | Service fieldset | A next-service date can be set when the thing is bought, before any service exists | P1 | Pass 2026-11-02 |
 
 ---
 

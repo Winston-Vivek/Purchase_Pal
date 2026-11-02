@@ -39,6 +39,7 @@ const warrantyStartDate = ref('');
  * would otherwise go quietly wrong.
  */
 const warrantyStartsOnPurchase = ref(true);
+const scheduledServiceDate = ref('');
 
 watch([purchaseDate, warrantyStartsOnPurchase, hasWarranty], () => {
   if (warrantyStartsOnPurchase.value) warrantyStartDate.value = purchaseDate.value;
@@ -111,6 +112,7 @@ onMounted(async () => {
     }
 
     hasWarranty.value = purchase.warrantyMonths !== null;
+    scheduledServiceDate.value = purchase.scheduledServiceDate ?? '';
     warrantyStartDate.value = purchase.warrantyStartDate ?? '';
     // Decided from what was actually saved, so loading never rewrites a start
     // date that was deliberately different — an appliance installed weeks
@@ -138,6 +140,7 @@ function payload(): Record<string, unknown> {
         : undefined,
     returnDeadline:
       returnMode.value === 'exact' && manualDeadline.value ? manualDeadline.value : undefined,
+    scheduledServiceDate: scheduledServiceDate.value || undefined,
     warrantyStartDate:
       hasWarranty.value && warrantyStartDate.value ? warrantyStartDate.value : undefined,
     warrantyMonths:
@@ -387,6 +390,25 @@ async function save(): Promise<void> {
               </span>
             </p>
           </template>
+        </fieldset>
+
+        <fieldset
+          class="@container flex flex-col gap-4 rounded-md border border-border bg-surface p-4 lg:col-span-2 lg:p-6"
+        >
+          <legend class="px-1 font-heading text-lg font-semibold text-fg">Service</legend>
+
+          <!-- BR-12: a service record logs a visit that already happened, so
+               without this a brand new thing could never be scheduled. Once
+               a real service is logged, its own date takes over. -->
+          <BaseInput
+            id="scheduledServiceDate"
+            v-model="scheduledServiceDate"
+            label="Next service due (optional)"
+            type="date"
+            :min="purchaseDate || undefined"
+            hint="For anything that needs servicing. Logging a service later updates this."
+            :error="fields.scheduledServiceDate"
+          />
         </fieldset>
 
         <div class="flex justify-end gap-3 lg:col-span-2">

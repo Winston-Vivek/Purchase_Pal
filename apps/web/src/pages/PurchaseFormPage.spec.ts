@@ -157,6 +157,49 @@ describe('Add and edit purchase', () => {
 
   // FE-PAGE-40/41. Nearly every warranty starts the day you buy the thing, so
   // typing the same date twice is the common case, not the exception.
+  // FE-PAGE-47. BR-12: a service record logs a visit that happened, so a
+  // brand new thing had no way to say when its first service is due.
+  it('FE-PAGE-47 a service can be scheduled when the thing is bought', async () => {
+    const wrapper = form();
+
+    await wrapper.get('#productName').setValue('Royal Enfield');
+    await wrapper.get('#price').setValue('215000');
+    await wrapper.get('#purchaseDate').setValue('2026-10-27');
+    await wrapper.get('#scheduledServiceDate').setValue('2027-01-27');
+
+    fetchMock.mockResolvedValueOnce(json(201, { id: 'p9' }));
+    await wrapper.get('form').trigger('submit');
+    await flushPromises();
+
+    const [, init] = fetchMock.mock.calls[0] as [string, RequestInit];
+    expect(JSON.parse(String(init.body))).toMatchObject({
+      scheduledServiceDate: '2027-01-27',
+    });
+  });
+
+  it('FE-PAGE-47 the picker cannot offer a service before the purchase', async () => {
+    const wrapper = form();
+
+    await wrapper.get('#purchaseDate').setValue('2026-10-27');
+
+    expect(wrapper.get('#scheduledServiceDate').attributes('min')).toBe('2026-10-27');
+  });
+
+  it('FE-PAGE-47 leaving it empty schedules nothing', async () => {
+    const wrapper = form();
+
+    await wrapper.get('#productName').setValue('Kettle');
+    await wrapper.get('#price').setValue('1999');
+    await wrapper.get('#purchaseDate').setValue('2026-10-27');
+
+    fetchMock.mockResolvedValueOnce(json(201, { id: 'p10' }));
+    await wrapper.get('form').trigger('submit');
+    await flushPromises();
+
+    const [, init] = fetchMock.mock.calls[0] as [string, RequestInit];
+    expect(JSON.parse(String(init.body)).scheduledServiceDate).toBeUndefined();
+  });
+
   describe('FE-PAGE-40/41 warranty starting on the purchase date', () => {
     const startsHere = (wrapper: ReturnType<typeof form>) =>
       wrapper.get('#warrantyStartsOnPurchase').element as HTMLInputElement;

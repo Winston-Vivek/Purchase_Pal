@@ -14,6 +14,7 @@ import { resolveReturn } from './purchase-response';
 interface DateState {
   purchaseDate: string;
   returnDeadline: string | null;
+  scheduledServiceDate: string | null;
   warrantyStartDate: string | null;
   warrantyMonths: number | null;
 }
@@ -30,6 +31,7 @@ export class PurchasesService {
     this.assertValid({
       purchaseDate: dto.purchaseDate,
       returnDeadline: dto.returnDeadline ?? null,
+      scheduledServiceDate: dto.scheduledServiceDate ?? null,
       warrantyStartDate: dto.warrantyStartDate ?? null,
       warrantyMonths: dto.warrantyMonths ?? null,
     });
@@ -41,6 +43,7 @@ export class PurchasesService {
       seller: dto.seller ?? null,
       returnWindowDays: dto.returnWindowDays ?? null,
       returnDeadline: dto.returnDeadline ?? null,
+      scheduledServiceDate: dto.scheduledServiceDate ?? null,
       warrantyStartDate: dto.warrantyStartDate ?? null,
       warrantyMonths: dto.warrantyMonths ?? null,
       notes: dto.notes ?? null,
@@ -143,6 +146,10 @@ export class PurchasesService {
       purchaseDate: dto.purchaseDate ?? purchase.purchaseDate,
       returnDeadline:
         dto.returnDeadline !== undefined ? dto.returnDeadline : purchase.returnDeadline,
+      scheduledServiceDate:
+        dto.scheduledServiceDate !== undefined
+          ? dto.scheduledServiceDate
+          : purchase.scheduledServiceDate,
       warrantyStartDate:
         dto.warrantyStartDate !== undefined ? dto.warrantyStartDate : purchase.warrantyStartDate,
       warrantyMonths:
@@ -211,6 +218,17 @@ export class PurchasesService {
       if (purchaseDateValid && state.returnDeadline < state.purchaseDate) {
         fields.returnDeadline = 'The return deadline cannot be before the purchase date';
       }
+    }
+
+    // BR-12: a service cannot be due before the thing existed. It MAY be in
+    // the past — that is an overdue service, which is worth showing.
+    if (
+      state.scheduledServiceDate !== null &&
+      parse(state.scheduledServiceDate, 'scheduledServiceDate') &&
+      purchaseDateValid &&
+      state.scheduledServiceDate < state.purchaseDate
+    ) {
+      fields.scheduledServiceDate = 'A service cannot be due before the purchase date';
     }
 
     // The warranty pair is all-or-nothing, and the field named is the missing

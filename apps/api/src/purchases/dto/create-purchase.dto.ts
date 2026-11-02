@@ -65,6 +65,14 @@ export class CreatePurchaseDto {
   @Matches(ISO_DATE, DATE_FORMAT)
   returnDeadline?: string;
 
+  /** BR-12: when the next service is due, for a thing that has never been
+   *  serviced and so has no record to carry the date. */
+  @ApiPropertyOptional({ example: '2027-01-15' })
+  @IsOptional()
+  @IsString()
+  @Matches(ISO_DATE, DATE_FORMAT)
+  scheduledServiceDate?: string | null;
+
   @ApiPropertyOptional({
     example: '2026-10-27',
     description: 'Required if warrantyMonths is given',
