@@ -93,6 +93,20 @@ Email/push reminders, OCR receipt scanning, spending analytics, marketplace inte
 
 **BR-09 Ownership.** Every read and write is scoped by the authenticated user. Another user's resource returns **404**, never 403, so its existence is not revealed.
 
+**BR-13 A password change ends every other session.** Every password write
+stamps `users.password_changed_at`, and the guard refuses any token issued
+before it. The device that made the change is re-issued a cookie, so a user is
+never signed out by their own action. Without this, "change your password
+because someone has your account" would not remove their access.
+
+**BR-14 Password reset tokens.** 256 bits of randomness, stored only as a
+SHA-256 digest so a leaked database cannot be used to reset passwords. Valid
+for 30 minutes, usable once, and requesting a new one invalidates any unused
+token for that account. Using one stamps `password_changed_at` (BR-13).
+`POST /auth/forgot-password` answers **202 whatever happens**, so it can never
+be used to find out which addresses have accounts — the same property
+`/auth/login` already has.
+
 **BR-12 Next service due.** A purchase's next service comes from one of two
 places, in this order:
 
@@ -274,6 +288,7 @@ Indexes: purchases(userId), purchases(userId, purchaseDate), attachments(purchas
 | Date | Change | Reason |
 | --- | --- | --- |
 | 27 Oct 2026 | v1.0 locked | Day 1 gate |
+| 2 Nov 2026 | **BR-13 and BR-14 added: forgot-password and session invalidation.** New table `password_reset_tokens`, new column `users.password_changed_at`, two public endpoints. P2 "password reset" from §4 moved into scope. | Requested. The MVP had no way back in for anyone who forgot their password, which makes every other account feature moot. Session invalidation comes with it because a reset that leaves old sessions alive does not actually remove an attacker. |
 | 2 Nov 2026 | **BR-12 amended: `scheduled_service_date` added to purchases.** The next service now falls back to a date held on the purchase when no service record carries one. | As first built, the date lived only on a service record — and a service record logs a visit that already happened, with §7 refusing a future service date. So a thing you had never serviced could not be scheduled at all, which is exactly the case that matters: a new motorcycle whose first service is three months out. |
 | 2 Nov 2026 | **BR-12 added: a service record can say when the next service is due** (`next_service_date` on service_records, `service_alert_days` on users, default 14). Adds `nextServiceDate`, `serviceStatus` and `serviceDaysLeft` to the purchase response and `SERVICE` to the dashboard's deadline kinds. No existing rule changes. | Requested after UAT. A warranty tells you when cover ends but not when the thing is next due for a service, which for anything mechanical is the deadline that actually costs money to miss. It reuses BR-03/BR-04 exactly, so it is a third deadline rather than a new mechanism. |
 | 2 Nov 2026 | **BR-11 added: a return can be closed by hand** (`return_closed` on purchases, `returnClosed` on PATCH). Adds `CLOSED` to the return status values in §9. No existing rule changes; the deadline is still computed exactly as BR-02 says and is never overwritten. | Requested after UAT. A user who has decided to keep an item has no way to stop Proofly counting it as an open return and nagging about it in Needs action, so the dashboard keeps showing work that is already done. |

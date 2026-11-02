@@ -100,6 +100,16 @@ All requests use `/api/v1`. "Signed in as A" = A's auth cookie. Errors must use 
 | API-AUTH-10 | GET /auth/me without cookie, or a tampered/expired token | 401 | P0 | Pass 2026-10-28 |
 | API-AUTH-11 | POST /auth/logout | 204; cookie cleared; next /auth/me → 401 | P0 | Pass 2026-10-28 |
 | API-AUTH-12 | GET /purchases, /dashboard without cookie | 401 on each | P0 | Pass 2026-10-28 |
+| API-AUTH-13 | `POST /auth/forgot-password` for a real account (BR-14) | 202; one email sent carrying a link to `APP_URL/reset-password?token=…` | P0 | Not run |
+| API-AUTH-14 | Same, for an address with no account | 202, byte-identical body; no email sent | P0 | Not run |
+| API-AUTH-15 | The raw token is never stored | The row holds a SHA-256 digest; the token itself appears nowhere in the database | P0 | Not run |
+| API-AUTH-16 | `POST /auth/reset-password` with a valid token | 200; the new password signs in and the old one does not | P0 | Not run |
+| API-AUTH-17 | The same token twice | Second attempt 400; the password is unchanged by it | P0 | Not run |
+| API-AUTH-18 | An expired token (31 minutes old) | 400 | P0 | Not run |
+| API-AUTH-19 | A token that was never issued, or one tampered with | 400, same message as expired | P0 | Not run |
+| API-AUTH-20 | Asking twice | The first token stops working; the second one works | P1 | Not run |
+| API-AUTH-21 | A session open before the reset (BR-13) | Its cookie stops working; a cookie from the new password works | P0 | Not run |
+| API-AUTH-22 | Reset with a password that breaks the rules | 400 naming the field; the token is still usable afterwards | P1 | Not run |
 
 > **API-AUTH-12 is verified by the Day 4 gate, not Day 3.** Its `/purchases` half passes as of Day 3 Slice 5. The `/dashboard` half cannot: Nest runs guards after routing, so a route that does not exist returns 404 rather than 401. `/dashboard` is built in Day 4 Slice 4, and the test is unchanged.
 
