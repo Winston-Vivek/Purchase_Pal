@@ -117,6 +117,44 @@ export class EnvironmentVariables {
   @IsString()
   @IsNotEmpty()
   UPLOAD_DIR: string = './var/uploads';
+
+  // ------------------------------------------------------------------ mail --
+  // Defaults point at the Mailpit container in docker-compose, which catches
+  // everything locally. Any SMTP provider works by changing these four.
+
+  @IsString()
+  @IsNotEmpty()
+  SMTP_HOST: string = 'localhost';
+
+  @Type(() => Number)
+  @IsInt()
+  @Min(1)
+  @Max(65535)
+  SMTP_PORT: number = 1025;
+
+  /** Empty for Mailpit, which accepts anything. A real provider needs both. */
+  @IsString()
+  SMTP_USER: string = '';
+
+  @IsString()
+  SMTP_PASS: string = '';
+
+  @IsString()
+  @IsNotEmpty()
+  MAIL_FROM: string = 'Purchase Tracker <no-reply@purchasetracker.local>';
+
+  /**
+   * The base for links in emails.
+   *
+   * Deliberately from config and never from a request header: a reset link
+   * built from the Host header can be rewritten by whoever sends the request,
+   * which turns "reset your password" into a credential harvester.
+   */
+  @IsString()
+  @Matches(/^https?:\/\/[^/]+$/, {
+    message: 'APP_URL must be a bare origin such as http://localhost:5173',
+  })
+  APP_URL: string = 'http://localhost:5173';
 }
 
 /**

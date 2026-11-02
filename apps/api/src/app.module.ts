@@ -11,6 +11,7 @@ import { HealthModule } from './health/health.module';
 import { PurchasesModule } from './purchases/purchases.module';
 import { RepositoriesModule } from './repositories/repositories.module';
 import { ServiceRecordsModule } from './service-records/service-records.module';
+import { MailModule } from './common/mail/mail.module';
 import { StorageModule } from './common/storage/storage.module';
 
 @Module({
@@ -30,6 +31,7 @@ import { StorageModule } from './common/storage/storage.module';
     }),
     RepositoriesModule,
     StorageModule,
+    MailModule,
     DatesModule,
     AuthModule,
     PurchasesModule,

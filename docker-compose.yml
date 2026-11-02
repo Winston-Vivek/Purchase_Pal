@@ -38,5 +38,22 @@ services:
       retries: 12
       start_period: 5s
 
+  # A local inbox, not a delivery service. Mailpit accepts SMTP on 1025 and
+  # shows every message at http://localhost:8025 — nothing leaves the machine,
+  # which is the point: a bug in the reminder job must not be able to email a
+  # real person. For real delivery, point SMTP_HOST/PORT/USER/PASS at any
+  # provider; the application code does not change.
+  mail:
+    image: axllent/mailpit:latest
+    restart: unless-stopped
+    ports:
+      - "1025:1025" # SMTP, what the API talks to
+      - "8025:8025" # web inbox, what you read
+    environment:
+      MP_MAX_MESSAGES: 500
+      # Nothing is ever relayed onward, even if a real address is used.
+      MP_SMTP_AUTH_ACCEPT_ANY: 1
+      MP_SMTP_AUTH_ALLOW_INSECURE: 1
+
 volumes:
   proofly-db-data:

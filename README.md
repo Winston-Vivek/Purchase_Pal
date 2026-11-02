@@ -26,6 +26,7 @@ cp .env.test.example .env.test
 sed -i "s|^JWT_SECRET=.*|JWT_SECRET=$(openssl rand -base64 48)|" .env
 
 # 2. Database (Postgres 16, creates both `proofly` and `proofly_test`)
+#    plus Mailpit, a local inbox for every email the app sends
 docker compose up -d --wait
 
 # 3. Dependencies — three package.json files, one per workspace
@@ -91,7 +92,7 @@ Run from `apps/api` unless noted.
 
 | Command | What it does |
 | --- | --- |
-| `docker compose up -d --wait` | Start Postgres (from the repo root) |
+| `docker compose up -d --wait` | Start Postgres and Mailpit (from the repo root) |
 | `docker compose down` | Stop it, keeping data |
 | `docker compose down -v` | Stop it and wipe the data volume |
 | `npm run start:dev` | API with hot reload |
@@ -124,6 +125,28 @@ setup beyond `docker compose up -d`. It refuses to run against any database whos
 contain `proofly_test`.
 
 ---
+
+
+## Email
+
+Every email the app sends goes to **Mailpit**, a container started by
+`docker compose up`. Read them at **http://localhost:8025** — nothing is
+relayed to a real address, which is deliberate: a bug in the reminder job must
+not be able to email a stranger.
+
+To send for real, point four variables at any SMTP provider. No code changes;
+the transport is plain SMTP behind an injection token.
+
+| Provider | Host | Port | Free tier |
+| --- | --- | --- | --- |
+| Brevo | `smtp-relay.brevo.com` | 587 | 300/day |
+| Resend | `smtp.resend.com` | 587 | 100/day, domain verified |
+| SendGrid | `smtp.sendgrid.net` | 587 | 100/day |
+| Gmail | `smtp.gmail.com` | 587 | App password, needs 2FA |
+
+`APP_URL` is the base for links in emails. It comes from config and never from
+a request header — a reset link built from the `Host` header can be rewritten
+by whoever sends the request.
 
 ## Phase gates
 

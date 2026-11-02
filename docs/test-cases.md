@@ -58,6 +58,18 @@ Contents: 1 Unit (dates) · 2 API e2e · 3 Frontend unit/component · 4 Frontend
 
 ---
 
+### 1.5 Email templates (`apps/api/src/common/mail/templates.spec.ts`)
+
+| ID | Case | Expected | Pri | Status |
+| --- | --- | --- | --- | --- |
+| UT-MAIL-01 | Reset email | The link is in the plain-text part as well as the HTML; says it lasts 30 minutes and that ignoring it is safe | P1 | Pass 2026-11-02 |
+| UT-MAIL-02 | Reset email | Never contains a password | P1 | Pass 2026-11-02 |
+| UT-MAIL-03 | Password-changed notice | Names the time and says what to do if it was not you | P1 | Pass 2026-11-02 |
+| UT-MAIL-04 | Deadline digest | One message naming every deadline; singular for one | P1 | Pass 2026-11-02 |
+| UT-MAIL-05 | Deadline digest | A product name is escaped in the HTML part — a mail client renders it | P1 | Pass 2026-11-02 |
+
+---
+
 ## 2. API e2e (`apps/api/test/*.e2e-spec.ts`)
 
 All requests use `/api/v1`. "Signed in as A" = A's auth cookie. Errors must use the shape `{ error: { code, message, fields? } }`.

@@ -3,6 +3,8 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { DataSource } from 'typeorm';
 import { AppModule } from '../../src/app.module';
 import { CLOCK } from '../../src/common/dates/clock';
+import { MAILER } from '../../src/common/mail/mail.interface';
+import { RecordingMailer } from '../../src/common/mail/recording.mailer';
 import { setupApp } from '../../src/setup-app';
 import { BoomModule } from './boom.module';
 
@@ -13,6 +15,8 @@ export interface TestContext {
   app: INestApplication;
   dataSource: DataSource;
   moduleRef: TestingModule;
+  /** What the app tried to send, in order. */
+  mailer: RecordingMailer;
 }
 
 /**
@@ -30,11 +34,15 @@ export async function createTestApp(): Promise<TestContext> {
     // this, every expected deadline in the test cases would rot by tomorrow.
     .overrideProvider(CLOCK)
     .useValue({ now: () => new Date(FIXED_NOW) })
+    // No suite opens an SMTP socket. The recorder keeps what was sent, so a
+    // test asserts on a real subject and body instead of on a mock call.
+    .overrideProvider(MAILER)
+    .useValue(new RecordingMailer())
     .compile();
 
   const app = moduleRef.createNestApplication();
   setupApp(app);
   await app.init();
 
-  return { app, dataSource: app.get(DataSource), moduleRef };
+  return { app, dataSource: app.get(DataSource), moduleRef, mailer: app.get(MAILER) };
 }
