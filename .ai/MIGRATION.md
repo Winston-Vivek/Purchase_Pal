@@ -87,13 +87,14 @@ _No skill resolution recorded. Run the resolver._
 
 ## In Progress
 
-- [~] Deployment, phases 4 and 5 of `docs/runbook-deployment.md` — all code and configuration is written and verified locally; what remains is dashboard work on Render and Vercel, which needs the account holder
-- [~] CI's first run is unconfirmed — the GitHub mirror exists and the workflow can fire, but no run has been observed passing (no `gh` CLI on this machine to read it)
+- [x] **Phase 4 done — the API is live.** `https://purchase-tracker-api.onrender.com/api/v1/health` returns `{"status":"ok","database":"up"}`, proving the Neon pooled connection, TLS and all 7 migrations. `/api/docs` correctly 404s under `NODE_ENV=production`, and the reminders endpoint refuses an unsigned call with 401.
+- [~] Phase 5 — Vercel. First build failed because it cloned `main` (README only) rather than `master`; production branch and root directory are the fix, not the code.
+- [~] CI's first run is unconfirmed. Both jobs failed initially — `npm ci` under npm 10 against an npm 11 lock, and the token check resolving a path two levels above the checkout — both fixed in `4737af1`, result not yet read (no `gh` CLI here).
 
 ## Pending
 
-- [ ] Render: create the service from `render.yaml` (Blueprint), set the five `sync: false` values
-- [ ] Vercel: deploy `apps/web`, then correct `vercel.json`'s rewrite if Render assigned a name other than `purchase-tracker-api`
+- [x] Render: service created from the blueprint and live. The first deploy failed with `ECONNREFUSED 127.0.0.1:5434` — the development `DATABASE_URL` had been entered instead of the Neon one.
+- [ ] Vercel: set production branch `master` and root directory `apps/web`, then deploy. The rewrite needed no change — Render assigned exactly `purchase-tracker-api.onrender.com`.
 - [ ] Set `WEB_ORIGIN` and `APP_URL` on Render to the Vercel domain once it exists — until then the browser cannot use the API
 - [ ] Add `API_BASE_URL` and `CRON_SECRET` as GitHub repository secrets, then run *Daily reminders* by hand once
 - [ ] Phase 6 smoke test against the live pair
@@ -109,7 +110,7 @@ None identified.
 _Machine-generated from `.ai/EVIDENCE.jsonl`. Do not edit by hand._
 
 ```
-476 commands recorded, of which 11 verified (7 passed, 4 failed, 2 non-binding).
+495 commands recorded, of which 11 verified (7 passed, 4 failed, 2 non-binding).
 
 Files changed since baseline `0ecc127` (git): 254
   - apps/api/Dockerfile
@@ -169,7 +170,7 @@ Most recent verified runs:
 ### Working tree
 
 <!-- relay:git:start -->
-- Branch `master` at `5607727`, 2 uncommitted path(s).
+- Branch `master` at `6b2c77e`, 2 uncommitted path(s).
 - Changed now:
 
 ```
@@ -215,16 +216,16 @@ _No decisions recorded. Use `relay-decide` when a choice changes what the migrat
 
 ## Exact Next Action
 
-Push `master` to the GitHub mirror, then create the Render service from the
-`render.yaml` blueprint and deploy `apps/web` to Vercel. Both are dashboard
-steps that need the account holder; everything they depend on is committed and
-has been verified against a real container.
+Get Vercel to build `master` (production branch + root directory `apps/web`),
+then set `WEB_ORIGIN` and `APP_URL` on Render to the Vercel domain. Both still
+read `https://example.vercel.app`, so until they are corrected the browser is
+blocked by CORS and password-reset links point nowhere.
 
-After the Vercel domain exists, set `WEB_ORIGIN` and `APP_URL` on Render to it
-— the API will not serve the browser correctly until that is done.
+Then add `API_BASE_URL` and `CRON_SECRET` as GitHub repository secrets and run
+the *Daily reminders* workflow once by hand.
 
 ## Last Updated
 
 <!-- relay:updated:start -->
-- 2026-11-02T15:42:49Z (mechanical regions refreshed by `migration-state.sh`)
+- 2026-11-02T16:22:43Z (mechanical regions refreshed by `migration-state.sh`)
 <!-- relay:updated:end -->
