@@ -33,8 +33,12 @@ export default async function globalTeardown(): Promise<void> {
       }
 
       if (mine.length > 0) {
+        // stderr, not stdout: when a suite is run with --reporter=json its
+        // stdout is the report, and a stray line here makes it unparseable.
         // eslint-disable-next-line no-console
-        console.log(`[e2e teardown] removed ${mine.length} leftover purchase(s) for ${who.email}`);
+        console.error(
+          `[e2e teardown] removed ${mine.length} leftover purchase(s) for ${who.email}`,
+        );
       }
     } finally {
       await context.dispose();

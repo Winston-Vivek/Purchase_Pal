@@ -291,9 +291,10 @@ Fixture for A (today 2026-10-27), matching the design mockups:
 | FE-PAGE-30 | Search | Remove chip / Clear all | Filter removed; list refreshes | P1 | Pass 2026-10-29 |
 | FE-PAGE-31 | Search | No results | Message names the filters + Clear filters | P1 | Pass 2026-10-29 |
 | FE-PAGE-32 | Search | Filters in URL | Refresh keeps filters (vue-pinia skill: state-url-for-ephemeral-filters) | P1 | Pass 2026-10-29 |
-| FE-PAGE-33 | AppShell | On a purchase's own page (`/purchases/:id`, `/purchases/new`) | "My purchases" is still the current nav item — the section stays marked on its sub-pages | P1 | Not run |
-| FE-PAGE-34 | Details | Arrived from the Dashboard | Back link says Dashboard and returns there; a direct load or any other origin falls back to My purchases | P1 | Not run |
-| FE-PAGE-35 | Search | Chip for a multi-value filter (`ACTIVE,EXPIRING_SOON`, as the Dashboard links it) | Chip reads "Return: Active or Expiring soon" — never a raw enum with underscores | P1 | Not run |
+| FE-PAGE-33 | AppShell | On a purchase's own page (`/purchases/:id`, `/purchases/new`) | "My purchases" is still the current nav item — the section stays marked on its sub-pages | P1 | Pass 2026-11-02 |
+| FE-PAGE-34 | Details | Arrived from the Dashboard | Back link says Dashboard and returns there; a direct load or any other origin falls back to My purchases | P1 | Pass 2026-11-02 |
+| FE-PAGE-35 | Search | Chip for a multi-value filter (`ACTIVE,EXPIRING_SOON`, as the Dashboard links it) | Chip reads "Return: Active or Expiring soon" — never a raw enum with underscores | P1 | Pass 2026-11-02 |
+| FE-PAGE-36 | Settings | Alert window of 1 | Preview reads "1 day", not "1 days" | P2 | Pass 2026-11-02 |
 
 ---
 

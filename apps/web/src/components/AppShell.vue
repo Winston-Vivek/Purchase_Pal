@@ -2,7 +2,7 @@
 import { House, LayoutGrid, LogOut, Plus, ShoppingBag, SlidersHorizontal } from '@lucide/vue';
 import { storeToRefs } from 'pinia';
 import { computed } from 'vue';
-import { RouterLink, useRouter } from 'vue-router';
+import { RouterLink, useRoute, useRouter } from 'vue-router';
 import { useAuthStore } from '../stores/auth';
 
 const auth = useAuthStore();
@@ -16,6 +16,21 @@ const NAV = [
   { to: '/purchases', label: 'My purchases', icon: ShoppingBag },
   { to: '/settings', label: 'Settings', icon: SlidersHorizontal },
 ] as const;
+
+const route = useRoute();
+
+/**
+ * Whether a nav item owns the current screen.
+ *
+ * RouterLink's own active-class is no use here: /purchases/:id and
+ * /purchases/new are sibling route records, not children of /purchases, so
+ * vue-router does not consider the list link active on them and the sidebar
+ * went blank on every purchase page. A path prefix is what "section" means
+ * to the person reading the sidebar.
+ */
+function isCurrent(to: string): boolean {
+  return route.path === to || route.path.startsWith(`${to}/`);
+}
 
 const initial = computed(() => user.value?.name.charAt(0).toUpperCase() ?? '?');
 
@@ -43,24 +58,43 @@ async function signOut(): Promise<void> {
         </a>
       </RouterLink>
 
-      <RouterLink
-        to="/purchases/new"
-        class="mt-6 flex min-h-11 cursor-pointer items-center justify-center gap-2 rounded-md bg-primary px-4 font-semibold text-white transition-colors duration-150 hover:bg-primary-hover focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:outline-hidden motion-reduce:transition-none"
-      >
-        <Plus :size="18" aria-hidden="true" />
-        Add purchase
+      <!-- `custom` for the same reason as the logo: this is an action, not a
+           marker of where you are. Left to itself RouterLink would also claim
+           aria-current="page" on /purchases/new, and the screen would have two
+           "current page" markers. -->
+      <RouterLink v-slot="{ href, navigate }" to="/purchases/new" custom>
+        <a
+          :href="href"
+          class="mt-6 flex min-h-11 cursor-pointer items-center justify-center gap-2 rounded-md bg-primary px-4 font-semibold text-white transition-colors duration-150 hover:bg-primary-hover focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:outline-hidden motion-reduce:transition-none"
+          @click="navigate"
+        >
+          <Plus :size="18" aria-hidden="true" />
+          Add purchase
+        </a>
       </RouterLink>
 
       <nav aria-label="Main" class="mt-6 flex flex-col gap-1">
         <RouterLink
           v-for="item in NAV"
           :key="item.to"
+          v-slot="{ href, navigate }"
           :to="item.to"
-          class="relative flex min-h-11 cursor-pointer items-center gap-3 rounded-md px-3 font-semibold text-muted-fg transition-colors duration-150 hover:bg-subtle focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-hidden motion-reduce:transition-none"
-          active-class="bg-primary-tint text-primary before:absolute before:left-0 before:h-6 before:w-1 before:rounded-sm before:bg-primary"
+          custom
         >
-          <component :is="item.icon" :size="20" aria-hidden="true" />
-          {{ item.label }}
+          <a
+            :href="href"
+            :aria-current="isCurrent(item.to) ? 'page' : undefined"
+            class="relative flex min-h-11 cursor-pointer items-center gap-3 rounded-md px-3 font-semibold transition-colors duration-150 hover:bg-subtle focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-hidden motion-reduce:transition-none"
+            :class="
+              isCurrent(item.to)
+                ? 'bg-primary-tint text-primary before:absolute before:left-0 before:h-6 before:w-1 before:rounded-sm before:bg-primary'
+                : 'text-muted-fg'
+            "
+            @click="navigate"
+          >
+            <component :is="item.icon" :size="20" aria-hidden="true" />
+            {{ item.label }}
+          </a>
         </RouterLink>
       </nav>
 
@@ -74,7 +108,9 @@ async function signOut(): Promise<void> {
         <span class="min-w-0 flex-1">
           <span class="block truncate font-semibold text-fg">{{ user?.name }}</span>
           <!-- The 240px sidebar truncates a long address; title makes it readable. -->
-          <span :title="user?.email" class="block truncate text-sm text-muted-fg">{{ user?.email }}</span>
+          <span :title="user?.email" class="block truncate text-sm text-muted-fg">{{
+            user?.email
+          }}</span>
         </span>
         <button
           type="button"
@@ -115,38 +151,53 @@ async function signOut(): Promise<void> {
       aria-label="Main"
       class="fixed inset-x-0 bottom-0 flex items-stretch justify-around border-t border-border bg-surface lg:hidden"
     >
-      <RouterLink
-        to="/dashboard"
-        class="flex min-h-14 flex-1 cursor-pointer flex-col items-center justify-center gap-0.5 py-2 text-xs font-semibold text-muted-fg"
-        active-class="text-primary"
-      >
-        <House :size="20" aria-hidden="true" />
-        Dashboard
+      <RouterLink v-slot="{ href, navigate }" to="/dashboard" custom>
+        <a
+          :href="href"
+          :aria-current="isCurrent('/dashboard') ? 'page' : undefined"
+          class="flex min-h-14 flex-1 cursor-pointer flex-col items-center justify-center gap-0.5 py-2 text-xs font-semibold"
+          :class="isCurrent('/dashboard') ? 'text-primary' : 'text-muted-fg'"
+          @click="navigate"
+        >
+          <House :size="20" aria-hidden="true" />
+          Dashboard
+        </a>
       </RouterLink>
-      <RouterLink
-        to="/purchases"
-        class="flex min-h-14 flex-1 cursor-pointer flex-col items-center justify-center gap-0.5 py-2 text-xs font-semibold text-muted-fg"
-        active-class="text-primary"
-      >
-        <ShoppingBag :size="20" aria-hidden="true" />
-        Purchases
+      <RouterLink v-slot="{ href, navigate }" to="/purchases" custom>
+        <a
+          :href="href"
+          :aria-current="isCurrent('/purchases') ? 'page' : undefined"
+          class="flex min-h-14 flex-1 cursor-pointer flex-col items-center justify-center gap-0.5 py-2 text-xs font-semibold"
+          :class="isCurrent('/purchases') ? 'text-primary' : 'text-muted-fg'"
+          @click="navigate"
+        >
+          <ShoppingBag :size="20" aria-hidden="true" />
+          Purchases
+        </a>
       </RouterLink>
-      <RouterLink
-        to="/purchases/new"
-        class="flex min-h-14 flex-1 cursor-pointer flex-col items-center justify-center gap-0.5 py-2 text-xs font-semibold text-muted-fg"
-      >
-        <span class="flex size-8 items-center justify-center rounded-full bg-primary text-white">
-          <Plus :size="18" aria-hidden="true" />
-        </span>
-        Add
+      <RouterLink v-slot="{ href, navigate }" to="/purchases/new" custom>
+        <a
+          :href="href"
+          class="flex min-h-14 flex-1 cursor-pointer flex-col items-center justify-center gap-0.5 py-2 text-xs font-semibold text-muted-fg"
+          @click="navigate"
+        >
+          <span class="flex size-8 items-center justify-center rounded-full bg-primary text-white">
+            <Plus :size="18" aria-hidden="true" />
+          </span>
+          Add
+        </a>
       </RouterLink>
-      <RouterLink
-        to="/settings"
-        class="flex min-h-14 flex-1 cursor-pointer flex-col items-center justify-center gap-0.5 py-2 text-xs font-semibold text-muted-fg"
-        active-class="text-primary"
-      >
-        <SlidersHorizontal :size="20" aria-hidden="true" />
-        Settings
+      <RouterLink v-slot="{ href, navigate }" to="/settings" custom>
+        <a
+          :href="href"
+          :aria-current="isCurrent('/settings') ? 'page' : undefined"
+          class="flex min-h-14 flex-1 cursor-pointer flex-col items-center justify-center gap-0.5 py-2 text-xs font-semibold"
+          :class="isCurrent('/settings') ? 'text-primary' : 'text-muted-fg'"
+          @click="navigate"
+        >
+          <SlidersHorizontal :size="20" aria-hidden="true" />
+          Settings
+        </a>
       </RouterLink>
     </nav>
   </div>

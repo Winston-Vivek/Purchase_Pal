@@ -28,6 +28,19 @@ const STATUS_LABELS: Record<string, string> = {
   NOT_SET: 'Not set',
 };
 
+/**
+ * The dashboard links here with two statuses at once ("ACTIVE,EXPIRING_SOON"
+ * is what "Open returns" means), so a chip has to label every value it was
+ * given. Looking the whole string up as one key missed, and showed the raw
+ * column values back to the user.
+ */
+function statusLabel(value: string): string {
+  return value
+    .split(',')
+    .map((one) => STATUS_LABELS[one] ?? one)
+    .join(' or ');
+}
+
 const SORTS = [
   ['newest', 'Newest first'],
   ['deadline_asc', 'Nearest deadline'],
@@ -75,7 +88,10 @@ const loading = ref(true);
 const error = ref<string | null>(null);
 
 const searchText = ref(current('q'));
-watch(() => current('q'), (value) => (searchText.value = value));
+watch(
+  () => current('q'),
+  (value) => (searchText.value = value),
+);
 
 /** One chip per active filter, each removable on its own. */
 const chips = computed(() => {
@@ -91,12 +107,12 @@ const chips = computed(() => {
     list.push({ key: 'category', label: match?.[1] ?? category });
   }
   if (returnStatus) {
-    list.push({ key: 'returnStatus', label: `Return: ${STATUS_LABELS[returnStatus] ?? returnStatus}` });
+    list.push({ key: 'returnStatus', label: `Return: ${statusLabel(returnStatus)}` });
   }
   if (warrantyStatus) {
     list.push({
       key: 'warrantyStatus',
-      label: `Warranty: ${STATUS_LABELS[warrantyStatus] ?? warrantyStatus}`,
+      label: `Warranty: ${statusLabel(warrantyStatus)}`,
     });
   }
 
@@ -173,7 +189,9 @@ watch(() => route.query, load, { deep: true });
             @change="go({ category: ($event.target as HTMLSelectElement).value })"
           >
             <option value="">All</option>
-            <option v-for="[value, text] in CATEGORIES" :key="value" :value="value">{{ text }}</option>
+            <option v-for="[value, text] in CATEGORIES" :key="value" :value="value">
+              {{ text }}
+            </option>
           </select>
         </div>
 
@@ -213,7 +231,15 @@ watch(() => route.query, load, { deep: true });
           data-testid="clear-all"
           type="button"
           class="min-h-11 cursor-pointer px-2 text-sm font-semibold text-primary hover:underline focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-hidden"
-          @click="go({ q: undefined, category: undefined, returnStatus: undefined, warrantyStatus: undefined, sort: undefined })"
+          @click="
+            go({
+              q: undefined,
+              category: undefined,
+              returnStatus: undefined,
+              warrantyStatus: undefined,
+              sort: undefined,
+            })
+          "
         >
           Clear all
         </button>
@@ -264,11 +290,23 @@ watch(() => route.query, load, { deep: true });
               <span class="font-semibold text-fg">{{ purchase.productName }}</span>
               <span class="flex flex-wrap items-center gap-x-3 text-sm text-muted-fg">
                 <span class="tabular-nums">{{ formatDate(purchase.purchaseDate) }}</span>
-                <span class="tabular-nums">{{ formatMoney(purchase.price, purchase.currency) }}</span>
+                <span class="tabular-nums">{{
+                  formatMoney(purchase.price, purchase.currency)
+                }}</span>
               </span>
               <span class="flex flex-wrap gap-2">
-                <StatusBadge kind="RETURN" :status="purchase.returnStatus" :days-left="purchase.returnDaysLeft" :date="purchase.returnDeadline" />
-                <StatusBadge kind="WARRANTY" :status="purchase.warrantyStatus" :days-left="purchase.warrantyDaysLeft" :date="purchase.warrantyExpiry" />
+                <StatusBadge
+                  kind="RETURN"
+                  :status="purchase.returnStatus"
+                  :days-left="purchase.returnDaysLeft"
+                  :date="purchase.returnDeadline"
+                />
+                <StatusBadge
+                  kind="WARRANTY"
+                  :status="purchase.warrantyStatus"
+                  :days-left="purchase.warrantyDaysLeft"
+                  :date="purchase.warrantyExpiry"
+                />
                 <StatusBadge v-if="!purchase.hasReceipt" kind="RECEIPT" status="MISSING" />
               </span>
             </RouterLink>
@@ -287,7 +325,11 @@ watch(() => route.query, load, { deep: true });
               </tr>
             </thead>
             <tbody>
-              <tr v-for="purchase in items" :key="purchase.id" class="border-t border-border hover:bg-subtle">
+              <tr
+                v-for="purchase in items"
+                :key="purchase.id"
+                class="border-t border-border hover:bg-subtle"
+              >
                 <td class="px-4 py-3">
                   <RouterLink
                     :to="`/purchases/${purchase.id}`"
@@ -295,15 +337,34 @@ watch(() => route.query, load, { deep: true });
                   >
                     {{ purchase.productName }}
                   </RouterLink>
-                  <StatusBadge v-if="!purchase.hasReceipt" kind="RECEIPT" status="MISSING" class="mt-1 flex w-fit" />
+                  <StatusBadge
+                    v-if="!purchase.hasReceipt"
+                    kind="RECEIPT"
+                    status="MISSING"
+                    class="mt-1 flex w-fit"
+                  />
                 </td>
-                <td class="px-4 py-3 text-muted-fg tabular-nums">{{ formatDate(purchase.purchaseDate) }}</td>
-                <td class="px-4 py-3 text-fg tabular-nums">{{ formatMoney(purchase.price, purchase.currency) }}</td>
-                <td class="px-4 py-3">
-                  <StatusBadge kind="RETURN" :status="purchase.returnStatus" :days-left="purchase.returnDaysLeft" :date="purchase.returnDeadline" />
+                <td class="px-4 py-3 text-muted-fg tabular-nums">
+                  {{ formatDate(purchase.purchaseDate) }}
+                </td>
+                <td class="px-4 py-3 text-fg tabular-nums">
+                  {{ formatMoney(purchase.price, purchase.currency) }}
                 </td>
                 <td class="px-4 py-3">
-                  <StatusBadge kind="WARRANTY" :status="purchase.warrantyStatus" :days-left="purchase.warrantyDaysLeft" :date="purchase.warrantyExpiry" />
+                  <StatusBadge
+                    kind="RETURN"
+                    :status="purchase.returnStatus"
+                    :days-left="purchase.returnDaysLeft"
+                    :date="purchase.returnDeadline"
+                  />
+                </td>
+                <td class="px-4 py-3">
+                  <StatusBadge
+                    kind="WARRANTY"
+                    :status="purchase.warrantyStatus"
+                    :days-left="purchase.warrantyDaysLeft"
+                    :date="purchase.warrantyExpiry"
+                  />
                 </td>
               </tr>
             </tbody>

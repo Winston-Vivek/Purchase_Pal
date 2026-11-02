@@ -22,6 +22,24 @@ const route = useRoute();
 const router = useRouter();
 const purchaseId = computed(() => (route.params as Record<string, string>).purchaseId ?? '');
 
+/**
+ * Where "back" goes.
+ *
+ * vue-router records the path you came from in history state. The link used
+ * to be hard-coded to the list, so opening a purchase from the Dashboard and
+ * pressing back dropped you on a screen you had never visited. Only the
+ * Dashboard is treated as its own origin; anything else — a direct link, a
+ * refresh, the edit form — belongs to the list.
+ */
+const back = computed(() => {
+  const from = (window.history.state as { back?: unknown } | null)?.back;
+  const fromDashboard = typeof from === 'string' && from.startsWith('/dashboard');
+
+  return fromDashboard
+    ? { to: '/dashboard', label: 'Dashboard' }
+    : { to: '/purchases', label: 'My purchases' };
+});
+
 const purchase = ref<PurchaseDetail | null>(null);
 const loading = ref(true);
 const notFound = ref(false);
@@ -205,7 +223,8 @@ async function upload(file: File): Promise<void> {
     }
   } catch (failure) {
     // Nothing is added, so the count and the banner stay where they were.
-    uploadError.value = failure instanceof ApiError ? failure.message : 'Could not upload that file.';
+    uploadError.value =
+      failure instanceof ApiError ? failure.message : 'Could not upload that file.';
   } finally {
     uploading.value = false;
   }
@@ -217,10 +236,10 @@ onMounted(load);
 <template>
   <AppShell>
     <RouterLink
-      to="/purchases"
+      :to="back.to"
       class="inline-flex cursor-pointer items-center gap-1 font-semibold text-primary hover:underline"
     >
-      ‹ My purchases
+      ‹ {{ back.label }}
     </RouterLink>
 
     <SkeletonBlock v-if="loading" :lines="8" class="mt-6" />
@@ -275,7 +294,9 @@ onMounted(load);
           </div>
           <div>
             <dt class="text-sm text-muted-fg">Purchased</dt>
-            <dd class="font-semibold text-fg tabular-nums">{{ formatDate(purchase.purchaseDate) }}</dd>
+            <dd class="font-semibold text-fg tabular-nums">
+              {{ formatDate(purchase.purchaseDate) }}
+            </dd>
           </div>
           <div>
             <dt class="text-sm text-muted-fg">Receipts</dt>
@@ -314,9 +335,7 @@ onMounted(load);
             </p>
             <p class="mt-3 text-sm text-muted-fg">{{ warrantyRule }}</p>
           </template>
-          <p v-else class="mt-4 text-muted-fg">
-            No warranty was recorded for this purchase.
-          </p>
+          <p v-else class="mt-4 text-muted-fg">No warranty was recorded for this purchase.</p>
         </section>
 
         <section class="rounded-md border border-border bg-surface p-4 lg:p-6">
@@ -373,21 +392,23 @@ onMounted(load);
             <!-- A plain link: the browser streams it and the cookie goes with
                  it, so the file never passes through JavaScript. -->
             <span class="flex items-center gap-1">
-            <a
-              :href="`/api/v1/attachments/${attachment.id}`"
-              class="inline-flex min-h-11 cursor-pointer items-center gap-2 rounded-md px-3 font-semibold text-primary hover:bg-primary-tint focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-hidden"
-            >
-              <Download :size="18" aria-hidden="true" />
-              Download
-            </a>
-            <button
-              type="button"
-              class="flex size-11 cursor-pointer items-center justify-center rounded-md text-muted-fg hover:bg-subtle focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-hidden"
-              @click="pending = { kind: 'attachment', id: attachment.id, name: attachment.fileName }"
-            >
-              <Trash2 :size="18" aria-hidden="true" />
-              <span class="sr-only">Delete receipt {{ attachment.fileName }}</span>
-            </button>
+              <a
+                :href="`/api/v1/attachments/${attachment.id}`"
+                class="inline-flex min-h-11 cursor-pointer items-center gap-2 rounded-md px-3 font-semibold text-primary hover:bg-primary-tint focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-hidden"
+              >
+                <Download :size="18" aria-hidden="true" />
+                Download
+              </a>
+              <button
+                type="button"
+                class="flex size-11 cursor-pointer items-center justify-center rounded-md text-muted-fg hover:bg-subtle focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-hidden"
+                @click="
+                  pending = { kind: 'attachment', id: attachment.id, name: attachment.fileName }
+                "
+              >
+                <Trash2 :size="18" aria-hidden="true" />
+                <span class="sr-only">Delete receipt {{ attachment.fileName }}</span>
+              </button>
             </span>
           </li>
         </ul>
@@ -439,7 +460,9 @@ onMounted(load);
                 <button
                   type="button"
                   class="min-h-11 cursor-pointer px-1 text-sm font-semibold text-danger hover:underline focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-hidden"
-                  @click="pending = { kind: 'service', id: record.id, description: record.description }"
+                  @click="
+                    pending = { kind: 'service', id: record.id, description: record.description }
+                  "
                 >
                   Remove
                 </button>

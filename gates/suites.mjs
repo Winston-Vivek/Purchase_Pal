@@ -73,7 +73,10 @@ export function collectTestNames(suiteName) {
       return { available: false, reason: `${suiteName} produced no report (did it fail to start?)` };
     }
 
-    const report = JSON.parse(readFileSync(outFile, 'utf8'));
+    // A runner that prints anything before its report would otherwise make
+    // this unparseable, and the gate would fail for a reason nobody could see.
+    const raw = readFileSync(outFile, 'utf8');
+    const report = JSON.parse(raw.slice(raw.indexOf('{')));
     const names = [];
 
     // Jest and Vitest share this shape; Playwright's differs.

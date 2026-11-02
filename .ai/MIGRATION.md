@@ -6,7 +6,7 @@
 
 ## Objective
 
-Build the Proofly MVP in 7 verified phases (greenfield build, not a legacy migration): NestJS + TypeORM API, Vue 3 + Tailwind v4 web, TDD from docs/test-cases.md, each phase closed by 'npm run gate dayN'
+Build the Proofly MVP in 7 verified phases (greenfield build, not a legacy migration): NestJS + TypeORM API, Vue 3 + Tailwind v4 web, TDD from docs/test-cases.md, each phase closed by `npm run gate dayN`.
 
 ## Source Stack
 
@@ -27,12 +27,10 @@ _Read from manifests by `detect-stack.sh`. Not model output._
 
 ## Target Stack
 
-_Greenfield build, locked in `docs/requirements.md` §5 (D-01..D-12)._
-
 | Component | Choice |
 |---|---|
 | API | NestJS 11, TypeScript strict, class-validator DTOs, global ValidationPipe |
-| Database | PostgreSQL 16 + TypeORM, migrations only, `synchronize: false` (D-03 changed 28 Oct) |
+| Database | PostgreSQL 16 + TypeORM, migrations only, `synchronize: false` (D-03 changed from Prisma to TypeORM on Day 3, to match the TypeORM-specific `nestjs-best-practices` skill) |
 | Auth | bcrypt + JWT in an httpOnly, SameSite=Lax cookie |
 | Web | Vue 3 `<script setup lang="ts">`, Vite, Pinia, Vue Router, Tailwind CSS v4 |
 | Tests | Jest + Supertest (API), Vitest + Vue Test Utils (web), Playwright (E2E) |
@@ -57,16 +55,13 @@ _No skill resolution recorded. Run the resolver._
 
 ## Migration Waves
 
-_One wave per phase in `docs/plan.md`. Each closes on a verified
-`npm run gate dayN` — see `gates/README.md` for what that checks._
-
-- [x] 01 Requirements — scope, business rules BR-01..10, validation, user stories, API contract, data model. Gate: `npm run gate day1`
-- [x] 02 Design — UI guide, `@theme` tokens, status system, screens, wireframes, mockups. Gate: `npm run gate day2`
-- [x] 03 Backend core — setup, DatesService, error shape, auth, alert settings, purchases CRUD. 77 cases. Gate: `npm run gate day3`
-- [x] 04 Backend features — receipts, service records, cascade, dashboard, search, seed. 46 cases. Gate: `npm run gate day4`
-- [x] 05 Frontend core — scaffold, data layer, base components, shell, list/form, details. 43 cases. Gate: `npm run gate day5`
-- [x] 06 Frontend features + E2E — dashboard, dialogs, settings, search UI, Playwright, quality pass. 35 cases. Gate: `npm run gate day6`
-- [~] 07 UAT and delivery — fresh-clone check, UAT-01..13, defect fixes test-first, docs, tag v1.0.0. Gate: `npm run gate day7`
+- [x] 01 Requirements
+- [x] 02 Design
+- [x] 03 Backend core
+- [x] 04 Backend features
+- [x] 05 Frontend core
+- [x] 06 Frontend features + E2E
+- [~] 07 UAT and delivery — last recorded `npm run gate day7` run failed (missing delivery docs, 13 unrecorded UAT scenarios); no verified passing run exists for this wave
 
 ## Current Wave
 
@@ -80,17 +75,26 @@ _One wave per phase in `docs/plan.md`. Each closes on a verified
 - [x] 04 Backend features
 - [x] 05 Frontend core
 - [x] 06 Frontend features + E2E
+- [x] Fresh-clone defect fixed: `.gitignore`'s bare `storage/` had excluded `apps/api/src/common/storage/` from version control, re-verified from two further clean clones (commit `41f010c`)
+- [x] README setup corrected for a fresh clone and `docker-compose.yml`'s `container_name` clash removed (commit `23ede49`)
+- [x] Gate decision logic extracted to `gates/checks.mjs` with its own test suite (`gates/checks.test.mjs`) and imported by `run-gate.mjs` (commit `d96d366`)
+- [x] `docs/test-cases.md` status column generated from suite results via `npm run testcases:sync`/`testcases:check` rather than hand-maintained (commit `d96d366`)
+- [x] Day 7 gate's UAT check fixed to read `docs/uat-report.md`'s `Result` column instead of `docs/test-cases.md` (commit `7152424`)
+- [x] NFR-12 (fresh clone) recorded Pass in `docs/test-cases.md`
 
 ## In Progress
 
-- [x] 03 Backend core — Slice 0 (setup) done at `ce206ae`; slices 1-5 unwritten
+- [~] Day 7 delivery documents — `docs/decisions.md` drafted (untracked, uncommitted); `docs/architecture.md`, `docs/security.md`, `docs/demo-script.md`, `CHANGELOG.md` not yet started
+- [~] `docs/uat-report.md` prepared with build/environment/account details (modified, uncommitted); UAT-01..13 rows not yet filled in
+- [~] `HANDOFF.md` present in the working tree (untracked); its contents are not established from the session data
 
 ## Pending
-- [ ] 03 Backend core
-- [ ] 04 Backend features
-- [ ] 05 Frontend core
-- [ ] 06 Frontend features + E2E
-- [ ] 07 UAT and delivery
+
+- [ ] UAT-01..13 run against the app and results recorded
+- [ ] Any Critical/High defect found by UAT fixed test-first
+- [ ] `v1.0.0` tag
+- [ ] Decide whether the Receipt-upload step on the Add Purchase form ships or is recorded in `CHANGELOG.md` as a known limitation
+- [ ] Git remote configured so the existing CI workflow runs for the first time
 
 ## Blocked
 
@@ -102,9 +106,9 @@ None identified.
 _Machine-generated from `.ai/EVIDENCE.jsonl`. Do not edit by hand._
 
 ```
-152 commands recorded, of which 11 verified (7 passed, 4 failed, 2 non-binding).
+185 commands recorded, of which 11 verified (7 passed, 4 failed, 2 non-binding).
 
-Files changed since baseline `0ecc127` (git): 180
+Files changed since baseline `0ecc127` (git): 188
   - apps/api/package.json
   - apps/api/package-lock.json
   - apps/api/prisma/migrations/20261028080043_init/migration.sql
@@ -117,7 +121,7 @@ Files changed since baseline `0ecc127` (git): 180
   - apps/api/src/attachments/attachments.module.ts
   - apps/api/src/attachments/attachments.service.ts
   - apps/api/src/auth/auth.constants.ts
-  ... and 168 more
+  ... and 176 more
 
 Tool-observed edits: 0 across 0 files.
   (Only Edit/Write/MultiEdit are visible to the hook. A Bash-first session
@@ -162,16 +166,26 @@ Most recent verified runs:
 ### Working tree
 
 <!-- relay:git:start -->
-- Branch `master` at `d96d366`, 2 uncommitted path(s).
+- Branch `master` at `47f1019`, 3 uncommitted path(s).
 - Changed now:
 
 ```
  M .ai/EVIDENCE.jsonl
  M .ai/MIGRATION.md
+?? HANDOFF.md
 ```
 <!-- relay:git:end -->
 
 ## Decisions
+
+| Decision | Reason |
+|---|---|
+| D-03 changed: Prisma → TypeORM (Day 3) | The `nestjs-best-practices` skill the project is built against is TypeORM-specific |
+| Gate logic moved to `gates/checks.mjs`, `run-gate.mjs` imports it | Tests against a duplicate of the gate's logic would prove nothing about the gate that actually runs |
+| `docs/test-cases.md` status column generated by `testcases:sync`, not hand-written | A hand-maintained status column is where a wrong entry is indistinguishable from a right one |
+| `testcases:check`/`sync` wired into CI but not into the phase gates | A gate running its own tests as one of its checks is circular |
+| `statusOf` locates its column by header name, not by position | `docs/test-cases.md` ends in `Status`; `docs/uat-report.md` ends in `Evidence` and keeps its verdict in `Result` — counting from the end read the wrong cell |
+| `.gitignore`'s storage exclusion re-anchored to `var/` | The bare `storage/` pattern also matched `apps/api/src/common/storage/`, excluding the module from the repo with no warning from git |
 
 <!-- relay:decisions:start -->
 _Recorded with `relay-decide`; the durable record is in `.ai/EVIDENCE.jsonl`._
@@ -185,29 +199,17 @@ _No decisions recorded. Use `relay-decide` when a choice changes what the migrat
 
 | Risk | Mitigation |
 |---|---|
-| Off-by-one or time-zone date bugs | DATE columns, one DatesService, 24 unit tests written first, injectable clock pinned to 2026-10-27 Asia/Kolkata |
-| Tests silently stop being discovered | `relay-verify --metric` trends the passing count across waves; an exit code alone cannot see this |
-| Code written before its failing test | `gate`'s `tdd-history` check fails if an area's first commit is `feat(` rather than `test(` |
-| A day slips | Cut P1 (search polish, sort) first; P0 never shrinks |
-| `design/mockups/*.png` does not exist | Needed by wave 05; export from `design/Proofly Colour Mockups.html` or repoint the Day 5 prompt before starting |
+| No git remote configured; the existing CI workflow has never run | The fresh-clone bug that broke the build would have been caught by `checkout` → `npm ci` → `build` on first push — setting up the remote is unresolved |
+| Demo seed data is date-relative and ages with the calendar | Dashboard counts shifted between the 29th and 30th seeding; re-seed before UAT if a fixed scenario set is needed |
+| Five Day 7 delivery documents and all 13 UAT results are unrecorded | The last `npm run gate day7` run failed on exactly these two checks |
+| Receipt-upload step on the Add Purchase form is covered by no test case | Undecided whether it ships or is logged as a known limitation before `v1.0.0` |
 
 ## Exact Next Action
 
-The build is complete. 265 automated tests: 25 unit, 107 API e2e, 140 web
-component, 17 Playwright (8 journeys + 9 non-functional).
-
-Day 7, in order: the fresh-clone check (NFR-12) from the README alone, then
-Winston runs UAT-01..13 and reports results, then any Critical/High defect is
-fixed test-first, then docs/architecture.md, security.md, decisions.md,
-demo-script.md and CHANGELOG.md, then tag v1.0.0.
-
-One feature gap, flagged three times and never silently dropped: the Receipt
-fieldset on the ADD form (desktop-3-add-purchase.png shows it). FileDrop
-exists and is tested; it needs a save-then-upload step. No test case covers
-it. Decide whether it ships or goes in CHANGELOG.md as a known limitation.
+Write `docs/architecture.md` (request-flow and ER diagrams) to close one of the five missing Day 7 delivery documents, commit it, then run `npm run gate day7 -- --quick` to confirm the "Delivery documents written" check moves toward passing.
 
 ## Last Updated
 
 <!-- relay:updated:start -->
-- 2026-10-29T18:19:52Z (mechanical regions refreshed by `migration-state.sh`)
+- 2026-10-30T09:48:00Z (mechanical regions refreshed by `migration-state.sh`)
 <!-- relay:updated:end -->

@@ -25,8 +25,11 @@ describe('Settings', () => {
     fetchMock.mockReset();
     push.mockReset();
     useAuthStore().user = {
-      id: 'u1', name: 'Winston', email: 'demo@proofly.test',
-      warrantyAlertDays: 30, returnAlertDays: 7,
+      id: 'u1',
+      name: 'Winston',
+      email: 'demo@proofly.test',
+      warrantyAlertDays: 30,
+      returnAlertDays: 7,
     };
   });
 
@@ -41,6 +44,18 @@ describe('Settings', () => {
         },
       },
     });
+
+  // FE-PAGE-36. A window of 1 is a perfectly ordinary setting, and the
+  // sentence that explains the whole screen read "1 days".
+  it('FE-PAGE-36 a window of one day reads as one day', async () => {
+    const wrapper = page();
+
+    await wrapper.get('#returnAlertDays').setValue('1');
+
+    const sentence = wrapper.text();
+    expect(sentence).toContain('1 day before a return window closes');
+    expect(sentence).not.toContain('1 days');
+  });
 
   it('FE-PAGE-26 starts from the windows the account already has', () => {
     const wrapper = page();
