@@ -1,8 +1,19 @@
 <script setup lang="ts">
-import { House, LayoutGrid, LogOut, Plus, ShoppingBag, SlidersHorizontal } from '@lucide/vue';
+import {
+  UserRound,
+  KeyRound,
+  ChevronUp,
+  House,
+  LayoutGrid,
+  LogOut,
+  Plus,
+  ShoppingBag,
+  SlidersHorizontal,
+} from '@lucide/vue';
 import { storeToRefs } from 'pinia';
 import { computed } from 'vue';
 import { RouterLink, useRoute, useRouter } from 'vue-router';
+import RowMenu from './RowMenu.vue';
 import { useAuthStore } from '../stores/auth';
 
 const auth = useAuthStore();
@@ -100,28 +111,66 @@ async function signOut(): Promise<void> {
         </RouterLink>
       </nav>
 
-      <div class="mt-auto flex items-center gap-3 border-t border-border pt-4">
-        <span
-          class="flex size-9 shrink-0 items-center justify-center rounded-full bg-primary-tint font-semibold text-primary"
-          aria-hidden="true"
+      <!-- The avatar that was already here is the trigger: everything about
+           "you" behind one thing to click, rather than a name tag with a lone
+           icon button beside it. -->
+      <div class="mt-auto border-t border-border pt-4">
+        <RowMenu
+          label="Your account"
+          test-id="account-menu"
+          trigger-class="flex w-full min-h-11 cursor-pointer items-center gap-3 rounded-md px-2 py-2 text-left hover:bg-subtle focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-hidden"
         >
-          {{ initial }}
-        </span>
-        <span class="min-w-0 flex-1">
-          <span class="block truncate font-semibold text-fg">{{ user?.name }}</span>
-          <!-- The 240px sidebar truncates a long address; title makes it readable. -->
-          <span :title="user?.email" class="block truncate text-sm text-muted-fg">{{
-            user?.email
-          }}</span>
-        </span>
-        <button
-          type="button"
-          class="flex size-11 cursor-pointer items-center justify-center rounded-md text-muted-fg hover:bg-subtle focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-hidden"
-          @click="signOut"
-        >
-          <LogOut :size="20" aria-hidden="true" />
-          <span class="sr-only">Sign out</span>
-        </button>
+          <template #trigger>
+            <span
+              class="flex size-9 shrink-0 items-center justify-center rounded-full bg-primary-tint font-semibold text-primary"
+              aria-hidden="true"
+            >
+              {{ initial }}
+            </span>
+            <span class="min-w-0 flex-1">
+              <span class="block truncate font-semibold text-fg">{{ user?.name }}</span>
+              <!-- The 240px sidebar truncates a long address; title makes it readable. -->
+              <span :title="user?.email" class="block truncate text-sm text-muted-fg">{{
+                user?.email
+              }}</span>
+            </span>
+            <ChevronUp :size="18" aria-hidden="true" class="shrink-0 text-muted-fg" />
+          </template>
+
+          <RouterLink
+            to="/profile"
+            role="menuitem"
+            class="flex min-h-11 cursor-pointer items-center gap-2 px-3 font-semibold text-fg hover:bg-subtle focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-hidden"
+          >
+            <UserRound :size="16" aria-hidden="true" />
+            View profile
+          </RouterLink>
+          <RouterLink
+            to="/settings"
+            role="menuitem"
+            class="flex min-h-11 cursor-pointer items-center gap-2 px-3 font-semibold text-fg hover:bg-subtle focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-hidden"
+          >
+            <SlidersHorizontal :size="16" aria-hidden="true" />
+            Change settings
+          </RouterLink>
+          <RouterLink
+            to="/settings#password"
+            role="menuitem"
+            class="flex min-h-11 cursor-pointer items-center gap-2 px-3 font-semibold text-fg hover:bg-subtle focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-hidden"
+          >
+            <KeyRound :size="16" aria-hidden="true" />
+            Change password
+          </RouterLink>
+          <button
+            type="button"
+            role="menuitem"
+            class="flex min-h-11 cursor-pointer items-center gap-2 px-3 text-left font-semibold text-fg hover:bg-subtle focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-hidden"
+            @click="signOut"
+          >
+            <LogOut :size="16" aria-hidden="true" />
+            Sign out
+          </button>
+        </RowMenu>
       </div>
     </aside>
 

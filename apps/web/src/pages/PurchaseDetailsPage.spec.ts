@@ -98,6 +98,22 @@ describe('Purchase details', () => {
       expect(panel).toContain('15 May 2026');
     });
 
+    it('FE-PAGE-54 the panel links down to where a service is logged', async () => {
+      const wrapper = await page(DUE);
+
+      const link = wrapper
+        .get('[data-testid="service-panel"]')
+        .findAll('a')
+        .find((a) => /service history/i.test(a.text()));
+
+      // The panel says a service is due; the place to do something about it
+      // is several screens down, so it has to be reachable from here.
+      expect(link?.attributes('href')).toBe('#service-history');
+      expect(wrapper.get('[data-testid="service-history"]').attributes('id')).toBe(
+        'service-history',
+      );
+    });
+
     it('FE-PAGE-47 a date set at purchase says where it came from', async () => {
       const wrapper = await page({
         ...SAMSUNG,

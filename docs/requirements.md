@@ -93,6 +93,13 @@ Email/push reminders, OCR receipt scanning, spending analytics, marketplace inte
 
 **BR-09 Ownership.** Every read and write is scoped by the authenticated user. Another user's resource returns **404**, never 403, so its existence is not revealed.
 
+**BR-15 Changing an email address is verified.** A new address is not written
+until a link sent **to that address** is opened, so an account cannot be
+pointed at an inbox its owner does not control. The request needs the current
+password, the token follows BR-14's rules, and the **old** address is told the
+change was requested — that is how a takeover is noticed. A duplicate address
+is refused at request time.
+
 **BR-13 A password change ends every other session.** Every password write
 stamps `users.password_changed_at`, and the guard refuses any token issued
 before it. The device that made the change is re-issued a cookie, so a user is
@@ -288,6 +295,7 @@ Indexes: purchases(userId), purchases(userId, purchaseDate), attachments(purchas
 | Date | Change | Reason |
 | --- | --- | --- |
 | 27 Oct 2026 | v1.0 locked | Day 1 gate |
+| 2 Nov 2026 | **BR-15 added: a profile page, with a verified email change** (`PATCH /users/me` for the name, `POST /users/me/email` and `/confirm`, table `email_change_tokens`). | Requested. Email is the login identifier and the address a password reset goes to, so writing an unverified one would let a typo — or an attacker with a borrowed session — take an account away from its owner. Verification makes the field safe to offer. |
 | 2 Nov 2026 | **BR-13 and BR-14 added: forgot-password and session invalidation.** New table `password_reset_tokens`, new column `users.password_changed_at`, two public endpoints. P2 "password reset" from §4 moved into scope. | Requested. The MVP had no way back in for anyone who forgot their password, which makes every other account feature moot. Session invalidation comes with it because a reset that leaves old sessions alive does not actually remove an attacker. |
 | 2 Nov 2026 | **BR-12 amended: `scheduled_service_date` added to purchases.** The next service now falls back to a date held on the purchase when no service record carries one. | As first built, the date lived only on a service record — and a service record logs a visit that already happened, with §7 refusing a future service date. So a thing you had never serviced could not be scheduled at all, which is exactly the case that matters: a new motorcycle whose first service is three months out. |
 | 2 Nov 2026 | **BR-12 added: a service record can say when the next service is due** (`next_service_date` on service_records, `service_alert_days` on users, default 14). Adds `nextServiceDate`, `serviceStatus` and `serviceDaysLeft` to the purchase response and `SERVICE` to the dashboard's deadline kinds. No existing rule changes. | Requested after UAT. A warranty tells you when cover ends but not when the thing is next due for a service, which for anything mechanical is the deadline that actually costs money to miss. It reuses BR-03/BR-04 exactly, so it is a third deadline rather than a new mechanism. |

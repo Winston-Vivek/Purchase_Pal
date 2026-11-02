@@ -43,3 +43,13 @@
   --radius-md: 8px;   /* buttons, cards */
   --radius-lg: 12px;  /* modals */
 }
+
+/* A fragment link jumps by default, which is correct but disorienting on a
+   long page. Smooth only when the reader has not asked for less motion
+   (ui-guide §8, NFR-08) — the media query is the guard, so there is no way to
+   enable it for someone who opted out. */
+@media (prefers-reduced-motion: no-preference) {
+  html {
+    scroll-behavior: smooth;
+  }
+}

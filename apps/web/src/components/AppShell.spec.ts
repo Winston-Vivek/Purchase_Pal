@@ -1,6 +1,6 @@
-import { mount } from '@vue/test-utils';
+import { flushPromises, mount } from '@vue/test-utils';
 import { createPinia, setActivePinia } from 'pinia';
-import { beforeEach, describe, expect, it } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { createMemoryHistory, createRouter } from 'vue-router';
 import AppShell from './AppShell.vue';
 import { useAuthStore } from '../stores/auth';
@@ -17,10 +17,17 @@ describe('AppShell', () => {
       { path: '/purchases/new', name: 'purchase-new', component: blank },
       { path: '/purchases/:purchaseId', name: 'purchase-details', component: blank },
       { path: '/settings', name: 'settings', component: blank },
+      { path: '/profile', name: 'profile', component: blank },
+      { path: '/login', name: 'login', component: blank },
     ],
   });
 
   beforeEach(() => setActivePinia(createPinia()));
+
+  // The menu is teleported to the body and outlives the wrapper.
+  afterEach(() => {
+    document.body.innerHTML = '';
+  });
 
   const shell = async (path: string) => {
     useAuthStore().user = {
@@ -77,6 +84,52 @@ describe('AppShell', () => {
     // Dashboard must not light up just because /purchases/p1 is not /dashboard.
     const current = wrapper.findAll('[aria-current="page"]');
     for (const link of current) expect(link.text()).not.toMatch(/dashboard/i);
+  });
+
+  // FE-PAGE-55. Everything about "you" in one place, reachable from every
+  // screen, instead of a name tag with a lone icon button beside it.
+  describe('FE-PAGE-55 the account menu', () => {
+    const openMenu = async (wrapper: Awaited<ReturnType<typeof shell>>) => {
+      await wrapper.get('[data-testid="account-menu"]').trigger('click');
+      return Array.from(
+        document.body.querySelectorAll<HTMLElement>('[role="menu"] [role="menuitem"]'),
+      );
+    };
+
+    it('FE-PAGE-55 offers profile, settings, password and sign out', async () => {
+      const wrapper = await shell('/dashboard');
+
+      const items = await openMenu(wrapper);
+
+      expect(items.map((i) => i.textContent?.trim())).toEqual([
+        'View profile',
+        'Change settings',
+        'Change password',
+        'Sign out',
+      ]);
+    });
+
+    it('FE-PAGE-55 the links go where they say', async () => {
+      const wrapper = await shell('/dashboard');
+
+      const items = await openMenu(wrapper);
+
+      expect(items[0]?.getAttribute('href')).toBe('/profile');
+      expect(items[1]?.getAttribute('href')).toBe('/settings');
+      expect(items[2]?.getAttribute('href')).toBe('/settings#password');
+    });
+
+    it('FE-PAGE-55 sign out still signs you out', async () => {
+      const wrapper = await shell('/dashboard');
+      const auth = useAuthStore();
+      auth.logout = vi.fn().mockResolvedValue(undefined);
+
+      const items = await openMenu(wrapper);
+      items[3]?.click();
+      await flushPromises();
+
+      expect(auth.logout).toHaveBeenCalled();
+    });
   });
 
   it('offers every nav target from ui-guide §5', async () => {

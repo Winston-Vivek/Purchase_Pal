@@ -1,5 +1,14 @@
 <script setup lang="ts">
-import { Download, Pencil, Plus, RotateCcw, ShieldCheck, Trash2, Wrench } from '@lucide/vue';
+import {
+  ArrowDown,
+  Download,
+  Pencil,
+  Plus,
+  RotateCcw,
+  ShieldCheck,
+  Trash2,
+  Wrench,
+} from '@lucide/vue';
 import { computed, onMounted, ref } from 'vue';
 import { RouterLink, useRoute, useRouter } from 'vue-router';
 import { ApiError, api } from '../api/client';
@@ -412,6 +421,17 @@ onMounted(load);
               </template>
               <template v-else>Scheduled when this purchase was added</template>
             </p>
+
+            <!-- The panel says a service is due; the place to do something
+                 about it is several screens down. A plain fragment link, so
+                 it works without JavaScript and lands in the history. -->
+            <a
+              href="#service-history"
+              class="mt-3 inline-flex min-h-11 cursor-pointer items-center gap-1 font-semibold text-primary hover:underline focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-hidden"
+            >
+              Service history
+              <ArrowDown :size="16" aria-hidden="true" />
+            </a>
           </template>
           <p v-else class="mt-4 text-muted-fg">
             No service is scheduled. Add one on a service record to be warned before it is due.
@@ -516,8 +536,9 @@ onMounted(load);
       </section>
 
       <section
+        id="service-history"
         data-testid="service-history"
-        class="mt-6 rounded-md border border-border bg-surface p-4 lg:p-6"
+        class="mt-6 scroll-mt-6 rounded-md border border-border bg-surface p-4 lg:p-6"
       >
         <div class="flex flex-wrap items-center justify-between gap-2">
           <h2 class="font-heading text-lg font-semibold text-fg">Service history</h2>

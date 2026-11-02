@@ -2,7 +2,20 @@
 import { EllipsisVertical } from '@lucide/vue';
 import { nextTick, onBeforeUnmount, ref, watch } from 'vue';
 
-defineProps<{ label: string }>();
+const props = withDefaults(
+  defineProps<{
+    label: string;
+    /** How the menu is found in a test, and told apart on a page with several. */
+    testId?: string;
+    /** Replaces the icon-button styling when the trigger is something else,
+     *  such as the account block in the sidebar. */
+    triggerClass?: string;
+  }>(),
+  { testId: 'row-menu', triggerClass: '' },
+);
+
+const ICON_TRIGGER =
+  'flex size-11 cursor-pointer items-center justify-center rounded-md text-muted-fg hover:bg-subtle focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-hidden';
 
 /** Enough room to show all three items; below this the menu flips above the
  *  trigger rather than hanging off the bottom of the window. */
@@ -115,18 +128,22 @@ onBeforeUnmount(() => {
 
 <template>
   <!-- The click stops here: the row around it navigates on click. -->
-  <div class="inline-flex" @click.stop>
+  <div class="contents" @click.stop>
     <button
       ref="trigger"
       type="button"
-      data-testid="row-menu"
+      :data-testid="props.testId"
       :aria-label="label"
       aria-haspopup="menu"
       :aria-expanded="open ? 'true' : 'false'"
-      class="flex size-11 cursor-pointer items-center justify-center rounded-md text-muted-fg hover:bg-subtle focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-hidden"
+      :class="props.triggerClass === '' ? ICON_TRIGGER : props.triggerClass"
       @click="toggle"
     >
-      <EllipsisVertical :size="20" aria-hidden="true" />
+      <!-- The three dots are the default; a caller with something better to
+           click, like an avatar already on screen, replaces them. -->
+      <slot name="trigger">
+        <EllipsisVertical :size="20" aria-hidden="true" />
+      </slot>
     </button>
 
     <Teleport to="body">
