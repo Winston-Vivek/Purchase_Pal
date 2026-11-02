@@ -440,6 +440,26 @@ describe('Purchases (e2e)', () => {
       expect(after.body.scheduledServiceDate).toBe('2026-11-05');
     });
 
+    it('API-PUR-42 the last service is the newest record, whatever it scheduled', async () => {
+      const id = await buyInJanuary();
+      await service(id, { serviceDate: '2026-01-10', description: 'First' }).expect(201);
+      await service(id, {
+        serviceDate: '2026-10-20',
+        description: 'Second',
+        nextServiceDate: '2027-04-20',
+      }).expect(201);
+
+      const response = await get(id).expect(200);
+
+      expect(response.body.lastServiceDate).toBe('2026-10-20');
+    });
+
+    it('API-PUR-42 a purchase never serviced has no last service', async () => {
+      const id = await buyInJanuary();
+
+      expect((await get(id).expect(200)).body.lastServiceDate).toBeNull();
+    });
+
     it('API-PUR-41 a scheduled service before the purchase is rejected', async () => {
       const response = await request(app.getHttpServer())
         .post('/api/v1/purchases')

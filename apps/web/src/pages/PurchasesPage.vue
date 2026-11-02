@@ -12,6 +12,7 @@ import ConfirmDialog from '../components/ConfirmDialog.vue';
 import RowMenu from '../components/RowMenu.vue';
 import StatusBadge from '../components/StatusBadge.vue';
 import { formatDate, formatMoney } from '../lib/format';
+import { serviceSummary } from '../lib/service-column';
 
 const route = useRoute();
 const router = useRouter();
@@ -360,6 +361,9 @@ watch(() => route.query, load, { deep: true });
                 <th scope="col" class="px-4 py-3 font-semibold">Price</th>
                 <th scope="col" class="px-4 py-3 font-semibold">Return</th>
                 <th scope="col" class="px-4 py-3 font-semibold">Warranty</th>
+                <!-- Hidden below xl: six columns plus actions is more than a
+                     1024px content area holds without squeezing the name. -->
+                <th scope="col" class="hidden px-4 py-3 font-semibold xl:table-cell">Service</th>
                 <th scope="col" class="px-4 py-3 font-semibold">
                   <span class="sr-only">Actions</span>
                 </th>
@@ -407,6 +411,22 @@ watch(() => route.query, load, { deep: true });
                     :days-left="purchase.warrantyDaysLeft"
                     :date="purchase.warrantyExpiry"
                   />
+                </td>
+                <td class="hidden px-4 py-3 xl:table-cell">
+                  <StatusBadge
+                    v-if="serviceSummary(purchase).kind === 'UPCOMING'"
+                    kind="SERVICE"
+                    :status="purchase.serviceStatus"
+                    :days-left="purchase.serviceDaysLeft"
+                    :date="purchase.nextServiceDate"
+                  />
+                  <span
+                    v-else-if="serviceSummary(purchase).kind === 'LAST'"
+                    class="text-sm text-muted-fg tabular-nums"
+                  >
+                    Serviced {{ formatDate(purchase.lastServiceDate) }}
+                  </span>
+                  <span v-else class="text-sm text-muted-fg">No service</span>
                 </td>
                 <td class="px-4 py-3 text-right">
                   <RowMenu :label="`Actions for ${purchase.productName}`" class="ml-auto w-fit">

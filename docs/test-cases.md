@@ -185,6 +185,7 @@ Valid base body: `{ productName: "AirPods Pro (2nd generation)", category: "ELEC
 | API-PUR-39 | Purchase with `scheduledServiceDate` and no service records (BR-12) | That date is the next service, with status and days left from it | P1 | Pass 2026-11-02 |
 | API-PUR-40 | A service record schedules a visit on a purchase that already had a date | The record wins; clearing the record's date falls back to the purchase's | P1 | Pass 2026-11-02 |
 | API-PUR-41 | `scheduledServiceDate` before the purchase date | 400 naming the field | P1 | Pass 2026-11-02 |
+| API-PUR-42 | `lastServiceDate` on a purchase with services | The newest service record's own date; null when there are none | P1 | Pass 2026-11-02 |
 
 ### 2.5 Receipts (`attachments.e2e-spec.ts`) — US-03, BR-06, BR-10
 
@@ -372,6 +373,7 @@ Fixture for A (today 2026-10-27), matching the design mockups:
 | FE-PAGE-56 | Profile | Save a new name | PATCHes the name; the sidebar shows it without a reload | P1 | Pass 2026-11-02 |
 | FE-PAGE-57 | Profile | Ask to change the email (BR-15) | Says to check the NEW address and that the current one still signs in — never that the address has changed | P0 | Pass 2026-11-02 |
 | FE-PAGE-58 | Confirm email | Opening the link | Confirms on arrival, no button to press; a spent link says so | P0 | Pass 2026-11-02 |
+| FE-PAGE-59 | My purchases | Service column | Shows whichever of the last service and the next one due is nearer to today; "No service" when neither exists | P1 | Pass 2026-11-02 |
 
 ---
 

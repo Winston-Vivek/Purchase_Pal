@@ -33,6 +33,7 @@ const AIRPODS: PurchaseResponse = {
   warrantyStatus: 'ACTIVE',
   warrantyDaysLeft: 364,
   scheduledServiceDate: null,
+  lastServiceDate: null,
   nextServiceDate: null,
   serviceStatus: 'NOT_SET',
   serviceDaysLeft: null,

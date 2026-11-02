@@ -28,6 +28,7 @@ export interface PurchaseResponse {
   returnStatus: DeadlineStatus;
   returnDaysLeft: number | null;
   scheduledServiceDate: string | null;
+  lastServiceDate: string | null;
   nextServiceDate: string | null;
   serviceStatus: DeadlineStatus;
   serviceDaysLeft: number | null;

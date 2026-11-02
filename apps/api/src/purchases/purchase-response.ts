@@ -23,6 +23,7 @@ export interface PurchaseResponse {
   returnStatus: DeadlineStatus;
   returnDaysLeft: number | null;
   scheduledServiceDate: string | null;
+  lastServiceDate: string | null;
   nextServiceDate: string | null;
   serviceStatus: DeadlineStatus;
   serviceDaysLeft: number | null;
@@ -57,6 +58,23 @@ export interface PurchaseResponse {
  * by service date, then by when it was recorded, because two services on one
  * day are ordinary.
  */
+/** The most recent service that actually happened. Ordered the same way as
+ *  nextServiceOf, so "last" and "next" never disagree about which record is
+ *  newest. */
+export function lastServiceOf(purchase: Purchase): string | null {
+  const records = purchase.serviceRecords ?? [];
+  if (records.length === 0) return null;
+
+  const newest = records.reduce((latest, record) =>
+    record.serviceDate > latest.serviceDate ||
+    (record.serviceDate === latest.serviceDate && record.createdAt > latest.createdAt)
+      ? record
+      : latest,
+  );
+
+  return newest.serviceDate;
+}
+
 export function nextServiceOf(purchase: Purchase): string | null {
   const scheduled = (purchase.serviceRecords ?? []).filter(
     (record) => record.nextServiceDate !== null,
@@ -123,6 +141,7 @@ export function toPurchaseResponse(
     returnDeadline,
     returnStatus: returned.status,
     returnDaysLeft: returned.daysLeft,
+    lastServiceDate: lastServiceOf(purchase),
     nextServiceDate,
     serviceStatus: dates.status(nextServiceDate, user.serviceAlertDays),
     serviceDaysLeft: dates.daysLeft(nextServiceDate),
