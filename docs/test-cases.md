@@ -140,6 +140,10 @@ Valid base body: `{ productName: "AirPods Pro (2nd generation)", category: "ELEC
 | API-PUR-30 | B: list purchases | Only B's purchases (A's not included) | P0 | Pass 2026-10-28 |
 | API-PUR-31 | DELETE purchase with 2 attachments + 2 service records (Day 4) | Rows gone; stored files gone from disk | P0 | Pass 2026-10-28 |
 | API-PUR-32 | hasReceipt after one upload (Day 4) | true; false again after deleting it | P0 | Pass 2026-10-28 |
+| API-PUR-33 | PATCH `returnClosed: true` on a purchase with an open return (BR-11) | 200; `returnStatus: CLOSED`, `returnDaysLeft: null`; `returnDeadline` unchanged | P1 | Not run |
+| API-PUR-34 | PATCH `returnClosed: false` again | Computed status comes back exactly as it was | P1 | Not run |
+| API-PUR-35 | Closing a return whose deadline has already passed | `CLOSED` wins over `EXPIRED` | P1 | Not run |
+| API-PUR-36 | B closes A's return | 404; A's purchase untouched | P1 | Not run |
 
 ### 2.5 Receipts (`attachments.e2e-spec.ts`) — US-03, BR-06, BR-10
 
@@ -199,6 +203,7 @@ Fixture for A (today 2026-10-27), matching the design mockups:
 | API-DASH-06 | User with returnAlertDays 3 | Nike leaves needsAction; AirPods leaves needsAction | P0 | Pass 2026-10-28 |
 | API-DASH-07 | New user, no purchases | All counts 0, empty lists | P0 | Pass 2026-10-28 |
 | API-DASH-08 | B's dashboard | Counts only from B's purchases | P0 | Pass 2026-10-28 |
+| API-DASH-09 | A closed return that was expiring soon (BR-11) | Drops out of needsAction and out of the open-returns count; the purchase itself is still listed | P1 | Not run |
 
 ### 2.8 Search, filter, sort (`purchases-search.e2e-spec.ts`) — US-10 (P1)
 
@@ -296,6 +301,7 @@ Fixture for A (today 2026-10-27), matching the design mockups:
 | FE-PAGE-35 | Search | Chip for a multi-value filter (`ACTIVE,EXPIRING_SOON`, as the Dashboard links it) | Chip reads "Return: Active or Expiring soon" — never a raw enum with underscores | P1 | Pass 2026-11-02 |
 | FE-PAGE-36 | Settings | Alert window of 1 | Preview reads "1 day", not "1 days" | P2 | Pass 2026-11-02 |
 | FE-PAGE-37 | Details | Category of a HOME_KITCHEN purchase | Header reads "Home & kitchen" — the label the form offered, never the stored value | P1 | Pass 2026-11-02 |
+| FE-PAGE-38 | Details | "Keeping it" on an open return | PATCHes `returnClosed: true`; panel reads Closed and offers to reopen | P1 | Not run |
 
 ---
 

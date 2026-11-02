@@ -190,6 +190,31 @@ describe('Dashboard (e2e)', () => {
     expect(response.body.recentPurchases).toEqual([]);
   });
 
+  it('API-DASH-09 a return closed by hand leaves needs-action and the open count', async () => {
+    await seedDashboard(app, cookie);
+
+    const before = await dashboard().expect(200);
+    const target = before.body.needsAction.find(
+      (item: { kind: string }) => item.kind === 'RETURN',
+    );
+    expect(target).toBeDefined();
+
+    await request(app.getHttpServer())
+      .patch(`/api/v1/purchases/${target.purchaseId}`)
+      .set('Cookie', cookie)
+      .send({ returnClosed: true })
+      .expect(200);
+
+    const after = await dashboard().expect(200);
+
+    expect(after.body.counts.openReturns).toBe(before.body.counts.openReturns - 1);
+    expect(after.body.needsAction.map((i: { purchaseId: string }) => i.purchaseId)).not.toContain(
+      target.purchaseId,
+    );
+    // The purchase itself has not gone anywhere — only the nagging has.
+    expect(after.body.counts.total).toBe(before.body.counts.total);
+  });
+
   it("API-DASH-08 B's dashboard counts only B's purchases", async () => {
     await seedDashboard(app, cookie);
 

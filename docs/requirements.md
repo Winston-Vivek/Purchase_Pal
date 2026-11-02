@@ -93,6 +93,12 @@ Email/push reminders, OCR receipt scanning, spending analytics, marketplace inte
 
 **BR-09 Ownership.** Every read and write is scoped by the authenticated user. Another user's resource returns **404**, never 403, so its existence is not revealed.
 
+**BR-11 Closing a return by hand.** A user can mark a return closed to say they
+are keeping the item. A closed return reports `returnStatus: CLOSED` and
+`returnDaysLeft: null` whatever its deadline says, stops counting as an open
+return, and never appears in Needs action or Recently expired. Reopening it
+restores the computed status — the deadline itself is never altered.
+
 **BR-10 Uploads.** PDF, JPEG, PNG, WEBP only (checked by MIME and file signature); max 5 MB per file; max 5 files per purchase. Files stored outside any public folder under a random storage key.
 
 ## 7. Validation rules
@@ -251,4 +257,5 @@ Indexes: purchases(userId), purchases(userId, purchaseDate), attachments(purchas
 | Date | Change | Reason |
 | --- | --- | --- |
 | 27 Oct 2026 | v1.0 locked | Day 1 gate |
+| 2 Nov 2026 | **BR-11 added: a return can be closed by hand** (`return_closed` on purchases, `returnClosed` on PATCH). Adds `CLOSED` to the return status values in §9. No existing rule changes; the deadline is still computed exactly as BR-02 says and is never overwritten. | Requested after UAT. A user who has decided to keep an item has no way to stop Proofly counting it as an open return and nagging about it in Needs action, so the dashboard keeps showing work that is already done. |
 | 28 Oct 2026 | **D-03 changed: Prisma → TypeORM.** No change to the data model (§10), the API contract (§9), any business rule or P0 scope — only the library that talks to Postgres. | The `nestjs-best-practices` skill the project is built against is TypeORM-specific: 7 of its rules (`db-use-migrations`, `db-use-transactions`, `db-avoid-n-plus-one`, `arch-feature-modules`, `devops-use-config-module`, `perf-optimize-database`, `micro-use-health-checks`) are written in TypeORM and none mention Prisma, so following them under Prisma would mean translating every database rule by hand. Made on Day 3 while only the setup slice touched the database and no feature code existed, which is the cheapest point it could be done. `synchronize` stays `false` in every environment; migrations only. |

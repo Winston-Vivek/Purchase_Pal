@@ -320,6 +320,74 @@ describe('Purchases (e2e)', () => {
     });
   });
 
+  // -------------------------------------------- BR-11 closing a return ----
+  describe('BR-11 a return closed by hand', () => {
+    const patch = (id: string, body: object, as = cookie) =>
+      request(app.getHttpServer()).patch(`/api/v1/purchases/${id}`).set('Cookie', as).send(body);
+
+    it('API-PUR-33 closing a return reports CLOSED and stops the countdown', async () => {
+      const created = await create().expect(201);
+      expect(created.body.returnStatus).toBe('EXPIRING_SOON');
+      expect(created.body.returnDaysLeft).toBe(7);
+
+      const closed = await patch(created.body.id, { returnClosed: true }).expect(200);
+
+      expect(closed.body.returnStatus).toBe('CLOSED');
+      expect(closed.body.returnDaysLeft).toBeNull();
+      // The deadline itself is a fact about the purchase and is never rewritten.
+      expect(closed.body.returnDeadline).toBe(created.body.returnDeadline);
+    });
+
+    it('API-PUR-34 reopening it restores the computed status exactly', async () => {
+      const created = await create().expect(201);
+      await patch(created.body.id, { returnClosed: true }).expect(200);
+
+      const reopened = await patch(created.body.id, { returnClosed: false }).expect(200);
+
+      expect(reopened.body.returnStatus).toBe(created.body.returnStatus);
+      expect(reopened.body.returnDaysLeft).toBe(created.body.returnDaysLeft);
+    });
+
+    it('API-PUR-35 CLOSED wins over an expired deadline', async () => {
+      const created = await request(app.getHttpServer())
+        .post('/api/v1/purchases')
+        .set('Cookie', cookie)
+        .send({ ...BASE, purchaseDate: '2026-09-01', returnWindowDays: 7 })
+        .expect(201);
+      expect(created.body.returnStatus).toBe('EXPIRED');
+
+      const closed = await patch(created.body.id, { returnClosed: true }).expect(200);
+
+      expect(closed.body.returnStatus).toBe('CLOSED');
+      expect(closed.body.returnDaysLeft).toBeNull();
+    });
+
+    it("API-PUR-36 B cannot close A's return", async () => {
+      const created = await create().expect(201);
+      const { cookie: bCookie } = await signUp(app, { email: 'b-closes@proofly.test' });
+
+      await patch(created.body.id, { returnClosed: true }, bCookie).expect(404);
+
+      const mine = await request(app.getHttpServer())
+        .get(`/api/v1/purchases/${created.body.id}`)
+        .set('Cookie', cookie)
+        .expect(200);
+      expect(mine.body.returnStatus).toBe('EXPIRING_SOON');
+    });
+
+    it('API-PUR-33 a closed return can still be found by filtering for it', async () => {
+      const created = await create().expect(201);
+      await patch(created.body.id, { returnClosed: true }).expect(200);
+
+      const response = await request(app.getHttpServer())
+        .get('/api/v1/purchases?returnStatus=CLOSED')
+        .set('Cookie', cookie)
+        .expect(200);
+
+      expect(response.body.items.map((p: { id: string }) => p.id)).toEqual([created.body.id]);
+    });
+  });
+
   // --------------------------------------------------- BR-08 cascade ------
   describe('BR-08 cascade', () => {
     const upload = (purchaseId: string) =>
