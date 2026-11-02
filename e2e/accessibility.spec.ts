@@ -301,4 +301,34 @@ test.describe('Non-functional checks', () => {
       expect(escapees, `at ${width}px`).toEqual([]);
     }
   });
+
+  // NFR-14. The table card is overflow-hidden so its corners stay rounded,
+  // which quietly clipped the row menu: on the last row only "View" survived.
+  test('NFR-14 the row menu is never clipped, including on the last row', async ({
+    page,
+    context,
+  }) => {
+    await signIn(context);
+    await page.setViewportSize({ width: 1280, height: 720 });
+    await page.goto('/purchases');
+    await page.waitForLoadState('networkidle');
+
+    const triggers = page.getByTestId('row-menu');
+    const last = (await triggers.count()) - 1;
+    expect(last, 'needs at least one purchase to open a menu on').toBeGreaterThanOrEqual(0);
+
+    for (const index of [0, last]) {
+      await triggers.nth(index).click();
+      const menu = page.locator('[role="menu"]');
+      await expect(menu).toBeVisible();
+
+      // Every item is reachable, not just the first one that happened to fit.
+      await expect(menu.getByRole('menuitem')).toHaveCount(3);
+      for (const item of await menu.getByRole('menuitem').all()) {
+        await expect(item).toBeInViewport({ ratio: 1 });
+      }
+
+      await page.keyboard.press('Escape');
+    }
+  });
 });

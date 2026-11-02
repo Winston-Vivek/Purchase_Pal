@@ -50,7 +50,12 @@ describe('My purchases', () => {
     push.mockReset();
   });
 
-  afterEach(() => vi.unstubAllGlobals());
+  afterEach(() => {
+    vi.unstubAllGlobals();
+    // Teleported content (the row menu, the confirm dialog) outlives an
+    // unmounted wrapper, and a leftover menu makes the next test read two.
+    document.body.innerHTML = '';
+  });
 
   const page = () =>
     mount(PurchasesPage, {
@@ -72,6 +77,10 @@ describe('My purchases', () => {
       fetchMock.mockResolvedValue(json(200, { items, total: items.length, page: 1, pageSize: 20 }));
 
     const rows = (wrapper: ReturnType<typeof page>) => wrapper.findAll('tbody tr');
+
+    /** The row menu is teleported to the body, so it is read from there. */
+    const openMenuItems = (): HTMLElement[] =>
+      Array.from(document.body.querySelectorAll<HTMLElement>('[role="menu"] [role="menuitem"]'));
 
     /** Indexing is checked, so a shorter list fails here and not three lines
      *  later with "cannot read properties of undefined". */
@@ -108,10 +117,8 @@ describe('My purchases', () => {
       await flushPromises();
 
       await row(wrapper, 0).get('[data-testid="row-menu"]').trigger('click');
-      const labels = row(wrapper, 0)
-        .get('[role="menu"]')
-        .findAll('[role="menuitem"]')
-        .map((item) => item.text());
+      // Teleported out of the table so the card cannot clip it (NFR-14).
+      const labels = openMenuItems().map((item) => item.textContent?.trim());
 
       expect(labels).toEqual(['View', 'Edit', 'Delete']);
     });
@@ -122,11 +129,8 @@ describe('My purchases', () => {
       await flushPromises();
 
       await row(wrapper, 1).get('[data-testid="row-menu"]').trigger('click');
-      const remove = row(wrapper, 1)
-        .get('[role="menu"]')
-        .findAll('[role="menuitem"]')
-        .find((item) => item.text() === 'Delete');
-      await remove!.trigger('click');
+      const remove = openMenuItems().find((item) => item.textContent?.trim() === 'Delete');
+      remove!.click();
       await flushPromises();
 
       // Nothing is sent until the question is answered (ui-guide §7).

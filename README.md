@@ -194,4 +194,4 @@ failing run, then `feat(...)` with it passing.
 
 ## Licence
 
-Unlicensed — built as a challenge submission.
+Unlicensed

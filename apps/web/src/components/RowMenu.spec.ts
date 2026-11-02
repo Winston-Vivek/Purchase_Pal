@@ -1,8 +1,13 @@
 import { mount } from '@vue/test-utils';
-import { describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it } from 'vitest';
 import RowMenu from './RowMenu.vue';
 
-/** FE-CMP-19 from docs/test-cases.md §3.2. */
+/**
+ * FE-CMP-19 from docs/test-cases.md §3.2.
+ *
+ * The menu is teleported to the body (NFR-14), so it is queried there rather
+ * than through the wrapper — the same way the dialog tests work.
+ */
 describe('RowMenu', () => {
   const menu = () =>
     mount(RowMenu, {
@@ -13,6 +18,14 @@ describe('RowMenu', () => {
       },
     });
 
+  const list = () => document.body.querySelector('[role="menu"]');
+  const menuItems = () =>
+    Array.from(list()?.querySelectorAll<HTMLElement>('[role="menuitem"]') ?? []);
+
+  afterEach(() => {
+    document.body.innerHTML = '';
+  });
+
   it('FE-CMP-19 starts closed, and says so', () => {
     const wrapper = menu();
     const trigger = wrapper.get('button');
@@ -21,7 +34,7 @@ describe('RowMenu', () => {
     expect(trigger.attributes('aria-haspopup')).toBe('menu');
     // The three dots are a picture; the name is for everyone else.
     expect(trigger.attributes('aria-label')).toBe('Actions for AirPods Pro');
-    expect(wrapper.find('[role="menu"]').exists()).toBe(false);
+    expect(list()).toBeNull();
   });
 
   it('FE-CMP-19 opening focuses the first item', async () => {
@@ -30,7 +43,7 @@ describe('RowMenu', () => {
     await wrapper.get('button').trigger('click');
 
     expect(wrapper.get('button').attributes('aria-expanded')).toBe('true');
-    expect(wrapper.find('[role="menu"]').exists()).toBe(true);
+    expect(list()).not.toBeNull();
     expect(document.activeElement?.textContent).toBe('View');
   });
 
@@ -38,14 +51,16 @@ describe('RowMenu', () => {
     const wrapper = menu();
     await wrapper.get('button').trigger('click');
 
-    const list = wrapper.get('[role="menu"]');
-    await list.trigger('keydown', { key: 'ArrowDown' });
+    const press = (key: string) =>
+      list()!.dispatchEvent(new KeyboardEvent('keydown', { key, bubbles: true }));
+
+    press('ArrowDown');
     expect(document.activeElement?.textContent).toBe('Edit');
 
-    await list.trigger('keydown', { key: 'ArrowDown' });
+    press('ArrowDown');
     expect(document.activeElement?.textContent).toBe('View');
 
-    await list.trigger('keydown', { key: 'ArrowUp' });
+    press('ArrowUp');
     expect(document.activeElement?.textContent).toBe('Edit');
   });
 
@@ -53,9 +68,10 @@ describe('RowMenu', () => {
     const wrapper = menu();
     await wrapper.get('button').trigger('click');
 
-    await wrapper.get('[role="menu"]').trigger('keydown', { key: 'Escape' });
+    list()!.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
+    await wrapper.vm.$nextTick();
 
-    expect(wrapper.find('[role="menu"]').exists()).toBe(false);
+    expect(list()).toBeNull();
     // Losing focus to the page body after Esc strands a keyboard user.
     expect(document.activeElement).toBe(wrapper.get('button').element);
   });
@@ -64,9 +80,9 @@ describe('RowMenu', () => {
     const wrapper = menu();
     await wrapper.get('button').trigger('click');
 
-    const second = wrapper.get('[role="menu"]').findAll('button')[1];
-    await second!.trigger('click');
+    menuItems()[1]!.click();
+    await wrapper.vm.$nextTick();
 
-    expect(wrapper.find('[role="menu"]').exists()).toBe(false);
+    expect(list()).toBeNull();
   });
 });

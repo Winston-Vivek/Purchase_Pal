@@ -4,12 +4,38 @@ import { nextTick, onBeforeUnmount, ref, watch } from 'vue';
 
 defineProps<{ label: string }>();
 
+/** Enough room to show all three items; below this the menu flips above the
+ *  trigger rather than hanging off the bottom of the window. */
+const ESTIMATED_HEIGHT = 150;
+const GAP = 4;
+
 const open = ref(false);
 const trigger = ref<HTMLButtonElement | null>(null);
 const list = ref<HTMLElement | null>(null);
+const position = ref({ top: 0, right: 0 });
 
 const items = (): HTMLElement[] =>
   Array.from(list.value?.querySelectorAll<HTMLElement>('[role="menuitem"]') ?? []);
+
+/**
+ * Positions the menu against the trigger in viewport coordinates.
+ *
+ * It is rendered at the end of <body>, not beside the button: the table card
+ * is overflow-hidden so its corners stay rounded, and that quietly clipped
+ * the menu — on the last row only the first item survived (NFR-14).
+ */
+function place(): void {
+  const box = trigger.value?.getBoundingClientRect();
+  if (!box) return;
+
+  const below = window.innerHeight - box.bottom;
+  const flip = below < ESTIMATED_HEIGHT && box.top > below;
+
+  position.value = {
+    top: flip ? box.top - ESTIMATED_HEIGHT - GAP : box.bottom + GAP,
+    right: window.innerWidth - box.right,
+  };
+}
 
 function close(restoreFocus = true): void {
   if (!open.value) return;
@@ -49,24 +75,47 @@ function onDocumentPointerDown(event: Event): void {
   close(false);
 }
 
+/** Fixed coordinates go stale the moment anything scrolls, so they are
+ *  recomputed rather than left pointing at where the row used to be. */
+function onViewportChange(): void {
+  place();
+}
+
+function toggle(): void {
+  if (open.value) {
+    close();
+    return;
+  }
+
+  place();
+  open.value = true;
+}
+
 watch(open, async (isOpen) => {
   if (!isOpen) {
     document.removeEventListener('pointerdown', onDocumentPointerDown, true);
+    window.removeEventListener('scroll', onViewportChange, true);
+    window.removeEventListener('resize', onViewportChange);
     return;
   }
 
   document.addEventListener('pointerdown', onDocumentPointerDown, true);
+  window.addEventListener('scroll', onViewportChange, true);
+  window.addEventListener('resize', onViewportChange);
   await nextTick();
   items()[0]?.focus();
 });
 
-onBeforeUnmount(() => document.removeEventListener('pointerdown', onDocumentPointerDown, true));
+onBeforeUnmount(() => {
+  document.removeEventListener('pointerdown', onDocumentPointerDown, true);
+  window.removeEventListener('scroll', onViewportChange, true);
+  window.removeEventListener('resize', onViewportChange);
+});
 </script>
 
 <template>
-  <!-- `relative` so the menu is positioned against the button, and the click
-       stops here: the row around it navigates on click. -->
-  <div class="relative" @click.stop>
+  <!-- The click stops here: the row around it navigates on click. -->
+  <div class="inline-flex" @click.stop>
     <button
       ref="trigger"
       type="button"
@@ -75,21 +124,24 @@ onBeforeUnmount(() => document.removeEventListener('pointerdown', onDocumentPoin
       aria-haspopup="menu"
       :aria-expanded="open ? 'true' : 'false'"
       class="flex size-11 cursor-pointer items-center justify-center rounded-md text-muted-fg hover:bg-subtle focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-hidden"
-      @click="open = !open"
+      @click="toggle"
     >
       <EllipsisVertical :size="20" aria-hidden="true" />
     </button>
 
-    <div
-      v-if="open"
-      ref="list"
-      role="menu"
-      :aria-label="label"
-      class="absolute right-0 z-20 mt-1 flex min-w-40 flex-col rounded-md border border-border bg-surface py-1 shadow-sm"
-      @keydown="onKeydown"
-      @click="close(false)"
-    >
-      <slot />
-    </div>
+    <Teleport to="body">
+      <div
+        v-if="open"
+        ref="list"
+        role="menu"
+        :aria-label="label"
+        :style="{ top: `${position.top}px`, right: `${position.right}px` }"
+        class="fixed z-50 flex min-w-40 flex-col rounded-md border border-border bg-surface py-1 shadow-sm"
+        @keydown="onKeydown"
+        @click="close(false)"
+      >
+        <slot />
+      </div>
+    </Teleport>
   </div>
 </template>
