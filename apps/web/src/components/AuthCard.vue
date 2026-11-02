@@ -11,7 +11,7 @@ defineProps<{ title: string }>();
         <span class="flex size-9 items-center justify-center rounded-md bg-primary text-white">
           <LayoutGrid :size="20" aria-hidden="true" />
         </span>
-        <span class="font-heading text-xl font-semibold text-fg">Proofly</span>
+        <span class="font-heading text-xl font-semibold text-fg">Purchase Tracker</span>
       </div>
       <p class="mt-2 text-muted-fg">Every receipt, return and warranty in one place.</p>
 

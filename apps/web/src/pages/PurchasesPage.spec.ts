@@ -73,12 +73,20 @@ describe('My purchases', () => {
 
     const rows = (wrapper: ReturnType<typeof page>) => wrapper.findAll('tbody tr');
 
+    /** Indexing is checked, so a shorter list fails here and not three lines
+     *  later with "cannot read properties of undefined". */
+    const row = (wrapper: ReturnType<typeof page>, index: number) => {
+      const found = rows(wrapper)[index];
+      if (!found) throw new Error(`no row at ${index}`);
+      return found;
+    };
+
     it('FE-PAGE-42 clicking a row opens that purchase', async () => {
       listed();
       const wrapper = page();
       await flushPromises();
 
-      await rows(wrapper)[1].trigger('click');
+      await row(wrapper, 1).trigger('click');
 
       expect(push).toHaveBeenCalledWith('/purchases/p2');
     });
@@ -89,7 +97,7 @@ describe('My purchases', () => {
       await flushPromises();
 
       // The menu button lives in the row; opening it must not also navigate.
-      await rows(wrapper)[0].get('[data-testid="row-menu"]').trigger('click');
+      await row(wrapper, 0).get('[data-testid="row-menu"]').trigger('click');
 
       expect(push).not.toHaveBeenCalledWith('/purchases/p1');
     });
@@ -99,8 +107,8 @@ describe('My purchases', () => {
       const wrapper = page();
       await flushPromises();
 
-      await rows(wrapper)[0].get('[data-testid="row-menu"]').trigger('click');
-      const labels = rows(wrapper)[0]
+      await row(wrapper, 0).get('[data-testid="row-menu"]').trigger('click');
+      const labels = row(wrapper, 0)
         .get('[role="menu"]')
         .findAll('[role="menuitem"]')
         .map((item) => item.text());
@@ -113,8 +121,8 @@ describe('My purchases', () => {
       const wrapper = page();
       await flushPromises();
 
-      await rows(wrapper)[1].get('[data-testid="row-menu"]').trigger('click');
-      const remove = rows(wrapper)[1]
+      await row(wrapper, 1).get('[data-testid="row-menu"]').trigger('click');
+      const remove = row(wrapper, 1)
         .get('[role="menu"]')
         .findAll('[role="menuitem"]')
         .find((item) => item.text() === 'Delete');
@@ -125,9 +133,16 @@ describe('My purchases', () => {
       expect(fetchMock.mock.calls.some(([, init]) => init?.method === 'DELETE')).toBe(false);
       expect(wrapper.text()).toContain('Dell XPS 13');
 
-      fetchMock.mockResolvedValueOnce(json(204, null));
+      // The dialog is teleported, so it lives on the body, not in the wrapper.
+      const dialog = document.body.querySelector('[role="dialog"]');
+      expect(dialog?.textContent).toContain('Dell XPS 13');
+
+      fetchMock.mockResolvedValueOnce(new Response(null, { status: 204 }));
       listed([AIRPODS]);
-      await wrapper.get('[data-testid="confirm-delete"]').trigger('click');
+      const confirm = Array.from(dialog!.querySelectorAll('button')).find((b) =>
+        /delete purchase/i.test(b.textContent ?? ''),
+      );
+      confirm!.click();
       await flushPromises();
 
       const sent = fetchMock.mock.calls.find(([, init]) => init?.method === 'DELETE');
@@ -241,7 +256,9 @@ describe('My purchases', () => {
     const wrapper = page();
     await flushPromises();
 
-    fetchMock.mockResolvedValueOnce(json(200, { items: [AIRPODS], total: 1, page: 1, pageSize: 20 }));
+    fetchMock.mockResolvedValueOnce(
+      json(200, { items: [AIRPODS], total: 1, page: 1, pageSize: 20 }),
+    );
     // By name, not by position: the search form now renders a button first.
     const retry = wrapper.findAll('button').find((b) => /try again/i.test(b.text()));
     await retry?.trigger('click');

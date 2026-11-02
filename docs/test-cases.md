@@ -261,7 +261,7 @@ Fixture for A (today 2026-10-27), matching the design mockups:
 | FE-CMP-16 | Skeleton | loading | aria-busy on the region | P1 | Pass 2026-10-29 |
 | FE-CMP-17 | StatusBadge | Return with status CLOSED (BR-11) | Reads "Keeping it" in a neutral tone — never confused with an expired window's "Return closed <date>" | P1 | Pass 2026-11-02 |
 | FE-CMP-18 | BaseButton | Button with an icon and a label | Icon and label sit on one line — Tailwind Preflight makes `svg` display:block, which breaks them apart inside an inline wrapper | P1 | Pass 2026-11-02 |
-| FE-CMP-19 | RowMenu | Keyboard | Opens on Enter with the first item focused; arrows move; Esc closes and returns focus to the trigger | P1 | Not run |
+| FE-CMP-19 | RowMenu | Keyboard | Opens on Enter with the first item focused; arrows move; Esc closes and returns focus to the trigger | P1 | Pass 2026-11-02 |
 
 ## 4. Frontend pages (`apps/web/src/pages/**/*.spec.ts`)
 
@@ -308,9 +308,9 @@ Fixture for A (today 2026-10-27), matching the design mockups:
 | FE-PAGE-39 | Details | Reopen on a closed return | PATCHes `returnClosed: false`; the countdown comes back | P1 | Pass 2026-11-02 |
 | FE-PAGE-40 | Add purchase | "Starts on the purchase date" ticked | Warranty start follows the purchase date, including when that date is changed afterwards; the date field is not editable while ticked | P1 | Pass 2026-11-02 |
 | FE-PAGE-41 | Edit purchase | Warranty start differs from the purchase date | Checkbox starts unticked and the entered start date is kept | P1 | Pass 2026-11-02 |
-| FE-PAGE-42 | My purchases | Click anywhere in a table row | Opens that purchase; the name link still works on its own | P1 | Not run |
-| FE-PAGE-43 | My purchases | Row menu (3 dots) | Offers View, Edit and Delete for that row; opening it does not navigate | P1 | Not run |
-| FE-PAGE-44 | My purchases | Delete from the row menu | Asks first; on confirm sends DELETE and the row leaves the list | P1 | Not run |
+| FE-PAGE-42 | My purchases | Click anywhere in a table row | Opens that purchase; the name link still works on its own | P1 | Pass 2026-11-02 |
+| FE-PAGE-43 | My purchases | Row menu (3 dots) | Offers View, Edit and Delete for that row; opening it does not navigate | P1 | Pass 2026-11-02 |
+| FE-PAGE-44 | My purchases | Delete from the row menu | Asks first; on confirm sends DELETE and the row leaves the list | P1 | Pass 2026-11-02 |
 
 ---
 

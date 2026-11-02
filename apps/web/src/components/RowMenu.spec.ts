@@ -64,7 +64,8 @@ describe('RowMenu', () => {
     const wrapper = menu();
     await wrapper.get('button').trigger('click');
 
-    await wrapper.get('[role="menu"]').findAll('button')[1].trigger('click');
+    const second = wrapper.get('[role="menu"]').findAll('button')[1];
+    await second!.trigger('click');
 
     expect(wrapper.find('[role="menu"]').exists()).toBe(false);
   });

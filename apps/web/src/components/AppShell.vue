@@ -54,7 +54,9 @@ async function signOut(): Promise<void> {
           <span class="flex size-8 items-center justify-center rounded-md bg-primary text-white">
             <LayoutGrid :size="18" aria-hidden="true" />
           </span>
-          <span class="font-heading text-lg font-semibold text-fg">Proofly</span>
+          <span class="font-heading text-base font-semibold whitespace-nowrap text-fg"
+            >Purchase Tracker</span
+          >
         </a>
       </RouterLink>
 
@@ -132,7 +134,9 @@ async function signOut(): Promise<void> {
           <span class="flex size-8 items-center justify-center rounded-md bg-primary text-white">
             <LayoutGrid :size="18" aria-hidden="true" />
           </span>
-          <span class="font-heading text-lg font-semibold text-fg">Proofly</span>
+          <span class="font-heading text-base font-semibold whitespace-nowrap text-fg"
+            >Purchase Tracker</span
+          >
         </a>
       </RouterLink>
       <span

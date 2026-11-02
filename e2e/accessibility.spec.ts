@@ -254,7 +254,7 @@ test.describe('Non-functional checks', () => {
       await page.waitForLoadState('networkidle');
 
       const title = await page.title();
-      expect(title, `${path} has no useful title`).toMatch(/Proofly/);
+      expect(title, `${path} has no useful title`).toMatch(/Purchase Tracker/);
       seen.add(title);
 
       await expect(page.locator('h1'), `${path} should have exactly one h1`).toHaveCount(1);

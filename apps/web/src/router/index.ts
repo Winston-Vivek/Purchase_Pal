@@ -14,49 +14,49 @@ const routes: RouteRecordRaw[] = [
     path: '/login',
     name: 'login',
     component: () => import('../pages/LoginPage.vue'),
-    meta: { public: true, title: 'Sign in · Proofly' },
+    meta: { public: true, title: 'Sign in · Purchase Tracker' },
   },
   {
     path: '/register',
     name: 'register',
     component: () => import('../pages/RegisterPage.vue'),
-    meta: { public: true, title: 'Create account · Proofly' },
+    meta: { public: true, title: 'Create account · Purchase Tracker' },
   },
   {
     path: '/dashboard',
     name: 'dashboard',
     component: () => import('../pages/DashboardPage.vue'),
-    meta: { title: 'Dashboard · Proofly' },
+    meta: { title: 'Dashboard · Purchase Tracker' },
   },
   {
     path: '/purchases',
     name: 'purchases',
     component: () => import('../pages/PurchasesPage.vue'),
-    meta: { title: 'My purchases · Proofly' },
+    meta: { title: 'My purchases · Purchase Tracker' },
   },
   {
     path: '/purchases/new',
     name: 'purchase-new',
     component: () => import('../pages/PurchaseFormPage.vue'),
-    meta: { title: 'Add purchase · Proofly' },
+    meta: { title: 'Add purchase · Purchase Tracker' },
   },
   {
     path: '/purchases/:purchaseId',
     name: 'purchase-details',
     component: () => import('../pages/PurchaseDetailsPage.vue'),
-    meta: { title: 'Purchase · Proofly' },
+    meta: { title: 'Purchase · Purchase Tracker' },
   },
   {
     path: '/purchases/:purchaseId/edit',
     name: 'purchase-edit',
     component: () => import('../pages/PurchaseFormPage.vue'),
-    meta: { title: 'Edit purchase · Proofly' },
+    meta: { title: 'Edit purchase · Purchase Tracker' },
   },
   {
     path: '/settings',
     name: 'settings',
     component: () => import('../pages/SettingsPage.vue'),
-    meta: { title: 'Settings · Proofly' },
+    meta: { title: 'Settings · Purchase Tracker' },
   },
 ];
 
@@ -100,7 +100,7 @@ function installGuards(router: Router): void {
   // ui-guide §8: the title says which screen you are on.
   router.afterEach((to) => {
     const title = to.meta.title;
-    document.title = typeof title === 'string' ? title : 'Proofly';
+    document.title = typeof title === 'string' ? title : 'Purchase Tracker';
   });
 }
 

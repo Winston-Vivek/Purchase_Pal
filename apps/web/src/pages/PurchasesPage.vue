@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { X } from '@lucide/vue';
+import { Eye, Pencil, Trash2, X } from '@lucide/vue';
 import { computed, onMounted, ref, watch } from 'vue';
 import { RouterLink, useRoute, useRouter } from 'vue-router';
 import { ApiError, api } from '../api/client';
@@ -8,6 +8,8 @@ import AppShell from '../components/AppShell.vue';
 import BaseButton from '../components/BaseButton.vue';
 import EmptyState from '../components/EmptyState.vue';
 import SkeletonBlock from '../components/SkeletonBlock.vue';
+import ConfirmDialog from '../components/ConfirmDialog.vue';
+import RowMenu from '../components/RowMenu.vue';
 import StatusBadge from '../components/StatusBadge.vue';
 import { formatDate, formatMoney } from '../lib/format';
 
@@ -128,6 +130,42 @@ const showing = computed(() => {
 });
 
 const lastPage = computed(() => Math.max(1, Math.ceil(total.value / pageSize.value)));
+
+/**
+ * Opening a purchase from anywhere in its row.
+ *
+ * The product name stays a real link — that is the keyboard and
+ * screen-reader path, and the one that supports open-in-new-tab. This is the
+ * mouse convenience on top, so it must ignore clicks that belong to the
+ * controls sitting inside the row.
+ */
+function openRow(event: MouseEvent, id: string): void {
+  const target = event.target as HTMLElement | null;
+  if (target?.closest('a, button, [role="menu"]')) return;
+
+  void router.push(`/purchases/${id}`);
+}
+
+const pendingDelete = ref<PurchaseResponse | null>(null);
+const deleteError = ref<string | null>(null);
+
+async function confirmDelete(): Promise<void> {
+  const target = pendingDelete.value;
+  if (!target) return;
+
+  pendingDelete.value = null;
+  deleteError.value = null;
+
+  try {
+    await api(`/purchases/${target.id}`, { method: 'DELETE' });
+    // Reloaded rather than spliced locally: the page, the total and the
+    // paging all have to agree, and the server is what knows.
+    await load();
+  } catch (failure) {
+    deleteError.value =
+      failure instanceof ApiError ? failure.message : 'Could not delete that purchase.';
+  }
+}
 
 async function load(): Promise<void> {
   loading.value = true;
@@ -268,7 +306,7 @@ watch(() => route.query, load, { deep: true });
       <EmptyState
         v-else-if="items.length === 0"
         message="No purchases yet"
-        detail="Record what you buy and Proofly keeps the receipt, the return window and the warranty together."
+        detail="Record what you buy and Purchase Tracker keeps the receipt, the return window and the warranty together."
       >
         <template #action>
           <RouterLink
@@ -322,13 +360,17 @@ watch(() => route.query, load, { deep: true });
                 <th scope="col" class="px-4 py-3 font-semibold">Price</th>
                 <th scope="col" class="px-4 py-3 font-semibold">Return</th>
                 <th scope="col" class="px-4 py-3 font-semibold">Warranty</th>
+                <th scope="col" class="px-4 py-3 font-semibold">
+                  <span class="sr-only">Actions</span>
+                </th>
               </tr>
             </thead>
             <tbody>
               <tr
                 v-for="purchase in items"
                 :key="purchase.id"
-                class="border-t border-border hover:bg-subtle"
+                class="cursor-pointer border-t border-border hover:bg-subtle"
+                @click="openRow($event, purchase.id)"
               >
                 <td class="px-4 py-3">
                   <RouterLink
@@ -366,6 +408,35 @@ watch(() => route.query, load, { deep: true });
                     :date="purchase.warrantyExpiry"
                   />
                 </td>
+                <td class="px-4 py-3 text-right">
+                  <RowMenu :label="`Actions for ${purchase.productName}`" class="ml-auto w-fit">
+                    <RouterLink
+                      :to="`/purchases/${purchase.id}`"
+                      role="menuitem"
+                      class="flex min-h-11 cursor-pointer items-center gap-2 px-3 font-semibold text-fg hover:bg-subtle focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-hidden"
+                    >
+                      <Eye :size="16" aria-hidden="true" />
+                      View
+                    </RouterLink>
+                    <RouterLink
+                      :to="`/purchases/${purchase.id}/edit`"
+                      role="menuitem"
+                      class="flex min-h-11 cursor-pointer items-center gap-2 px-3 font-semibold text-fg hover:bg-subtle focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-hidden"
+                    >
+                      <Pencil :size="16" aria-hidden="true" />
+                      Edit
+                    </RouterLink>
+                    <button
+                      type="button"
+                      role="menuitem"
+                      class="flex min-h-11 cursor-pointer items-center gap-2 px-3 text-left font-semibold text-danger hover:bg-bad-bg focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-hidden"
+                      @click="pendingDelete = purchase"
+                    >
+                      <Trash2 :size="16" aria-hidden="true" />
+                      Delete
+                    </button>
+                  </RowMenu>
+                </td>
               </tr>
             </tbody>
           </table>
@@ -397,5 +468,18 @@ watch(() => route.query, load, { deep: true });
         </nav>
       </template>
     </div>
+
+    <ConfirmDialog
+      :open="pendingDelete !== null"
+      :title="`Delete ${pendingDelete?.productName ?? 'this purchase'}?`"
+      body="Its receipts and service history go with it. You cannot undo this."
+      confirm-label="Delete purchase"
+      @cancel="pendingDelete = null"
+      @confirm="confirmDelete"
+    />
+
+    <p v-if="deleteError" role="alert" class="mt-4 font-semibold text-danger">
+      {{ deleteError }}
+    </p>
   </AppShell>
 </template>

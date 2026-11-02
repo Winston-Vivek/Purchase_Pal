@@ -154,7 +154,7 @@ onMounted(load);
         v-if="summary.counts.total === 0"
         class="mt-6"
         message="Add your first purchase"
-        detail="Record what you buy and Proofly keeps the receipt, the return window and the warranty together."
+        detail="Record what you buy and Purchase Tracker keeps the receipt, the return window and the warranty together."
       >
         <template #action>
           <RouterLink

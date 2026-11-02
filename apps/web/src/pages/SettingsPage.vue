@@ -38,7 +38,7 @@ function window_(value: string): string {
 
 const preview = computed(
   () =>
-    `Proofly will warn you ${window_(returnAlertDays.value)} before a return window closes, and ${window_(warrantyAlertDays.value)} before a warranty ends.`,
+    `Purchase Tracker will warn you ${window_(returnAlertDays.value)} before a return window closes, and ${window_(warrantyAlertDays.value)} before a warranty ends.`,
 );
 
 function validate(): boolean {
@@ -111,7 +111,7 @@ async function signOut(): Promise<void> {
     <div class="mx-auto max-w-[640px]">
       <h1 class="font-heading text-2xl font-semibold text-fg lg:text-[28px]">Settings</h1>
       <p class="mt-1 text-muted-fg">
-        How far ahead Proofly warns you, and the account you are signed in to.
+        How far ahead Purchase Tracker warns you, and the account you are signed in to.
       </p>
 
       <form class="mt-6 flex flex-col gap-6" novalidate @submit.prevent="save">
