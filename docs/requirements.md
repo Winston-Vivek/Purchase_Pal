@@ -52,7 +52,7 @@ Email/push reminders, OCR receipt scanning, spending analytics, marketplace inte
 | D-04 | Auth | bcrypt + JWT in httpOnly, SameSite=Lax cookie |
 | D-05 | Testing | TDD; Jest + Supertest (API), Vitest + Vue Test Utils (UI), Playwright (E2E) |
 | D-06 | Code | GitHub repository, one commit set per TDD slice (`test:` → `feat:` → `refactor:`) |
-| D-07 | Run target | Local only via docker-compose; no deployment |
+| D-07 | Run target | Local via docker-compose; deployed to Vercel (web) and a container host (API) — changed 2 Nov 2026, see §14 |
 | D-08 | Expiring-soon windows | User-configurable; defaults 30 days (warranty), 7 days (return) |
 | D-09 | Warranty end date | Start + N months − 1 day (inclusive) |
 | D-10 | App time zone | Asia/Kolkata for "today" (config `APP_TIMEZONE`) |
@@ -303,6 +303,7 @@ Indexes: purchases(userId), purchases(userId, purchaseDate), attachments(purchas
 | Date | Change | Reason |
 | --- | --- | --- |
 | 27 Oct 2026 | v1.0 locked | Day 1 gate |
+| 2 Nov 2026 | **D-07 changed: the app is deployed.** Vercel serves the web app; the API runs as a container. The daily reminder cron moves to a scheduled HTTP call (`POST /internal/reminders/run`, guarded by a shared secret) so the API no longer has to stay awake. | Requested. The in-process cron assumed a host that never sleeps, which a free tier is not. Separating the schedule from the work — already done for testability — is what made this a thin controller rather than a redesign. |
 | 2 Nov 2026 | **BR-16 added: daily deadline reminders** (table `sent_reminders`, column `users.email_reminders`, a scheduled job). P2 "reminders" from §4 moved into scope. | Requested. A dashboard only warns someone who opens it; the deadlines this product exists to catch are exactly the ones nobody is looking at. |
 | 2 Nov 2026 | **BR-15 added: a profile page, with a verified email change** (`PATCH /users/me` for the name, `POST /users/me/email` and `/confirm`, table `email_change_tokens`). | Requested. Email is the login identifier and the address a password reset goes to, so writing an unverified one would let a typo — or an attacker with a borrowed session — take an account away from its owner. Verification makes the field safe to offer. |
 | 2 Nov 2026 | **BR-13 and BR-14 added: forgot-password and session invalidation.** New table `password_reset_tokens`, new column `users.password_changed_at`, two public endpoints. P2 "password reset" from §4 moved into scope. | Requested. The MVP had no way back in for anyone who forgot their password, which makes every other account feature moot. Session invalidation comes with it because a reset that leaves old sessions alive does not actually remove an attacker. |

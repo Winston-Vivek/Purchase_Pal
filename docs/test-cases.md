@@ -134,6 +134,10 @@ All requests use `/api/v1`. "Signed in as A" = A's auth cookie. Errors must use 
 | API-THR-01 | Repeated `POST /auth/forgot-password` | Refused with 429 past the limit; the error shape is still `{ error: { code, message } }` | P0 | Pass 2026-11-02 |
 | API-THR-02 | Repeated failed logins | Refused with 429 past the limit | P0 | Pass 2026-11-02 |
 | API-THR-03 | Ordinary reads under the same session | Not throttled by the auth limits — a normal session must not be punished for someone else's brute force | P0 | Pass 2026-11-02 |
+| API-CRON-01 | `POST /internal/reminders/run` with the right secret | 200; the digests go out and the counts come back | P0 | Pass 2026-11-02 |
+| API-CRON-02 | No secret, or the wrong one | 401; nothing sent | P0 | Pass 2026-11-02 |
+| API-CRON-03 | `CRON_SECRET` not configured at all | 401 — it fails closed, rather than becoming open to everyone | P0 | Pass 2026-11-02 |
+| API-CRON-04 | Called twice (BR-16) | The second call sends nothing; the unique index holds whoever calls it | P0 | Pass 2026-11-02 |
 
 > **API-AUTH-12 is verified by the Day 4 gate, not Day 3.** Its `/purchases` half passes as of Day 3 Slice 5. The `/dashboard` half cannot: Nest runs guards after routing, so a route that does not exist returns 404 rather than 401. `/dashboard` is built in Day 4 Slice 4, and the test is unchanged.
 

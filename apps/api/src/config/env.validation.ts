@@ -145,6 +145,14 @@ export class EnvironmentVariables {
   @Min(1)
   THROTTLE_AUTH_TTL: number = 60;
 
+  /**
+   * Shared with whatever calls the reminder endpoint. Empty means the
+   * endpoint refuses everyone, which is the right default: a missing secret
+   * must not become an open door.
+   */
+  @IsString()
+  CRON_SECRET: string = '';
+
   // ------------------------------------------------------------------ mail --
   // Defaults point at the Mailpit container in docker-compose, which catches
   // everything locally. Any SMTP provider works by changing these four.
