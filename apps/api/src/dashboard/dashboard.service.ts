@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { DatesService, DeadlineStatus } from '../common/dates/dates.service';
 import { Purchase } from '../purchases/purchase.entity';
-import { resolveReturn, toPurchaseResponse } from '../purchases/purchase-response';
+import { nextServiceOf, resolveReturn, toPurchaseResponse } from '../purchases/purchase-response';
 import { PurchaseRepository } from '../repositories/purchase/purchase.repository';
 import { User } from '../users/user.entity';
 import { DashboardResponse, DeadlineItem, DeadlineKind } from './dashboard-response';
@@ -21,6 +21,9 @@ interface Resolved {
   returnDeadline: string | null;
   returnStatus: DeadlineStatus;
   returnDaysLeft: number | null;
+  nextServiceDate: string | null;
+  serviceStatus: DeadlineStatus;
+  serviceDaysLeft: number | null;
   warrantyExpiry: string | null;
   warrantyStatus: DeadlineStatus;
   warrantyDaysLeft: number | null;
@@ -96,12 +99,16 @@ export class DashboardService {
       purchase.warrantyMonths,
     );
     const returned = resolveReturn(purchase, returnDeadline, user, this.dates);
+    const nextServiceDate = nextServiceOf(purchase);
 
     return {
       purchase,
       returnDeadline,
       returnStatus: returned.status,
       returnDaysLeft: returned.daysLeft,
+      nextServiceDate,
+      serviceStatus: this.dates.status(nextServiceDate, user.serviceAlertDays),
+      serviceDaysLeft: this.dates.daysLeft(nextServiceDate),
       warrantyExpiry,
       warrantyStatus: this.dates.status(warrantyExpiry, user.warrantyAlertDays),
       warrantyDaysLeft: this.dates.daysLeft(warrantyExpiry),
@@ -129,6 +136,7 @@ export class DashboardService {
 
       if (row.returnStatus === status) add('RETURN', row.returnDeadline, row.returnDaysLeft);
       if (row.warrantyStatus === status) add('WARRANTY', row.warrantyExpiry, row.warrantyDaysLeft);
+      if (row.serviceStatus === status) add('SERVICE', row.nextServiceDate, row.serviceDaysLeft);
     }
 
     return items;

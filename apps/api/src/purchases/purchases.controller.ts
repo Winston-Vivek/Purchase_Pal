@@ -63,7 +63,7 @@ export class PurchasesController {
     @CurrentUser() user: User,
     @Param('purchaseId', ParseUUIDPipe) purchaseId: string,
   ): Promise<PurchaseResponse> {
-    const purchase = await this.purchases.findOwned(user, purchaseId, true);
+    const purchase = await this.purchases.findOwned(user, purchaseId);
     return toPurchaseResponse(purchase, user, this.dates, { includeRelations: true });
   }
 

@@ -19,4 +19,12 @@ export class UpdateSettingsDto {
   @Min(1)
   @Max(60)
   returnAlertDays?: number;
+
+  /** BR-12. Wider range than a return, because a service can be a year out. */
+  @ApiPropertyOptional({ minimum: 1, maximum: 365, default: 14 })
+  @IsOptional()
+  @IsInt()
+  @Min(1)
+  @Max(365)
+  serviceAlertDays?: number;
 }

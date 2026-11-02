@@ -126,8 +126,8 @@ export class PurchasesService {
     };
   }
 
-  async findOwned(user: User, id: string, withRelations = false): Promise<Purchase> {
-    const purchase = await this.purchases.findOwned(user.id, id, withRelations);
+  async findOwned(user: User, id: string): Promise<Purchase> {
+    const purchase = await this.purchases.findOwned(user.id, id);
 
     if (!purchase) throw new NotFoundException('Purchase not found');
     return purchase;

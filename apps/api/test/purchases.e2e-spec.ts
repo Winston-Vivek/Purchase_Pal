@@ -331,8 +331,20 @@ describe('Purchases (e2e)', () => {
     const get = (id: string) =>
       request(app.getHttpServer()).get(`/api/v1/purchases/${id}`).set('Cookie', cookie);
 
+    /** Bought in January, so a service in January is legal: §7 refuses a
+     *  service before the purchase it repaired. */
+    const buyInJanuary = async (): Promise<string> => {
+      const created = await request(app.getHttpServer())
+        .post('/api/v1/purchases')
+        .set('Cookie', cookie)
+        .send({ ...BASE, purchaseDate: '2026-01-05' })
+        .expect(201);
+
+      return (created.body as { id: string }).id;
+    };
+
     it('API-PUR-37 the newest service decides when the next one is due', async () => {
-      const id = (await create().expect(201)).body.id;
+      const id = await buyInJanuary();
 
       // Serviced in January, due again in June; serviced again in October,
       // due again in November. The October visit is what resets the clock.
@@ -356,7 +368,7 @@ describe('Purchases (e2e)', () => {
     });
 
     it('API-PUR-38 the newest record that HAS a date is the one that counts', async () => {
-      const id = (await create().expect(201)).body.id;
+      const id = await buyInJanuary();
 
       await service(id, {
         serviceDate: '2026-01-10',
@@ -373,7 +385,7 @@ describe('Purchases (e2e)', () => {
     });
 
     it('API-PUR-38 a purchase with no service dates schedules nothing', async () => {
-      const id = (await create().expect(201)).body.id;
+      const id = await buyInJanuary();
       await service(id, { serviceDate: '2026-10-20', description: 'Repair' }).expect(201);
 
       const response = await get(id).expect(200);
@@ -384,7 +396,7 @@ describe('Purchases (e2e)', () => {
     });
 
     it('API-PUR-37 a service date already past reads as overdue', async () => {
-      const id = (await create().expect(201)).body.id;
+      const id = await buyInJanuary();
       await service(id, {
         serviceDate: '2026-01-10',
         description: 'Service',

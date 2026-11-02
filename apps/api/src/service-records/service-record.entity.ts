@@ -36,6 +36,11 @@ export class ServiceRecord {
   @Column({ type: 'decimal', precision: 12, scale: 2, nullable: true })
   cost!: string | null;
 
+  /** BR-12: when this thing is next due for a service. On or after
+   *  serviceDate; null means nothing was scheduled. */
+  @Column({ name: 'next_service_date', type: 'date', nullable: true })
+  nextServiceDate!: string | null;
+
   @Column({ type: 'varchar', length: 1000, nullable: true })
   notes!: string | null;
 

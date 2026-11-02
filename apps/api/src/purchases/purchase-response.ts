@@ -22,6 +22,9 @@ export interface PurchaseResponse {
   returnDeadline: string | null;
   returnStatus: DeadlineStatus;
   returnDaysLeft: number | null;
+  nextServiceDate: string | null;
+  serviceStatus: DeadlineStatus;
+  serviceDaysLeft: number | null;
   warrantyExpiry: string | null;
   warrantyStatus: DeadlineStatus;
   warrantyDaysLeft: number | null;
@@ -44,6 +47,31 @@ export interface PurchaseResponse {
  * the dashboard would keep nagging about a return the details page calls
  * closed.
  */
+/**
+ * BR-12. The next service a purchase is due.
+ *
+ * Servicing a thing again is what resets the clock, so the newest record
+ * decides — but a later visit that scheduled nothing must not erase a plan
+ * made earlier, so it is the newest record that actually HAS a date. Ordered
+ * by service date, then by when it was recorded, because two services on one
+ * day are ordinary.
+ */
+export function nextServiceOf(purchase: Purchase): string | null {
+  const scheduled = (purchase.serviceRecords ?? []).filter(
+    (record) => record.nextServiceDate !== null,
+  );
+  if (scheduled.length === 0) return null;
+
+  const newest = scheduled.reduce((latest, record) =>
+    record.serviceDate > latest.serviceDate ||
+    (record.serviceDate === latest.serviceDate && record.createdAt > latest.createdAt)
+      ? record
+      : latest,
+  );
+
+  return newest.nextServiceDate;
+}
+
 export function resolveReturn(
   purchase: Purchase,
   deadline: string | null,
@@ -71,6 +99,7 @@ export function toPurchaseResponse(
   );
   const warrantyExpiry = dates.warrantyExpiry(purchase.warrantyStartDate, purchase.warrantyMonths);
   const returned = resolveReturn(purchase, returnDeadline, user, dates);
+  const nextServiceDate = nextServiceOf(purchase);
 
   const response: PurchaseResponse = {
     id: purchase.id,
@@ -89,6 +118,9 @@ export function toPurchaseResponse(
     returnDeadline,
     returnStatus: returned.status,
     returnDaysLeft: returned.daysLeft,
+    nextServiceDate,
+    serviceStatus: dates.status(nextServiceDate, user.serviceAlertDays),
+    serviceDaysLeft: dates.daysLeft(nextServiceDate),
     warrantyExpiry,
     warrantyStatus: dates.status(warrantyExpiry, user.warrantyAlertDays),
     warrantyDaysLeft: dates.daysLeft(warrantyExpiry),

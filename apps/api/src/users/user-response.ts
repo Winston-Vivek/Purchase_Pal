@@ -6,6 +6,7 @@ export interface UserResponse {
   email: string;
   warrantyAlertDays: number;
   returnAlertDays: number;
+  serviceAlertDays: number;
 }
 
 /**
@@ -20,5 +21,6 @@ export function toUserResponse(user: User): UserResponse {
     email: user.email,
     warrantyAlertDays: user.warrantyAlertDays,
     returnAlertDays: user.returnAlertDays,
+    serviceAlertDays: user.serviceAlertDays,
   };
 }

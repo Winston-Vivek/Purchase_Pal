@@ -14,6 +14,13 @@ export class UpdateServiceRecordDto {
   @Matches(ISO_DATE, DATE_FORMAT)
   serviceDate?: string;
 
+  /** BR-12. Null clears a scheduled service. */
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsString()
+  @Matches(ISO_DATE, DATE_FORMAT)
+  nextServiceDate?: string | null;
+
   @ApiPropertyOptional({ maxLength: 500 })
   @IsOptional()
   @IsString()

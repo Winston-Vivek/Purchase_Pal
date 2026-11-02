@@ -31,10 +31,12 @@ export class ServiceRecordsService {
     const purchase = await this.purchases.findOwned(user, purchaseId);
 
     this.assertServiceDate(dto.serviceDate, purchase.purchaseDate);
+    this.assertNextService(dto.nextServiceDate ?? null, dto.serviceDate);
 
     return this.records.store({
       purchaseId,
       serviceDate: dto.serviceDate,
+      nextServiceDate: dto.nextServiceDate ?? null,
       description: dto.description,
       provider: dto.provider ?? null,
       cost: dto.cost === undefined ? null : dto.cost.toFixed(2),
@@ -48,6 +50,13 @@ export class ServiceRecordsService {
     if (dto.serviceDate !== undefined) {
       this.assertServiceDate(dto.serviceDate, record.purchase.purchaseDate);
     }
+
+    // Checked against the result of the patch, not the patch alone: moving
+    // the service date alone can invalidate a next-service date set earlier.
+    this.assertNextService(
+      dto.nextServiceDate !== undefined ? dto.nextServiceDate : record.nextServiceDate,
+      dto.serviceDate ?? record.serviceDate,
+    );
 
     // Only the keys the request carried: a DTO instance holds every declared
     // property with the absent ones undefined, and TypeORM writes an own
@@ -68,6 +77,23 @@ export class ServiceRecordsService {
     const record = await this.records.findOwned(user.id, recordId);
     if (!record) throw new NotFoundException('Service record not found');
     return record;
+  }
+
+  /** BR-12: on or after the service itself. Same day is allowed — something
+   *  can be handed back and be due again immediately. Unlike a service date,
+   *  this one is meant to be in the future. */
+  private assertNextService(nextServiceDate: string | null, serviceDate: string): void {
+    if (nextServiceDate === null) return;
+
+    this.dates.parseIsoDate(nextServiceDate);
+
+    if (nextServiceDate < serviceDate) {
+      throw new BadRequestException({
+        code: 'VALIDATION_ERROR',
+        message: 'The next service cannot be before the service itself',
+        fields: { nextServiceDate: 'The next service cannot be before the service itself' },
+      });
+    }
   }
 
   /** §7: on or after the purchase date, and not in the future. A repair cannot

@@ -15,12 +15,12 @@ import { Purchase } from '../../purchases/purchase.entity';
 export class PurchaseRepository {
   constructor(@InjectRepository(Purchase) private readonly purchases: Repository<Purchase>) {}
 
-  findOwned(userId: string, id: string, withRelations = false): Promise<Purchase | null> {
+  findOwned(userId: string, id: string): Promise<Purchase | null> {
     return this.purchases.findOne({
       where: { id, userId },
-      relations: withRelations
-        ? { attachments: true, serviceRecords: true }
-        : { attachments: true },
+      // serviceRecords always: BR-12 reads the next service off them, so a
+      // response without them would quietly report "no service due".
+      relations: { attachments: true, serviceRecords: true },
     });
   }
 
@@ -29,7 +29,7 @@ export class PurchaseRepository {
   findAllForUser(userId: string): Promise<Purchase[]> {
     return this.purchases.find({
       where: { userId },
-      relations: { attachments: true },
+      relations: { attachments: true, serviceRecords: true },
       order: { purchaseDate: 'DESC', createdAt: 'DESC' },
     });
   }
@@ -45,8 +45,12 @@ export class PurchaseRepository {
   searchForUser(userId: string, query: ListPurchasesDto): Promise<Purchase[]> {
     const builder = this.purchases
       .createQueryBuilder('purchase')
-      // One query with a join rather than a count per row (db-avoid-n-plus-one).
+      // One query with joins rather than a count per row
+      // (db-avoid-n-plus-one). Two collections do multiply the rows the
+      // database returns, which TypeORM then folds back into entities; both
+      // are small and bounded (5 attachments, a handful of services).
       .leftJoinAndSelect('purchase.attachments', 'attachment')
+      .leftJoinAndSelect('purchase.serviceRecords', 'serviceRecord')
       .where('purchase.userId = :userId', { userId });
 
     if (query.q) {

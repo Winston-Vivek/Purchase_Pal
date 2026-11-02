@@ -30,6 +30,11 @@ export class User {
   @Column({ name: 'return_alert_days', default: 7 })
   returnAlertDays!: number;
 
+  /** BR-12. Two weeks: long enough to book a slot, short enough that a yearly
+   *  service is not sitting on the dashboard for a month. */
+  @Column({ name: 'service_alert_days', default: 14 })
+  serviceAlertDays!: number;
+
   @CreateDateColumn({ name: 'created_at' })
   createdAt!: Date;
 

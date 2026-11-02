@@ -190,6 +190,48 @@ describe('Dashboard (e2e)', () => {
     expect(response.body.recentPurchases).toEqual([]);
   });
 
+  it('API-DASH-10 a service due soon joins needs action, sorted with the rest', async () => {
+    const purchase = await request(app.getHttpServer())
+      .post('/api/v1/purchases')
+      .set('Cookie', cookie)
+      .send({
+        productName: 'Royal Enfield',
+        category: 'VEHICLE',
+        purchaseDate: '2026-01-05',
+        price: 215000,
+      })
+      .expect(201);
+
+    await request(app.getHttpServer())
+      .post(`/api/v1/purchases/${purchase.body.id}/services`)
+      .set('Cookie', cookie)
+      .send({
+        serviceDate: '2026-04-05',
+        description: 'First service',
+        // Today is 2026-10-27, so this is 4 days out — inside the 14-day
+        // default window.
+        nextServiceDate: '2026-10-31',
+      })
+      .expect(201);
+
+    const response = await dashboard().expect(200);
+
+    const service = response.body.needsAction.find(
+      (item: { kind: string }) => item.kind === 'SERVICE',
+    );
+    expect(service).toMatchObject({
+      purchaseId: purchase.body.id,
+      productName: 'Royal Enfield',
+      kind: 'SERVICE',
+      date: '2026-10-31',
+      daysLeft: 4,
+    });
+
+    // One list, sorted by urgency, whatever kind of deadline each one is.
+    const days = response.body.needsAction.map((item: { daysLeft: number }) => item.daysLeft);
+    expect(days).toEqual([...days].sort((a: number, b: number) => a - b));
+  });
+
   it('API-DASH-09 a return closed by hand leaves needs-action and the open count', async () => {
     await seedDashboard(app, cookie);
 

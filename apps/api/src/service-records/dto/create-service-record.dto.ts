@@ -32,6 +32,14 @@ export class CreateServiceRecordDto {
   @Min(0, { message: 'Must be 0 or more' })
   cost?: number;
 
+  /** BR-12: on or after serviceDate. The cross-field rule lives in the
+   *  service, where both values are known after a patch (API-SVC-12). */
+  @ApiPropertyOptional({ example: '2027-04-25' })
+  @IsOptional()
+  @IsString()
+  @Matches(ISO_DATE, DATE_FORMAT)
+  nextServiceDate?: string | null;
+
   @ApiPropertyOptional({ maxLength: 1000 })
   @IsOptional()
   @IsString()

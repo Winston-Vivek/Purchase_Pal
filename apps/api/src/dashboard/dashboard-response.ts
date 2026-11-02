@@ -1,8 +1,10 @@
 import { PurchaseResponse } from '../purchases/purchase-response';
 
-export type DeadlineKind = 'RETURN' | 'WARRANTY';
+/** BR-12 adds SERVICE: a purchase can contribute three deadlines, and they
+ *  are listed separately because the user acts on them separately. */
+export type DeadlineKind = 'RETURN' | 'WARRANTY' | 'SERVICE';
 
-/** One deadline belonging to one purchase. A purchase can contribute two. */
+/** One deadline belonging to one purchase. A purchase can contribute three. */
 export interface DeadlineItem {
   purchaseId: string;
   productName: string;
