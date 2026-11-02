@@ -37,6 +37,7 @@ describe('AppShell', () => {
       warrantyAlertDays: 30,
       returnAlertDays: 7,
       serviceAlertDays: 14,
+      emailReminders: true,
     };
     await router.push(path);
     await router.isReady();

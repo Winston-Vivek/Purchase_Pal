@@ -7,6 +7,7 @@ export interface UserResponse {
   warrantyAlertDays: number;
   returnAlertDays: number;
   serviceAlertDays: number;
+  emailReminders: boolean;
 }
 
 /**
@@ -22,5 +23,6 @@ export function toUserResponse(user: User): UserResponse {
     warrantyAlertDays: user.warrantyAlertDays,
     returnAlertDays: user.returnAlertDays,
     serviceAlertDays: user.serviceAlertDays,
+    emailReminders: user.emailReminders,
   };
 }

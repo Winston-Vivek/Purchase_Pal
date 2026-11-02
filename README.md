@@ -97,6 +97,7 @@ Run from `apps/api` unless noted.
 | `docker compose down -v` | Stop it and wipe the data volume |
 | `npm run start:dev` | API with hot reload |
 | `npm run build` | Compile to `dist/` |
+| `npm run reminders:send` | Run today's deadline digest now, instead of waiting for 08:00 |
 | `npm run lint` / `npm run lint:fix` | ESLint |
 | `npm test` | Unit tests (Jest) |
 | `npm run test:cov` | Unit tests with coverage |
@@ -133,6 +134,11 @@ Every email the app sends goes to **Mailpit**, a container started by
 `docker compose up`. Read them at **http://localhost:8025** — nothing is
 relayed to a real address, which is deliberate: a bug in the reminder job must
 not be able to email a stranger.
+
+Reminders go out at **08:00 Asia/Kolkata** on a cron inside the API, one digest
+per person and only when something needs attention. `npm run reminders:send`
+runs the same job immediately — the schedule and the work are separate, so the
+job is a plain method you can call.
 
 To send for real, point four variables at any SMTP provider. No code changes;
 the transport is plain SMTP behind an injection token.

@@ -123,6 +123,14 @@ All requests use `/api/v1`. "Signed in as A" = A's auth cookie. Errors must use 
 | API-USR-05 | Requesting a change to an address already in use | 409; nothing sent | P0 | Pass 2026-11-02 |
 | API-USR-06 | Requesting with the wrong current password | 400; nothing sent | P0 | Pass 2026-11-02 |
 | API-USR-07 | A spent, expired or invented confirmation token | 400, one message for all three | P0 | Pass 2026-11-02 |
+| API-REM-01 | A deadline inside the window (BR-16) | One digest naming it, to that user | P0 | Pass 2026-11-02 |
+| API-REM-02 | Running the job twice | Sent once — the second run finds the row already there | P0 | Pass 2026-11-02 |
+| API-REM-03 | Several deadlines for one user | One email, not one per deadline | P0 | Pass 2026-11-02 |
+| API-REM-04 | A deadline outside the window | Nothing sent | P0 | Pass 2026-11-02 |
+| API-REM-05 | A user who turned reminders off | Nothing sent, and nothing recorded | P0 | Pass 2026-11-02 |
+| API-REM-06 | Two users with deadlines | Each gets only their own; neither name appears in the other's email | P0 | Pass 2026-11-02 |
+| API-REM-07 | A deadline whose date is changed afterwards | May be reminded again — it is a different deadline | P1 | Pass 2026-11-02 |
+| API-REM-08 | A user with nothing due | No email at all, rather than an empty one | P1 | Pass 2026-11-02 |
 
 > **API-AUTH-12 is verified by the Day 4 gate, not Day 3.** Its `/purchases` half passes as of Day 3 Slice 5. The `/dashboard` half cannot: Nest runs guards after routing, so a route that does not exist returns 404 rather than 401. `/dashboard` is built in Day 4 Slice 4, and the test is unchanged.
 
@@ -375,6 +383,7 @@ Fixture for A (today 2026-10-27), matching the design mockups:
 | FE-PAGE-58 | Confirm email | Opening the link | Confirms on arrival, no button to press; a spent link says so | P0 | Pass 2026-11-02 |
 | FE-PAGE-59 | My purchases | Service column | Shows whichever of the last service and the next one due is nearer to today; "No service" when neither exists | P1 | Pass 2026-11-02 |
 | FE-PAGE-60 | Details | Receipt list | An image receipt shows a thumbnail of itself; a PDF shows a file mark, never a broken image | P1 | Pass 2026-11-02 |
+| FE-PAGE-61 | Settings | Email reminders toggle (BR-16) | Saved with the windows; off means no daily email | P1 | Pass 2026-11-02 |
 
 ---
 

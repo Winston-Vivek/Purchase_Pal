@@ -22,11 +22,14 @@ export class UsersService {
    *  leaves it alone instead of overwriting it with undefined. */
   updateSettings(
     user: User,
-    changes: Partial<Pick<User, 'warrantyAlertDays' | 'returnAlertDays' | 'serviceAlertDays'>>,
+    changes: Partial<
+      Pick<User, 'warrantyAlertDays' | 'returnAlertDays' | 'serviceAlertDays' | 'emailReminders'>
+    >,
   ): Promise<User> {
     if (changes.warrantyAlertDays !== undefined) user.warrantyAlertDays = changes.warrantyAlertDays;
     if (changes.returnAlertDays !== undefined) user.returnAlertDays = changes.returnAlertDays;
     if (changes.serviceAlertDays !== undefined) user.serviceAlertDays = changes.serviceAlertDays;
+    if (changes.emailReminders !== undefined) user.emailReminders = changes.emailReminders;
     return this.users.save(user);
   }
 

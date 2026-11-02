@@ -31,6 +31,7 @@ describe('Settings', () => {
       warrantyAlertDays: 30,
       returnAlertDays: 7,
       serviceAlertDays: 14,
+      emailReminders: true,
     };
   });
 
@@ -101,7 +102,12 @@ describe('Settings', () => {
 
   it('FE-PAGE-26 saving sends only the windows, and says it worked', async () => {
     fetchMock.mockResolvedValue(
-      json(200, { warrantyAlertDays: 60, returnAlertDays: 3, serviceAlertDays: 14 }),
+      json(200, {
+        warrantyAlertDays: 60,
+        returnAlertDays: 3,
+        serviceAlertDays: 14,
+        emailReminders: true,
+      }),
     );
     const wrapper = page();
 
@@ -113,11 +119,13 @@ describe('Settings', () => {
     const [url, init] = fetchMock.mock.calls[0] as [string, RequestInit];
     expect(url).toBe('/api/v1/users/me/settings');
     expect(init.method).toBe('PATCH');
-    // All three windows, because the form owns all three (BR-12).
+    // Everything the Alerts card owns: three windows (BR-12) and whether we
+    // also say so by email (BR-16).
     expect(JSON.parse(String(init.body))).toEqual({
       warrantyAlertDays: 60,
       returnAlertDays: 3,
       serviceAlertDays: 14,
+      emailReminders: true,
     });
 
     expect(wrapper.get('[role="status"]').text()).toMatch(/saved/i);
@@ -168,6 +176,28 @@ describe('Settings', () => {
 
     expect(wrapper.text()).toContain('Winston');
     expect(wrapper.text()).toContain('demo@proofly.test');
+  });
+
+  it('FE-PAGE-61 the reminder toggle is saved with the windows', async () => {
+    const wrapper = page();
+
+    expect((wrapper.get('#emailReminders').element as HTMLInputElement).checked).toBe(true);
+    await wrapper.get('#emailReminders').setValue(false);
+
+    fetchMock.mockResolvedValueOnce(
+      json(200, {
+        warrantyAlertDays: 30,
+        returnAlertDays: 7,
+        serviceAlertDays: 14,
+        emailReminders: false,
+      }),
+    );
+    await wrapper.get('[data-testid="settings-form"]').trigger('submit');
+    await flushPromises();
+
+    const [, init] = fetchMock.mock.calls.at(-1)!;
+    expect(JSON.parse(init.body)).toMatchObject({ emailReminders: false });
+    expect(useAuthStore().user?.emailReminders).toBe(false);
   });
 
   // FE-PAGE-51..53. BR-13: the current password is required even though the

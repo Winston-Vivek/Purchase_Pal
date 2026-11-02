@@ -25,6 +25,13 @@ export class UserRepository {
     return this.users.save(user);
   }
 
+  /** BR-16: the daily run walks every account. Ordered so a failure part-way
+   *  through resumes predictably rather than in whatever order Postgres felt
+   *  like returning. */
+  all(): Promise<User[]> {
+    return this.users.find({ order: { createdAt: 'ASC' } });
+  }
+
   /** Returns the row as it now is, so a caller can respond with it. */
   async updateFields(id: string, changes: Partial<User>): Promise<User> {
     await this.users.update({ id }, changes);

@@ -34,6 +34,7 @@ describe('Profile and email confirmation', () => {
       warrantyAlertDays: 30,
       returnAlertDays: 7,
       serviceAlertDays: 14,
+      emailReminders: true,
     };
   });
 

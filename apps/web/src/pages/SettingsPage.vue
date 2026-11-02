@@ -26,6 +26,7 @@ const router = useRouter();
 const warrantyAlertDays = ref(String(user.value?.warrantyAlertDays ?? 30));
 const returnAlertDays = ref(String(user.value?.returnAlertDays ?? 7));
 const serviceAlertDays = ref(String(user.value?.serviceAlertDays ?? 14));
+const emailReminders = ref(user.value?.emailReminders ?? true);
 
 const fields = ref<Record<string, string>>({});
 const saving = ref(false);
@@ -116,12 +117,14 @@ async function save(): Promise<void> {
       warrantyAlertDays: number;
       returnAlertDays: number;
       serviceAlertDays: number;
+      emailReminders: boolean;
     }>('/users/me/settings', {
       method: 'PATCH',
       body: {
         warrantyAlertDays: Number(warrantyAlertDays.value),
         returnAlertDays: Number(returnAlertDays.value),
         serviceAlertDays: Number(serviceAlertDays.value),
+        emailReminders: emailReminders.value,
       },
     });
 
@@ -131,6 +134,7 @@ async function save(): Promise<void> {
       user.value.warrantyAlertDays = settings.warrantyAlertDays;
       user.value.returnAlertDays = settings.returnAlertDays;
       user.value.serviceAlertDays = settings.serviceAlertDays;
+      user.value.emailReminders = settings.emailReminders;
     }
 
     toast.value = 'Settings saved';
@@ -205,6 +209,23 @@ async function signOut(): Promise<void> {
             />
 
             <p class="rounded-sm bg-subtle px-3 py-2 text-fg">{{ preview }}</p>
+
+            <!-- BR-16: the windows decide what counts as needing attention; this
+               decides whether we say so by email as well as on screen. -->
+            <label class="flex min-h-11 cursor-pointer items-start gap-2 text-fg">
+              <input
+                id="emailReminders"
+                v-model="emailReminders"
+                type="checkbox"
+                class="mt-1 size-4 shrink-0"
+              />
+              <span>
+                Email me a daily summary
+                <span class="block text-sm text-muted-fg">
+                  One message a morning, only when something needs attention.
+                </span>
+              </span>
+            </label>
 
             <!-- Inside the card, like every other action on this page. Floating
                below it left the button belonging to nothing, and the one

@@ -1,5 +1,5 @@
 import { ApiPropertyOptional } from '@nestjs/swagger';
-import { IsInt, IsOptional, Max, Min } from 'class-validator';
+import { IsBoolean, IsInt, IsOptional, Max, Min } from 'class-validator';
 
 /**
  * Ranges from requirements §7. Both optional, so a client can change one
@@ -27,4 +27,10 @@ export class UpdateSettingsDto {
   @Min(1)
   @Max(365)
   serviceAlertDays?: number;
+
+  /** BR-16. */
+  @ApiPropertyOptional({ default: true })
+  @IsOptional()
+  @IsBoolean()
+  emailReminders?: boolean;
 }

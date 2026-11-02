@@ -7,6 +7,7 @@ export interface UserResponse {
   warrantyAlertDays: number;
   returnAlertDays: number;
   serviceAlertDays: number;
+  emailReminders: boolean;
 }
 
 /** CLOSED is returns only (BR-11): the user said they are keeping the item. */

@@ -45,6 +45,11 @@ export class User {
   @Column({ name: 'service_alert_days', default: 14 })
   serviceAlertDays!: number;
 
+  /** BR-16. On by default: a product whose job is to warn you is not much use
+   *  silent, and turning it off is one click away. */
+  @Column({ name: 'email_reminders', type: 'boolean', default: true })
+  emailReminders!: boolean;
+
   @CreateDateColumn({ name: 'created_at' })
   createdAt!: Date;
 

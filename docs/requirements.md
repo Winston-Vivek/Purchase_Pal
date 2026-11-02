@@ -93,6 +93,14 @@ Email/push reminders, OCR receipt scanning, spending analytics, marketplace inte
 
 **BR-09 Ownership.** Every read and write is scoped by the authenticated user. Another user's resource returns **404**, never 403, so its existence is not revealed.
 
+**BR-16 Deadline reminders are sent once.** A daily job emails each user one
+digest of the deadlines that have reached their own alert windows — returns,
+warranties and services alike. A reminder is identified by user, purchase,
+kind and the deadline's own date, and that combination is **unique in the
+database**, so a second send is impossible even if the job runs twice. A
+deadline whose date moves is a different reminder and may be sent again, which
+is correct: the user changed the thing. Users can turn reminders off.
+
 **BR-15 Changing an email address is verified.** A new address is not written
 until a link sent **to that address** is opened, so an account cannot be
 pointed at an inbox its owner does not control. The request needs the current
@@ -295,6 +303,7 @@ Indexes: purchases(userId), purchases(userId, purchaseDate), attachments(purchas
 | Date | Change | Reason |
 | --- | --- | --- |
 | 27 Oct 2026 | v1.0 locked | Day 1 gate |
+| 2 Nov 2026 | **BR-16 added: daily deadline reminders** (table `sent_reminders`, column `users.email_reminders`, a scheduled job). P2 "reminders" from §4 moved into scope. | Requested. A dashboard only warns someone who opens it; the deadlines this product exists to catch are exactly the ones nobody is looking at. |
 | 2 Nov 2026 | **BR-15 added: a profile page, with a verified email change** (`PATCH /users/me` for the name, `POST /users/me/email` and `/confirm`, table `email_change_tokens`). | Requested. Email is the login identifier and the address a password reset goes to, so writing an unverified one would let a typo — or an attacker with a borrowed session — take an account away from its owner. Verification makes the field safe to offer. |
 | 2 Nov 2026 | **BR-13 and BR-14 added: forgot-password and session invalidation.** New table `password_reset_tokens`, new column `users.password_changed_at`, two public endpoints. P2 "password reset" from §4 moved into scope. | Requested. The MVP had no way back in for anyone who forgot their password, which makes every other account feature moot. Session invalidation comes with it because a reset that leaves old sessions alive does not actually remove an attacker. |
 | 2 Nov 2026 | **BR-12 amended: `scheduled_service_date` added to purchases.** The next service now falls back to a date held on the purchase when no service record carries one. | As first built, the date lived only on a service record — and a service record logs a visit that already happened, with §7 refusing a future service date. So a thing you had never serviced could not be scheduled at all, which is exactly the case that matters: a new motorcycle whose first service is three months out. |

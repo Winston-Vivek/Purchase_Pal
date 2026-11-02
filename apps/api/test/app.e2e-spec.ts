@@ -61,6 +61,7 @@ describe('Application bootstrap (e2e)', () => {
       'email_change_tokens',
       'password_reset_tokens',
       'purchases',
+      'sent_reminders',
       'service_records',
       'users',
     ]);

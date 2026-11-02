@@ -11,7 +11,9 @@ import { HealthModule } from './health/health.module';
 import { PurchasesModule } from './purchases/purchases.module';
 import { RepositoriesModule } from './repositories/repositories.module';
 import { ServiceRecordsModule } from './service-records/service-records.module';
+import { ScheduleModule } from '@nestjs/schedule';
 import { MailModule } from './common/mail/mail.module';
+import { RemindersModule } from './reminders/reminders.module';
 import { StorageModule } from './common/storage/storage.module';
 
 @Module({
@@ -32,6 +34,9 @@ import { StorageModule } from './common/storage/storage.module';
     RepositoriesModule,
     StorageModule,
     MailModule,
+    // The cron runtime. Jobs live in the modules that own the work.
+    ScheduleModule.forRoot(),
+    RemindersModule,
     DatesModule,
     AuthModule,
     PurchasesModule,

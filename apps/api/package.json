@@ -2,7 +2,7 @@
   "name": "@proofly/api",
   "version": "0.1.0",
   "private": true,
-  "description": "Proofly API — purchases, receipts, warranty and return deadlines, service history",
+  "description": "Proofly API \u2014 purchases, receipts, warranty and return deadlines, service history",
   "license": "UNLICENSED",
   "engines": {
     "node": ">=20"
@@ -26,7 +26,8 @@
     "test:cov": "jest --coverage --passWithNoTests",
     "test:e2e": "dotenv -e ../../.env.test -- jest --config ./test/jest-e2e.json --runInBand",
     "test:watch": "jest --watch",
-    "typeorm": "typeorm-ts-node-commonjs -d src/database/data-source.ts"
+    "typeorm": "typeorm-ts-node-commonjs -d src/database/data-source.ts",
+    "reminders:send": "dotenv -e ../../.env -- ts-node -r tsconfig-paths/register src/reminders/run-once.ts"
   },
   "dependencies": {
     "@nestjs/common": "^11.0.0",
@@ -34,6 +35,7 @@
     "@nestjs/core": "^11.0.0",
     "@nestjs/jwt": "^11.0.2",
     "@nestjs/platform-express": "^11.0.0",
+    "@nestjs/schedule": "^5.0.1",
     "@nestjs/swagger": "^11.4.7",
     "@nestjs/typeorm": "^11.0.3",
     "bcrypt": "^6.0.0",
