@@ -18,7 +18,7 @@ _Read from manifests by `detect-stack.sh`. Not model output._
 | - | _none detected_ | - | - |
 
 **Package manager:** `npm` (evidence: `package-lock.json`)  
-**Source files:** 27 `vue`, 12 `js`, 154 `ts`  
+**Source files:** 27 `vue`, 12 `js`, 158 `ts`  
 **Config files:** `playwright.config.ts`
 
 **Migration signals detected:**
@@ -34,7 +34,7 @@ _Read from manifests by `detect-stack.sh`. Not model output._
 | Auth | bcrypt + JWT in an httpOnly, SameSite=Lax cookie |
 | Web | Vue 3 `<script setup lang="ts">`, Vite, Pinia, Vue Router, Tailwind CSS v4 |
 | Tests | Jest + Supertest (API), Vitest + Vue Test Utils (web), Playwright (E2E) |
-| Run target | Local via docker-compose; no deployment (D-07) |
+| Run target | Vercel (web) + Render container (API) + Neon Postgres; docker-compose locally. D-07 changed 2 Nov 2026 |
 
 ## Target Runtime
 
@@ -84,17 +84,17 @@ _No skill resolution recorded. Run the resolver._
 
 ## In Progress
 
-- [~] Day 7 delivery documents — `docs/decisions.md` drafted (untracked, uncommitted); `docs/architecture.md`, `docs/security.md`, `docs/demo-script.md`, `CHANGELOG.md` not yet started
-- [~] `docs/uat-report.md` prepared with build/environment/account details (modified, uncommitted); UAT-01..13 rows not yet filled in
-- [~] `HANDOFF.md` present in the working tree (untracked); its contents are not established from the session data
+- [~] Deployment, phases 4 and 5 of `docs/runbook-deployment.md` — all code and configuration is written and verified locally; what remains is dashboard work on Render and Vercel, which needs the account holder
+- [~] CI's first run is unconfirmed — the GitHub mirror exists and the workflow can fire, but no run has been observed passing (no `gh` CLI on this machine to read it)
 
 ## Pending
 
-- [ ] UAT-01..13 run against the app and results recorded
-- [ ] Any Critical/High defect found by UAT fixed test-first
-- [ ] `v1.0.0` tag
-- [ ] Decide whether the Receipt-upload step on the Add Purchase form ships or is recorded in `CHANGELOG.md` as a known limitation
-- [ ] Git remote configured so the existing CI workflow runs for the first time
+- [ ] Render: create the service from `render.yaml` (Blueprint), set the five `sync: false` values
+- [ ] Vercel: deploy `apps/web`, then correct `vercel.json`'s rewrite if Render assigned a name other than `purchase-tracker-api`
+- [ ] Set `WEB_ORIGIN` and `APP_URL` on Render to the Vercel domain once it exists — until then the browser cannot use the API
+- [ ] Add `API_BASE_URL` and `CRON_SECRET` as GitHub repository secrets, then run *Daily reminders* by hand once
+- [ ] Phase 6 smoke test against the live pair
+- [ ] Confirm CI's first run passed
 
 ## Blocked
 
@@ -106,9 +106,9 @@ None identified.
 _Machine-generated from `.ai/EVIDENCE.jsonl`. Do not edit by hand._
 
 ```
-384 commands recorded, of which 11 verified (7 passed, 4 failed, 2 non-binding).
+411 commands recorded, of which 11 verified (7 passed, 4 failed, 2 non-binding).
 
-Files changed since baseline `0ecc127` (git): 251
+Files changed since baseline `0ecc127` (git): 252
   - apps/api/Dockerfile
   - apps/api/.dockerignore
   - apps/api/package.json
@@ -121,7 +121,7 @@ Files changed since baseline `0ecc127` (git): 251
   - apps/api/src/attachments/attachment-response.ts
   - apps/api/src/attachments/attachments.controller.ts
   - apps/api/src/attachments/attachments.module.ts
-  ... and 239 more
+  ... and 240 more
 
 Tool-observed edits: 0 across 0 files.
   (Only Edit/Write/MultiEdit are visible to the hook. A Bash-first session
@@ -166,12 +166,13 @@ Most recent verified runs:
 ### Working tree
 
 <!-- relay:git:start -->
-- Branch `master` at `4a1808c`, 2 uncommitted path(s).
+- Branch `master` at `3ac49de`, 3 uncommitted path(s).
 - Changed now:
 
 ```
  M .ai/EVIDENCE.jsonl
  M .ai/MIGRATION.md
+ M .env.example
 ```
 <!-- relay:git:end -->
 
@@ -185,6 +186,10 @@ Most recent verified runs:
 | `testcases:check`/`sync` wired into CI but not into the phase gates | A gate running its own tests as one of its checks is circular |
 | `statusOf` locates its column by header name, not by position | `docs/test-cases.md` ends in `Status`; `docs/uat-report.md` ends in `Evidence` and keeps its verdict in `Result` — counting from the end read the wrong cell |
 | `.gitignore`'s storage exclusion re-anchored to `var/` | The bare `storage/` pattern also matched `apps/api/src/common/storage/`, excluding the module from the repo with no warning from git |
+| Migrations run from the container's `CMD`, not a platform pre-deploy step | Pre-deploy commands are a paid Render feature; on `free` the schema would never be applied |
+| Ephemeral receipt storage accepted in production | A free instance cannot attach a disk. Chosen over \$7/month or an object-storage adapter because the deployment is a demonstration; recorded against BR-10 |
+| BR-16's digest scheduled by GitHub Actions | Vercel cron sends GET with no custom headers and only invokes Vercel Functions; Render cron is paid-only. The endpoint is POST behind `x-cron-secret` |
+| `DATABASE_SSL` parsed with `=== 'true'`, not `@Type(() => Boolean)` | `Boolean('false')` is `true`, so the declarative form turned the `.env.example` default into SSL being demanded from a local Postgres |
 
 <!-- relay:decisions:start -->
 _Recorded with `relay-decide`; the durable record is in `.ai/EVIDENCE.jsonl`._
@@ -198,17 +203,26 @@ _No decisions recorded. Use `relay-decide` when a choice changes what the migrat
 
 | Risk | Mitigation |
 |---|---|
-| No git remote configured; the existing CI workflow has never run | The fresh-clone bug that broke the build would have been caught by `checkout` → `npm ci` → `build` on first push — setting up the remote is unresolved |
-| Demo seed data is date-relative and ages with the calendar | Dashboard counts shifted between the 29th and 30th seeding; re-seed before UAT if a fixed scenario set is needed |
-| Five Day 7 delivery documents and all 13 UAT results are unrecorded | The last `npm run gate day7` run failed on exactly these two checks |
-| Receipt-upload step on the Add Purchase form is covered by no test case | Undecided whether it ships or is logged as a known limitation before `v1.0.0` |
+| CI has still never been observed passing | The GitHub mirror now exists, so the workflow can run — but nobody has read the result. No `gh` CLI here; it needs a look at the Actions tab |
+| Demo seed data is date-relative and ages with the calendar | Dashboard counts shifted between the 29th and 30th seeding; re-seed before UAT if a fixed scenario set is needed. **The seed must never run in production** — it creates an account whose password is published in this repository |
+| Receipts do not survive a restart in production | Free Render instances cannot attach a disk. Accepted and recorded in `CHANGELOG.md` against BR-10; the two fixes (paid plan, or an adapter behind `STORAGE`) are both ready to take |
+| A failed migration now takes the API down rather than cancelling the release | Pre-deploy commands are paid-only, so migrations run from the container's `CMD`. Noted in both `render.yaml` and the Dockerfile with how to move it back |
+| `vercel.json`'s rewrite hard-codes `purchase-tracker-api.onrender.com` | Render may assign a different hostname; if it does, every API call 404s until the rewrite is corrected |
+| The reminders workflow is disabled after 60 days without a commit | A GitHub scheduled workflow is paused on an idle repository. First thing to check if the digest stops arriving |
+| Receipt-upload step on the Add Purchase form is covered by no test case | Recorded as a known limitation in `CHANGELOG.md` |
 
 ## Exact Next Action
 
-Write `docs/architecture.md` (request-flow and ER diagrams) to close one of the five missing Day 7 delivery documents, commit it, then run `npm run gate day7 -- --quick` to confirm the "Delivery documents written" check moves toward passing.
+Push `master` to the GitHub mirror, then create the Render service from the
+`render.yaml` blueprint and deploy `apps/web` to Vercel. Both are dashboard
+steps that need the account holder; everything they depend on is committed and
+has been verified against a real container.
+
+After the Vercel domain exists, set `WEB_ORIGIN` and `APP_URL` on Render to it
+— the API will not serve the browser correctly until that is done.
 
 ## Last Updated
 
 <!-- relay:updated:start -->
-- 2026-11-02T12:53:39Z (mechanical regions refreshed by `migration-state.sh`)
+- 2026-11-02T13:39:40Z (mechanical regions refreshed by `migration-state.sh`)
 <!-- relay:updated:end -->
