@@ -38,4 +38,13 @@ export class UsersService {
   async setPassword(userId: string, passwordHash: string, changedAt: Date): Promise<void> {
     await this.users.updatePassword(userId, passwordHash, changedAt);
   }
+
+  async rename(userId: string, name: string): Promise<User> {
+    return this.users.updateFields(userId, { name });
+  }
+
+  /** BR-15. Only ever called after a token proved the address is read. */
+  async changeEmail(userId: string, email: string): Promise<User> {
+    return this.users.updateFields(userId, { email });
+  }
 }

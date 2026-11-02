@@ -146,7 +146,11 @@ describe('AppShell', () => {
 
     expect(wrapper.text()).toContain('Winston');
     expect(wrapper.text()).toContain('demo@proofly.test');
-    expect(wrapper.text()).toMatch(/sign out/i);
+    // The way out moved behind the account menu (FE-PAGE-55), so what the
+    // sidebar owes the reader is a named control that opens it.
+    const trigger = wrapper.get('[data-testid="account-menu"]');
+    expect(trigger.attributes('aria-label')).toBe('Your account');
+    expect(trigger.attributes('aria-haspopup')).toBe('menu');
   });
 
   it('renders both navigations, so the layout can choose by width', async () => {

@@ -116,13 +116,13 @@ All requests use `/api/v1`. "Signed in as A" = A's auth cookie. Errors must use 
 | API-AUTH-26 | The device that made the change (BR-13) | Keeps working — it is re-issued a cookie, so nobody is signed out by their own action | P0 | Pass 2026-11-02 |
 | API-AUTH-27 | Another device signed in beforehand (BR-13) | Signed out | P0 | Pass 2026-11-02 |
 | API-AUTH-28 | Signed out caller | 401; no password is changed | P0 | Pass 2026-11-02 |
-| API-USR-01 | `PATCH /users/me` with a name | 200; the new name comes back and is on `/auth/me` | P1 | Not run |
-| API-USR-02 | `POST /users/me/email` (BR-15) | 202; the link goes to the NEW address, and the OLD one is told a change was asked for | P0 | Not run |
-| API-USR-03 | The address is not changed until the link is opened | `/auth/me` still shows the old address; the old one still signs in | P0 | Not run |
-| API-USR-04 | `POST /users/me/email/confirm` with the token | 200; the new address signs in and the old one does not | P0 | Not run |
-| API-USR-05 | Requesting a change to an address already in use | 409; nothing sent | P0 | Not run |
-| API-USR-06 | Requesting with the wrong current password | 400; nothing sent | P0 | Not run |
-| API-USR-07 | A spent, expired or invented confirmation token | 400, one message for all three | P0 | Not run |
+| API-USR-01 | `PATCH /users/me` with a name | 200; the new name comes back and is on `/auth/me` | P1 | Pass 2026-11-02 |
+| API-USR-02 | `POST /users/me/email` (BR-15) | 202; the link goes to the NEW address, and the OLD one is told a change was asked for | P0 | Pass 2026-11-02 |
+| API-USR-03 | The address is not changed until the link is opened | `/auth/me` still shows the old address; the old one still signs in | P0 | Pass 2026-11-02 |
+| API-USR-04 | `POST /users/me/email/confirm` with the token | 200; the new address signs in and the old one does not | P0 | Pass 2026-11-02 |
+| API-USR-05 | Requesting a change to an address already in use | 409; nothing sent | P0 | Pass 2026-11-02 |
+| API-USR-06 | Requesting with the wrong current password | 400; nothing sent | P0 | Pass 2026-11-02 |
+| API-USR-07 | A spent, expired or invented confirmation token | 400, one message for all three | P0 | Pass 2026-11-02 |
 
 > **API-AUTH-12 is verified by the Day 4 gate, not Day 3.** Its `/purchases` half passes as of Day 3 Slice 5. The `/dashboard` half cannot: Nest runs guards after routing, so a route that does not exist returns 404 rather than 401. `/dashboard` is built in Day 4 Slice 4, and the test is unchanged.
 
@@ -367,8 +367,11 @@ Fixture for A (today 2026-10-27), matching the design mockups:
 | FE-PAGE-51 | Settings | Change password | Sends current + new; success toast; the fields clear | P0 | Pass 2026-11-02 |
 | FE-PAGE-52 | Settings | New password and confirmation differ | Inline error, nothing sent | P0 | Pass 2026-11-02 |
 | FE-PAGE-53 | Settings | Server refuses the current password | The error lands on that field, not as a sign-out | P0 | Pass 2026-11-02 |
-| FE-PAGE-54 | Details | Service panel | Links down to the service history, so the panel that says a service is due reaches the place you log it | P1 | Not run |
-| FE-PAGE-55 | AppShell | Account menu in the sidebar | Offers View profile, Change settings, Change password and Sign out; sign out still works from it | P1 | Not run |
+| FE-PAGE-54 | Details | Service panel | Links down to the service history, so the panel that says a service is due reaches the place you log it | P1 | Pass 2026-11-02 |
+| FE-PAGE-55 | AppShell | Account menu in the sidebar | Offers View profile, Change settings, Change password and Sign out; sign out still works from it | P1 | Pass 2026-11-02 |
+| FE-PAGE-56 | Profile | Save a new name | PATCHes the name; the sidebar shows it without a reload | P1 | Pass 2026-11-02 |
+| FE-PAGE-57 | Profile | Ask to change the email (BR-15) | Says to check the NEW address and that the current one still signs in — never that the address has changed | P0 | Pass 2026-11-02 |
+| FE-PAGE-58 | Confirm email | Opening the link | Confirms on arrival, no button to press; a spent link says so | P0 | Pass 2026-11-02 |
 
 ---
 

@@ -5,6 +5,7 @@ import { Attachment } from '../attachments/attachment.entity';
 import { Purchase } from '../purchases/purchase.entity';
 import { ServiceRecord } from '../service-records/service-record.entity';
 import { PasswordResetToken } from '../auth/password-reset-token.entity';
+import { EmailChangeToken } from '../users/email-change-token.entity';
 import { User } from '../users/user.entity';
 
 /**
@@ -15,7 +16,7 @@ export function databaseOptions(url: string): DataSourceOptions {
   return {
     type: 'postgres',
     url,
-    entities: [User, Purchase, Attachment, ServiceRecord, PasswordResetToken],
+    entities: [User, Purchase, Attachment, ServiceRecord, PasswordResetToken, EmailChangeToken],
     // Matches .ts under ts-node and .js from dist.
     migrations: [join(__dirname, 'migrations', '*.{ts,js}')],
     // Never true, in any environment. It alters schemas behind the migrations'

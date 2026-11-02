@@ -65,6 +65,20 @@ const routes: RouteRecordRaw[] = [
     meta: { title: 'Edit purchase · Purchase Tracker' },
   },
   {
+    path: '/profile',
+    name: 'profile',
+    component: () => import('../pages/ProfilePage.vue'),
+    meta: { title: 'Profile · Purchase Tracker' },
+  },
+  {
+    // Public: the token is the authority, and the link is usually opened in a
+    // browser that was never signed in — which is the point of the exercise.
+    path: '/confirm-email',
+    name: 'confirm-email',
+    component: () => import('../pages/ConfirmEmailPage.vue'),
+    meta: { public: true, title: 'Confirm your email · Purchase Tracker' },
+  },
+  {
     path: '/settings',
     name: 'settings',
     component: () => import('../pages/SettingsPage.vue'),
@@ -98,11 +112,11 @@ function installGuards(router: Router): void {
     if (!auth.resolved) await auth.restore();
 
     if (auth.isAuthenticated) {
-      // A reset link is the exception: the token in it is the authority, not
-      // whoever happens to be signed in on this browser. Bouncing to the
-      // dashboard makes the link look broken to someone resetting a different
-      // account's password on a shared machine.
-      if (to.name === 'reset-password') return true;
+      // Links carrying a token are the exception: the token is the authority,
+      // not whoever happens to be signed in on this browser. Bouncing to the
+      // dashboard makes an emailed link look broken — and for a confirmation
+      // the whole point is that it was opened in a different inbox's browser.
+      if (to.name === 'reset-password' || to.name === 'confirm-email') return true;
 
       // Signed in and heading for sign-in: move on, do not bounce.
       return to.meta.public === true ? { path: '/dashboard' } : true;

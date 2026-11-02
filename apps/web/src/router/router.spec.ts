@@ -104,6 +104,15 @@ describe('Router guards', () => {
     expect(r.currentRoute.value.query.token).toBe('abc123');
   });
 
+  it('FE-AUTH-07 a confirm-email link opens even when someone is signed in', async () => {
+    signedIn();
+    const r = router();
+
+    await r.push('/confirm-email?token=abc123');
+
+    expect(r.currentRoute.value.path).toBe('/confirm-email');
+  });
+
   it('FE-AUTH-07 forgot-password still bounces a signed-in visitor', async () => {
     signedIn();
     const r = router();

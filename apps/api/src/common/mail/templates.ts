@@ -90,6 +90,67 @@ export function passwordReset(to: string, link: string, minutes: number): Mail {
   };
 }
 
+export function confirmEmailChange(to: string, link: string, minutes: number): Mail {
+  const text = [
+    'Confirm this address for your Purchase Tracker account.',
+    '',
+    'Open this link to finish the change:',
+    link,
+    '',
+    `The link works once and expires in ${minutes} minutes.`,
+    '',
+    'Until you open it, nothing changes and your account keeps its current',
+    'address. If you did not ask for this, ignore this email.',
+    '',
+    SIGN_OFF,
+  ].join('\n');
+
+  return {
+    to,
+    subject: 'Confirm your new email address',
+    text,
+    html: wrap(
+      'Confirm your new email address',
+      `<p>Confirm this address for your Purchase Tracker account.</p>
+       <p><a href="${escape(link)}" style="color:#1E40AF">Finish the change</a></p>
+       <p style="color:#475569">The link works once and expires in ${minutes} minutes.</p>
+       <p>Until you open it, nothing changes and your account keeps its current address.</p>`,
+    ),
+  };
+}
+
+/** Sent to the address being left. No link in it: there is nothing for this
+ *  reader to confirm, and a link here would be the thing to phish. */
+export function emailChangeRequested(to: string, newEmail: string): Mail {
+  const text = [
+    'Someone asked to move your Purchase Tracker account to a new address:',
+    '',
+    `  ${newEmail}`,
+    '',
+    'Nothing has changed yet. It only takes effect when that address is',
+    'confirmed.',
+    '',
+    'If this was not you, sign in and change your password now — whoever asked',
+    'had access to your account.',
+    '',
+    SIGN_OFF,
+  ].join('\n');
+
+  return {
+    to,
+    subject: 'A change of email address was requested',
+    text,
+    html: wrap(
+      'A change of email address was requested',
+      `<p>Someone asked to move your Purchase Tracker account to
+       <strong>${escape(newEmail)}</strong>.</p>
+       <p>Nothing has changed yet. It only takes effect when that address is confirmed.</p>
+       <p><strong>If this was not you</strong>, sign in and change your password now —
+       whoever asked had access to your account.</p>`,
+    ),
+  };
+}
+
 export interface ReminderLine {
   productName: string;
   /** Already written out: "Return closes in 3 days", "Service due today". */

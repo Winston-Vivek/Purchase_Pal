@@ -25,6 +25,14 @@ export class UserRepository {
     return this.users.save(user);
   }
 
+  /** Returns the row as it now is, so a caller can respond with it. */
+  async updateFields(id: string, changes: Partial<User>): Promise<User> {
+    await this.users.update({ id }, changes);
+    const updated = await this.findById(id);
+    if (!updated) throw new Error(`user ${id} disappeared mid-update`);
+    return updated;
+  }
+
   /** BR-13: the hash and the timestamp move together, in one statement, so
    *  there is no window where the password is new and the sessions are old. */
   async updatePassword(id: string, passwordHash: string, changedAt: Date): Promise<void> {
