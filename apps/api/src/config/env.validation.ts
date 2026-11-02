@@ -1,4 +1,4 @@
-import { plainToInstance, Type } from 'class-transformer';
+import { plainToInstance, Transform, Type } from 'class-transformer';
 import {
   IsBoolean,
   IsEnum,
@@ -122,8 +122,14 @@ export class EnvironmentVariables {
   /**
    * On for a managed Postgres, off for the one in docker-compose. Declared so
    * a missing value is a documented default rather than a surprise at boot.
+   *
+   * Explicitly `=== 'true'` and NOT `@Type(() => Boolean)`: everything in
+   * `process.env` is a string, and `Boolean('false')` is `true`, so the
+   * declarative version turns `DATABASE_SSL=false` — the line `.env.example`
+   * ships — into SSL being *on*, against a local Postgres that has no
+   * certificate to offer. Nothing then connects.
    */
-  @Type(() => Boolean)
+  @Transform(({ value }) => value === true || value === 'true', { toClassOnly: true })
   @IsBoolean()
   DATABASE_SSL: boolean = false;
 
