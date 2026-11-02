@@ -11,6 +11,15 @@ services:
   - type: web
     name: purchase-tracker-api
     runtime: docker
+
+    # Pinned, because the GitHub mirror's DEFAULT branch is `main` and `main`
+    # holds nothing but the README that creating the repository generated. The
+    # code is on `master`. Without this, Render builds the default branch and
+    # finds no Dockerfile.
+    #
+    # Vercel needs the same thing said in its dashboard (Settings -> Git ->
+    # Production Branch = master), since there is no equivalent file for it.
+    branch: master
     dockerfilePath: ./apps/api/Dockerfile
     dockerContext: .
     plan: free

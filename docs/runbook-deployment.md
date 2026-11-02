@@ -156,6 +156,14 @@ restart or 15-minute spin-down. Recorded in `CHANGELOG.md` against BR-10. The
 fix, when it matters, is `plan: starter` plus the `disk:` block that
 `render.yaml` still documents in a comment.
 
+**Both platforms default to the wrong branch.** The mirror's default branch is
+`main`, which holds only the README that GitHub generated when the repository
+was created; the code is on `master`. `render.yaml` now pins `branch: master`,
+but **Vercel has to be told separately** — Settings → Git → Production Branch =
+`master`. The tidier alternative is to change the repository's default branch to
+`master` on GitHub and delete `main`, after which neither platform can get it
+wrong.
+
 **Most of this is already in `render.yaml`.** Create the service from the
 blueprint (Render → New → Blueprint) rather than filling in a form, and only
 the five `sync: false` values need typing: `DATABASE_URL`, `WEB_ORIGIN`,
