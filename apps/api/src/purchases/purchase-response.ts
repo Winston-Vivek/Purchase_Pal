@@ -35,6 +35,29 @@ export interface PurchaseResponse {
  * windows come from the user, so the same purchase can read ACTIVE for one
  * person and EXPIRING_SOON for another.
  */
+/**
+ * BR-11. A return the user has closed reports CLOSED whatever its deadline
+ * says, and stops counting down.
+ *
+ * One function because three places resolve a return — this mapper, the list
+ * projection and the dashboard — and the rule has to hold in all of them or
+ * the dashboard would keep nagging about a return the details page calls
+ * closed.
+ */
+export function resolveReturn(
+  purchase: Purchase,
+  deadline: string | null,
+  user: User,
+  dates: DatesService,
+): { status: DeadlineStatus; daysLeft: number | null } {
+  if (purchase.returnClosed) return { status: DeadlineStatus.CLOSED, daysLeft: null };
+
+  return {
+    status: dates.status(deadline, user.returnAlertDays),
+    daysLeft: dates.daysLeft(deadline),
+  };
+}
+
 export function toPurchaseResponse(
   purchase: Purchase,
   user: User,
@@ -47,6 +70,7 @@ export function toPurchaseResponse(
     purchase.returnDeadline,
   );
   const warrantyExpiry = dates.warrantyExpiry(purchase.warrantyStartDate, purchase.warrantyMonths);
+  const returned = resolveReturn(purchase, returnDeadline, user, dates);
 
   const response: PurchaseResponse = {
     id: purchase.id,
@@ -63,8 +87,8 @@ export function toPurchaseResponse(
     warrantyMonths: purchase.warrantyMonths,
     notes: purchase.notes,
     returnDeadline,
-    returnStatus: dates.status(returnDeadline, user.returnAlertDays),
-    returnDaysLeft: dates.daysLeft(returnDeadline),
+    returnStatus: returned.status,
+    returnDaysLeft: returned.daysLeft,
     warrantyExpiry,
     warrantyStatus: dates.status(warrantyExpiry, user.warrantyAlertDays),
     warrantyDaysLeft: dates.daysLeft(warrantyExpiry),

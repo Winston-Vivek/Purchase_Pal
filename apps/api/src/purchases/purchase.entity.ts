@@ -68,6 +68,11 @@ export class Purchase {
   @Column({ name: 'return_deadline', type: 'date', nullable: true })
   returnDeadline!: string | null;
 
+  /** BR-11: the user decided to keep the item. The deadline above is left
+   *  exactly as it was, so reopening restores the computed status. */
+  @Column({ name: 'return_closed', type: 'boolean', default: false })
+  returnClosed!: boolean;
+
   @Column({ name: 'warranty_start_date', type: 'date', nullable: true })
   warrantyStartDate!: string | null;
 

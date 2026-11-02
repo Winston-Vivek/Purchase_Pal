@@ -11,6 +11,15 @@ export enum DeadlineStatus {
   EXPIRED = 'EXPIRED',
   EXPIRING_SOON = 'EXPIRING_SOON',
   ACTIVE = 'ACTIVE',
+  /**
+   * Returns only (BR-11): the user said they are keeping the item.
+   *
+   * It lives in this enum rather than a type of its own so that one
+   * @IsEnum covers both status filters and there is one list to explain. A
+   * warranty can never be CLOSED, so filtering warranties by it matches
+   * nothing — which is the honest answer, not an error.
+   */
+  CLOSED = 'CLOSED',
 }
 
 export interface CalendarDate {

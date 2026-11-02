@@ -8,6 +8,7 @@ import { CreatePurchaseDto } from './dto/create-purchase.dto';
 import { ListPurchasesDto, PurchaseSort } from './dto/list-purchases.dto';
 import { UpdatePurchaseDto } from './dto/update-purchase.dto';
 import { Purchase } from './purchase.entity';
+import { resolveReturn } from './purchase-response';
 
 /** The fields the business rules in §7 relate to each other. */
 interface DateState {
@@ -119,7 +120,7 @@ export class PurchasesService {
 
     return {
       purchase,
-      returnStatus: this.dates.status(returnDeadline, user.returnAlertDays),
+      returnStatus: resolveReturn(purchase, returnDeadline, user, this.dates).status,
       warrantyStatus: this.dates.status(warrantyExpiry, user.warrantyAlertDays),
       nextDeadlineDays: upcoming.length > 0 ? Math.min(...upcoming) : Number.POSITIVE_INFINITY,
     };

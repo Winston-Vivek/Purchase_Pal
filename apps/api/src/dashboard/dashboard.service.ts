@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { DatesService, DeadlineStatus } from '../common/dates/dates.service';
 import { Purchase } from '../purchases/purchase.entity';
-import { toPurchaseResponse } from '../purchases/purchase-response';
+import { resolveReturn, toPurchaseResponse } from '../purchases/purchase-response';
 import { PurchaseRepository } from '../repositories/purchase/purchase.repository';
 import { User } from '../users/user.entity';
 import { DashboardResponse, DeadlineItem, DeadlineKind } from './dashboard-response';
@@ -95,12 +95,13 @@ export class DashboardService {
       purchase.warrantyStartDate,
       purchase.warrantyMonths,
     );
+    const returned = resolveReturn(purchase, returnDeadline, user, this.dates);
 
     return {
       purchase,
       returnDeadline,
-      returnStatus: this.dates.status(returnDeadline, user.returnAlertDays),
-      returnDaysLeft: this.dates.daysLeft(returnDeadline),
+      returnStatus: returned.status,
+      returnDaysLeft: returned.daysLeft,
       warrantyExpiry,
       warrantyStatus: this.dates.status(warrantyExpiry, user.warrantyAlertDays),
       warrantyDaysLeft: this.dates.daysLeft(warrantyExpiry),

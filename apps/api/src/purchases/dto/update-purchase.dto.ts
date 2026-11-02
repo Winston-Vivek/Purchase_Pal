@@ -1,6 +1,7 @@
 import { ApiPropertyOptional } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
 import {
+  IsBoolean,
   IsEnum,
   IsISO4217CurrencyCode,
   IsInt,
@@ -95,4 +96,10 @@ export class UpdatePurchaseDto {
   @IsString()
   @MaxLength(1000)
   notes?: string | null;
+
+  /** BR-11. true = keeping it, false = reopen. */
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsBoolean()
+  returnClosed?: boolean;
 }

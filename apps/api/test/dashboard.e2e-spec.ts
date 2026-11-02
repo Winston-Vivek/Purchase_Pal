@@ -194,9 +194,7 @@ describe('Dashboard (e2e)', () => {
     await seedDashboard(app, cookie);
 
     const before = await dashboard().expect(200);
-    const target = before.body.needsAction.find(
-      (item: { kind: string }) => item.kind === 'RETURN',
-    );
+    const target = before.body.needsAction.find((item: { kind: string }) => item.kind === 'RETURN');
     expect(target).toBeDefined();
 
     await request(app.getHttpServer())
