@@ -13,6 +13,7 @@ import {
   purchaseIdFrom,
   signIn,
   twelveMonthWarrantyEnd,
+  setAlertWindows,
 } from './helpers';
 
 const RECEIPT = resolve('apps/api/test/fixtures/receipt.pdf');
@@ -47,7 +48,9 @@ test.describe('Proofly journeys', () => {
     await page.fill('#purchaseDate', isoToday());
     await page.fill('#returnWindowDays', '7');
     await page.check('#hasWarranty');
-    await page.fill('#warrantyStartDate', isoToday());
+    // The start already holds the purchase date and is locked to it
+    // (FE-PAGE-40), so there is nothing to type here any more.
+    await expect(page.locator('#warrantyStartDate')).toHaveValue(isoToday());
     await page.fill('#warrantyLength', '12');
 
     // The form says what it is about to save, before it saves it.
@@ -83,7 +86,10 @@ test.describe('Proofly journeys', () => {
 
     const [download] = await Promise.all([
       page.waitForEvent('download'),
-      page.getByRole('link', { name: /download/i }).first().click(),
+      page
+        .getByRole('link', { name: /download/i })
+        .first()
+        .click(),
     ]);
 
     expect(download.suggestedFilename()).toBe('receipt.pdf');
@@ -126,6 +132,12 @@ test.describe('Proofly journeys', () => {
     context,
   }) => {
     await signIn(context);
+    // The whole point of this journey is a deadline inside the window, so it
+    // states the window instead of hoping for the default.
+    const windows = await setAlertWindows(context, {
+      warrantyAlertDays: 30,
+      returnAlertDays: 7,
+    });
 
     await page.goto('/purchases/new');
     await page.fill('#productName', 'E2E Closing Soon');
@@ -142,6 +154,7 @@ test.describe('Proofly journeys', () => {
     await expect(needsAction.getByText(/closes in 3 days/i).first()).toBeVisible();
 
     await deletePurchase(context, id);
+    await setAlertWindows(context, windows);
   });
 
   test('E2E-06 search finds a purchase and an edit to it sticks', async ({ page, context }) => {
@@ -151,7 +164,10 @@ test.describe('Proofly journeys', () => {
     await page.fill('#q', 'AirPods');
     await page.getByRole('button', { name: /^search$/i }).click();
 
-    await page.getByRole('link', { name: /AirPods/i }).first().click();
+    await page
+      .getByRole('link', { name: /AirPods/i })
+      .first()
+      .click();
     await expect(page).toHaveURL(/\/purchases\/[0-9a-f-]{36}$/);
     const url = page.url();
 
@@ -169,9 +185,7 @@ test.describe('Proofly journeys', () => {
     await expect(page.getByText('Bought from Amazon')).toBeVisible();
   });
 
-  test("E2E-07 another user gets nothing from A's purchase or receipt URL", async ({
-    browser,
-  }) => {
+  test("E2E-07 another user gets nothing from A's purchase or receipt URL", async ({ browser }) => {
     // A creates a purchase with a receipt.
     const a = await browser.newContext();
     await signIn(a, DEMO);
@@ -185,7 +199,9 @@ test.describe('Proofly journeys', () => {
     });
     const purchase = await created.json();
     const upload = await a.request.post(`/api/v1/purchases/${purchase.id}/attachments`, {
-      multipart: { file: { name: 'receipt.pdf', mimeType: 'application/pdf', buffer: readFileSync(RECEIPT) } },
+      multipart: {
+        file: { name: 'receipt.pdf', mimeType: 'application/pdf', buffer: readFileSync(RECEIPT) },
+      },
     });
     const attachment = await upload.json();
 

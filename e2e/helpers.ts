@@ -21,7 +21,9 @@ const fromIso = (iso: string): Date =>
 
 /** Formatted the way ui-guide §3 asks, so it can be compared with the page. */
 export const asDisplayed = (date: Date): string =>
-  new Intl.DateTimeFormat('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }).format(date);
+  new Intl.DateTimeFormat('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }).format(
+    date,
+  );
 
 export const plusDays = (days: number): Date => {
   const date = fromIso(isoToday());
@@ -48,6 +50,37 @@ export async function signIn(
 ): Promise<void> {
   const response = await context.request.post('/api/v1/auth/login', { data: who });
   if (!response.ok()) throw new Error(`seed sign-in failed: ${response.status()}`);
+}
+
+export interface AlertWindows {
+  warrantyAlertDays: number;
+  returnAlertDays: number;
+}
+
+/**
+ * Sets the alert windows a journey depends on, and returns the ones it
+ * replaced.
+ *
+ * "Needs action" is computed against the signed-in user's own windows
+ * (BR-04), so a test that assumes the defaults silently depends on a setting
+ * any UAT session can change — which is exactly how E2E-05 started failing
+ * after the demo account's return window was set to 1 day by hand.
+ */
+export async function setAlertWindows(
+  context: BrowserContext,
+  windows: AlertWindows,
+): Promise<AlertWindows> {
+  // Read first, so the journey can hand the account back the way it found it:
+  // these are the user's own settings, and a test run should not quietly
+  // rewrite them (the same reason deletePurchase exists).
+  const before = await context.request.get('/api/v1/auth/me');
+  if (!before.ok()) throw new Error(`could not read alert windows: ${before.status()}`);
+  const { warrantyAlertDays, returnAlertDays } = await before.json();
+
+  const response = await context.request.patch('/api/v1/users/me/settings', { data: windows });
+  if (!response.ok()) throw new Error(`could not set alert windows: ${response.status()}`);
+
+  return { warrantyAlertDays, returnAlertDays };
 }
 
 /** Removes a purchase the journey created, so repeated runs stay identical

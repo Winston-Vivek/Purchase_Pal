@@ -197,7 +197,7 @@ async function save(): Promise<void> {
         </p>
 
         <fieldset
-          class="flex flex-col gap-4 rounded-md border border-border bg-surface p-4 lg:col-span-2 lg:p-6"
+          class="@container flex flex-col gap-4 rounded-md border border-border bg-surface p-4 lg:col-span-2 lg:p-6"
         >
           <legend class="px-1 font-heading text-lg font-semibold text-fg">Product</legend>
 
@@ -209,7 +209,7 @@ async function save(): Promise<void> {
             required
           />
 
-          <div class="grid gap-4 sm:grid-cols-2">
+          <div class="grid gap-4 @md:grid-cols-2">
             <div class="flex flex-col gap-1.5">
               <label for="category" class="text-sm font-semibold text-fg">Category</label>
               <select
@@ -231,7 +231,7 @@ async function save(): Promise<void> {
             />
           </div>
 
-          <div class="grid gap-4 sm:grid-cols-2">
+          <div class="grid gap-4 @md:grid-cols-2">
             <BaseInput
               id="price"
               v-model="price"
@@ -252,7 +252,9 @@ async function save(): Promise<void> {
           </div>
         </fieldset>
 
-        <fieldset class="flex flex-col gap-4 rounded-md border border-border bg-surface p-4 lg:p-6">
+        <fieldset
+          class="@container flex flex-col gap-4 rounded-md border border-border bg-surface p-4 lg:p-6"
+        >
           <legend class="px-1 font-heading text-lg font-semibold text-fg">Return</legend>
 
           <div
@@ -317,7 +319,9 @@ async function save(): Promise<void> {
           </p>
         </fieldset>
 
-        <fieldset class="flex flex-col gap-4 rounded-md border border-border bg-surface p-4 lg:p-6">
+        <fieldset
+          class="@container flex flex-col gap-4 rounded-md border border-border bg-surface p-4 lg:p-6"
+        >
           <legend class="px-1 font-heading text-lg font-semibold text-fg">Warranty</legend>
 
           <label class="flex min-h-11 cursor-pointer items-center gap-2 font-semibold text-fg">
@@ -326,7 +330,7 @@ async function save(): Promise<void> {
           </label>
 
           <template v-if="hasWarranty">
-            <div class="grid gap-4 sm:grid-cols-2">
+            <div class="grid gap-4 @md:grid-cols-2">
               <div class="flex flex-col gap-1.5">
                 <BaseInput
                   id="warrantyStartDate"
@@ -349,8 +353,8 @@ async function save(): Promise<void> {
               <!-- self-start: the cell beside this one is taller because of its
                  hint, and without it the whole group sank to the bottom of the
                  row, putting "Length" out of line with "Warranty starts". -->
-              <div class="flex items-end gap-2 self-start">
-                <div class="flex-1">
+              <div class="flex min-w-0 items-end gap-2 self-start">
+                <div class="min-w-0 flex-1">
                   <BaseInput
                     id="warrantyLength"
                     v-model="warrantyLength"
@@ -363,7 +367,7 @@ async function save(): Promise<void> {
                   id="warrantyUnit"
                   v-model="warrantyUnit"
                   aria-label="Warranty length unit"
-                  class="min-h-11 rounded-sm border border-input bg-surface px-3 text-base text-fg focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-hidden"
+                  class="min-h-11 shrink-0 rounded-sm border border-input bg-surface px-3 text-base text-fg focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-hidden"
                 >
                   <option value="months">months</option>
                   <option value="years">years</option>

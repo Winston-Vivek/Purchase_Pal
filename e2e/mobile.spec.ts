@@ -30,7 +30,9 @@ test.describe('On a phone', () => {
     await page.fill('#purchaseDate', isoToday());
     await page.fill('#returnWindowDays', '7');
     await page.check('#hasWarranty');
-    await page.fill('#warrantyStartDate', isoToday());
+    // The start already holds the purchase date and is locked to it
+    // (FE-PAGE-40), so there is nothing to type here any more.
+    await expect(page.locator('#warrantyStartDate')).toHaveValue(isoToday());
     await page.fill('#warrantyLength', '12');
     expect(await hasHorizontalScroll(page)).toBe(false);
 

@@ -352,7 +352,7 @@ From `design/ui-guide.md` §8 and the UI UX Pro Max pre-delivery checklist.
 | NFR-10 | Secrets | No secrets in git; `.env.example` complete; JWT secret required at boot | P0 | Pass 2026-10-29 |
 | NFR-11 | Receipts not public | Guessing `/uploads/<key>` or any static path returns 404 | P0 | Pass 2026-10-29 |
 | NFR-12 | Fresh clone | README steps alone run the app and all tests | P0 | Pass 2026-10-29 |
-| NFR-13 | No control escapes its card | Every input, select and button sits inside its fieldset at 360, 768, 1024, 1440 px | P1 | Not run |
+| NFR-13 | No control escapes its card | Every input, select and button sits inside its fieldset at 360, 768, 1024, 1440 px | P1 | Pass 2026-11-02 |
 
 > **NFR-12 run on 29 Oct 2026**, three times against clean clones of the committed tree. It found two defects that no other check in the project could have found, because every other check runs against the working tree:
 >
