@@ -62,6 +62,79 @@ describe('My purchases', () => {
       },
     });
 
+  // FE-PAGE-42..44. A table of things you open is tedious if only the name is
+  // a target, so the whole row works — without stealing clicks from the
+  // controls inside it.
+  describe('FE-PAGE-42..44 row actions', () => {
+    const DELL: PurchaseResponse = { ...AIRPODS, id: 'p2', productName: 'Dell XPS 13' };
+
+    const listed = (items = [AIRPODS, DELL]) =>
+      fetchMock.mockResolvedValue(json(200, { items, total: items.length, page: 1, pageSize: 20 }));
+
+    const rows = (wrapper: ReturnType<typeof page>) => wrapper.findAll('tbody tr');
+
+    it('FE-PAGE-42 clicking a row opens that purchase', async () => {
+      listed();
+      const wrapper = page();
+      await flushPromises();
+
+      await rows(wrapper)[1].trigger('click');
+
+      expect(push).toHaveBeenCalledWith('/purchases/p2');
+    });
+
+    it('FE-PAGE-42 a click on something interactive is left alone', async () => {
+      listed();
+      const wrapper = page();
+      await flushPromises();
+
+      // The menu button lives in the row; opening it must not also navigate.
+      await rows(wrapper)[0].get('[data-testid="row-menu"]').trigger('click');
+
+      expect(push).not.toHaveBeenCalledWith('/purchases/p1');
+    });
+
+    it('FE-PAGE-43 the row menu offers view, edit and delete for that row', async () => {
+      listed();
+      const wrapper = page();
+      await flushPromises();
+
+      await rows(wrapper)[0].get('[data-testid="row-menu"]').trigger('click');
+      const labels = rows(wrapper)[0]
+        .get('[role="menu"]')
+        .findAll('[role="menuitem"]')
+        .map((item) => item.text());
+
+      expect(labels).toEqual(['View', 'Edit', 'Delete']);
+    });
+
+    it('FE-PAGE-44 deleting asks first, then sends it and drops the row', async () => {
+      listed();
+      const wrapper = page();
+      await flushPromises();
+
+      await rows(wrapper)[1].get('[data-testid="row-menu"]').trigger('click');
+      const remove = rows(wrapper)[1]
+        .get('[role="menu"]')
+        .findAll('[role="menuitem"]')
+        .find((item) => item.text() === 'Delete');
+      await remove!.trigger('click');
+      await flushPromises();
+
+      // Nothing is sent until the question is answered (ui-guide §7).
+      expect(fetchMock.mock.calls.some(([, init]) => init?.method === 'DELETE')).toBe(false);
+      expect(wrapper.text()).toContain('Dell XPS 13');
+
+      fetchMock.mockResolvedValueOnce(json(204, null));
+      listed([AIRPODS]);
+      await wrapper.get('[data-testid="confirm-delete"]').trigger('click');
+      await flushPromises();
+
+      const sent = fetchMock.mock.calls.find(([, init]) => init?.method === 'DELETE');
+      expect(sent?.[0]).toContain('/purchases/p2');
+    });
+  });
+
   it('FE-PAGE-05 shows a skeleton while it loads, not an empty screen', async () => {
     // Never resolves, so the component stays in its loading state.
     fetchMock.mockReturnValue(new Promise(() => {}));
