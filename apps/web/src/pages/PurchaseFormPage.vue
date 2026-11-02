@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { CalendarDays, ShieldCheck } from '@lucide/vue';
-import { computed, onMounted, ref } from 'vue';
+import { computed, onMounted, ref, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { ApiError, api } from '../api/client';
 import { CATEGORIES, type PurchaseResponse } from '../api/types';
@@ -31,6 +31,18 @@ const manualDeadline = ref('');
 
 const hasWarranty = ref(false);
 const warrantyStartDate = ref('');
+
+/**
+ * Nearly every warranty starts the day you buy the thing, so typing the same
+ * date twice is the common case. Ticked, the start follows the purchase date
+ * — including when that date is corrected afterwards, which is the bit that
+ * would otherwise go quietly wrong.
+ */
+const warrantyStartsOnPurchase = ref(true);
+
+watch([purchaseDate, warrantyStartsOnPurchase, hasWarranty], () => {
+  if (warrantyStartsOnPurchase.value) warrantyStartDate.value = purchaseDate.value;
+});
 const warrantyLength = ref('');
 const warrantyUnit = ref<'months' | 'years'>('months');
 
@@ -100,6 +112,11 @@ onMounted(async () => {
 
     hasWarranty.value = purchase.warrantyMonths !== null;
     warrantyStartDate.value = purchase.warrantyStartDate ?? '';
+    // Decided from what was actually saved, so loading never rewrites a start
+    // date that was deliberately different — an appliance installed weeks
+    // after it was bought.
+    warrantyStartsOnPurchase.value =
+      purchase.warrantyStartDate === null || purchase.warrantyStartDate === purchase.purchaseDate;
     warrantyLength.value = purchase.warrantyMonths === null ? '' : String(purchase.warrantyMonths);
   } catch (failure) {
     formError.value =
@@ -307,14 +324,25 @@ async function save(): Promise<void> {
 
           <template v-if="hasWarranty">
             <div class="grid gap-4 sm:grid-cols-2">
-              <BaseInput
-                id="warrantyStartDate"
-                v-model="warrantyStartDate"
-                label="Warranty starts"
-                type="date"
-                hint="Same as the purchase date unless the card says otherwise."
-                :error="fields.warrantyStartDate"
-              />
+              <div class="flex flex-col gap-1.5">
+                <BaseInput
+                  id="warrantyStartDate"
+                  v-model="warrantyStartDate"
+                  label="Warranty starts"
+                  type="date"
+                  :disabled="warrantyStartsOnPurchase"
+                  :error="fields.warrantyStartDate"
+                />
+                <label class="flex min-h-11 cursor-pointer items-center gap-2 text-sm text-fg">
+                  <input
+                    id="warrantyStartsOnPurchase"
+                    v-model="warrantyStartsOnPurchase"
+                    type="checkbox"
+                    class="size-4"
+                  />
+                  Starts on the purchase date
+                </label>
+              </div>
               <!-- self-start: the cell beside this one is taller because of its
                  hint, and without it the whole group sank to the bottom of the
                  row, putting "Length" out of line with "Warranty starts". -->

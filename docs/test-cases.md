@@ -304,6 +304,8 @@ Fixture for A (today 2026-10-27), matching the design mockups:
 | FE-PAGE-37 | Details | Category of a HOME_KITCHEN purchase | Header reads "Home & kitchen" — the label the form offered, never the stored value | P1 | Pass 2026-11-02 |
 | FE-PAGE-38 | Details | "Keeping it" on an open return | PATCHes `returnClosed: true`; panel reads Closed and offers to reopen | P1 | Pass 2026-11-02 |
 | FE-PAGE-39 | Details | Reopen on a closed return | PATCHes `returnClosed: false`; the countdown comes back | P1 | Pass 2026-11-02 |
+| FE-PAGE-40 | Add purchase | "Starts on the purchase date" ticked | Warranty start follows the purchase date, including when that date is changed afterwards; the date field is not editable while ticked | P1 | Pass 2026-11-02 |
+| FE-PAGE-41 | Edit purchase | Warranty start differs from the purchase date | Checkbox starts unticked and the entered start date is kept | P1 | Pass 2026-11-02 |
 
 ---
 

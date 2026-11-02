@@ -14,6 +14,7 @@ const props = withDefaults(
     autocomplete?: string;
     min?: string;
     max?: string;
+    disabled?: boolean;
   }>(),
   { type: 'text' },
 );
@@ -49,10 +50,14 @@ const describedBy = computed(() => {
       :min="min"
       :max="max"
       :required="required || undefined"
+      :disabled="disabled || undefined"
       :aria-invalid="error ? 'true' : undefined"
       :aria-describedby="describedBy"
       class="min-h-11 rounded-sm border bg-surface px-3 text-base text-fg focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-hidden"
-      :class="error ? 'border-danger' : 'border-input'"
+      :class="[
+        error ? 'border-danger' : 'border-input',
+        disabled ? 'cursor-not-allowed bg-subtle text-muted-fg' : '',
+      ]"
       @input="$emit('update:modelValue', ($event.target as HTMLInputElement).value)"
     />
 

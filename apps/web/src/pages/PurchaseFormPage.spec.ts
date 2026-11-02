@@ -152,6 +152,85 @@ describe('Add and edit purchase', () => {
     wrapper.unmount();
   });
 
+  // FE-PAGE-40/41. Nearly every warranty starts the day you buy the thing, so
+  // typing the same date twice is the common case, not the exception.
+  describe('FE-PAGE-40/41 warranty starting on the purchase date', () => {
+    const startsHere = (wrapper: ReturnType<typeof form>) =>
+      wrapper.get('#warrantyStartsOnPurchase').element as HTMLInputElement;
+
+    it('FE-PAGE-40 the start follows the purchase date while it is ticked', async () => {
+      const wrapper = form();
+      await wrapper.get('#purchaseDate').setValue('2026-10-27');
+      await wrapper.get('#hasWarranty').setValue(true);
+
+      expect(startsHere(wrapper).checked).toBe(true);
+      const start = wrapper.get('#warrantyStartDate').element as HTMLInputElement;
+      expect(start.value).toBe('2026-10-27');
+      expect(start.disabled).toBe(true);
+
+      // Correcting the purchase date afterwards has to carry the start with it,
+      // or the two silently disagree.
+      await wrapper.get('#purchaseDate').setValue('2026-10-20');
+      expect((wrapper.get('#warrantyStartDate').element as HTMLInputElement).value).toBe(
+        '2026-10-20',
+      );
+    });
+
+    it('FE-PAGE-40 unticking it hands the date back to the user', async () => {
+      const wrapper = form();
+      await wrapper.get('#purchaseDate').setValue('2026-10-27');
+      await wrapper.get('#hasWarranty').setValue(true);
+      await wrapper.get('#warrantyStartsOnPurchase').setValue(false);
+
+      const start = wrapper.get('#warrantyStartDate').element as HTMLInputElement;
+      expect(start.disabled).toBe(false);
+
+      await wrapper.get('#warrantyStartDate').setValue('2026-12-01');
+      await wrapper.get('#purchaseDate').setValue('2026-10-20');
+      expect((wrapper.get('#warrantyStartDate').element as HTMLInputElement).value).toBe(
+        '2026-12-01',
+      );
+    });
+
+    it('FE-PAGE-41 editing a purchase whose warranty starts elsewhere keeps it', async () => {
+      route.params = { purchaseId: 'p1' };
+      fetchMock.mockResolvedValueOnce(
+        json(200, {
+          id: 'p1',
+          productName: 'Samsung AC',
+          category: 'APPLIANCES',
+          seller: null,
+          purchaseDate: '2026-10-01',
+          price: 42990,
+          currency: 'INR',
+          returnWindowDays: null,
+          // Installed three weeks after it was bought, which is exactly why
+          // this field is separate from the purchase date.
+          warrantyStartDate: '2026-10-22',
+          warrantyMonths: 12,
+          notes: null,
+          returnDeadline: null,
+          returnStatus: 'NOT_SET',
+          returnDaysLeft: null,
+          warrantyExpiry: '2027-10-21',
+          warrantyStatus: 'ACTIVE',
+          warrantyDaysLeft: 359,
+          hasReceipt: false,
+          attachments: [],
+          serviceRecords: [],
+        }),
+      );
+
+      const wrapper = form();
+      await flushPromises();
+
+      expect(startsHere(wrapper).checked).toBe(false);
+      expect((wrapper.get('#warrantyStartDate').element as HTMLInputElement).value).toBe(
+        '2026-10-22',
+      );
+    });
+  });
+
   it('FE-PAGE-12 editing loads the purchase and saves only what changed', async () => {
     route.params = { purchaseId: 'p1' };
     fetchMock.mockResolvedValueOnce(
