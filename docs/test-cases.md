@@ -260,6 +260,7 @@ Fixture for A (today 2026-10-27), matching the design mockups:
 | FE-CMP-15 | FileDrop | 6 MB file or .exe chosen | Inline error before upload; no request sent | P0 | Pass 2026-10-29 |
 | FE-CMP-16 | Skeleton | loading | aria-busy on the region | P1 | Pass 2026-10-29 |
 | FE-CMP-17 | StatusBadge | Return with status CLOSED (BR-11) | Reads "Keeping it" in a neutral tone — never confused with an expired window's "Return closed <date>" | P1 | Pass 2026-11-02 |
+| FE-CMP-18 | BaseButton | Button with an icon and a label | Icon and label sit on one line — Tailwind Preflight makes `svg` display:block, which breaks them apart inside an inline wrapper | P1 | Pass 2026-11-02 |
 
 ## 4. Frontend pages (`apps/web/src/pages/**/*.spec.ts`)
 

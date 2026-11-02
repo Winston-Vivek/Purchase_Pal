@@ -42,9 +42,14 @@ function onClick(event: MouseEvent): void {
     :class="VARIANTS[variant]"
     @click="onClick"
   >
-    <!-- The label stays in the layout while loading, so the button keeps its
-         width and the page does not jump mid-save (ui-guide §4). -->
-    <span :class="loading ? 'invisible' : ''"><slot /></span>
+    <!-- inline-flex, not a plain span: Tailwind's Preflight sets
+         `svg { display: block }`, so an icon in an inline wrapper drops onto
+         its own line and the button renders two-storey.
+         The label also stays in the layout while loading, so the button keeps
+         its width and the page does not jump mid-save (ui-guide §4). -->
+    <span class="inline-flex items-center gap-2" :class="loading ? 'invisible' : ''">
+      <slot />
+    </span>
 
     <span v-if="loading" class="absolute inset-0 flex items-center justify-center gap-2">
       <Loader2 :size="18" aria-hidden="true" class="animate-spin motion-reduce:animate-none" />

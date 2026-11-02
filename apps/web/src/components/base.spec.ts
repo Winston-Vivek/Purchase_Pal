@@ -24,6 +24,19 @@ describe('Base components', () => {
       expect(wrapper.html()).toContain('Save');
     });
 
+    // FE-CMP-18. Tailwind's Preflight sets `svg { display: block }`, so an
+    // icon inside an inline wrapper drops onto its own line and every button
+    // with an icon renders two-storey. The wrapper has to be a flex row.
+    it('FE-CMP-18 an icon and its label stay on one line', () => {
+      const wrapper = mount(BaseButton, {
+        slots: { default: '<svg data-testid="icon"></svg> Add service record' },
+      });
+
+      const slotWrapper = wrapper.get('[data-testid="icon"]').element.parentElement!;
+      expect(slotWrapper.className).toMatch(/\binline-flex\b|\bflex\b/);
+      expect(slotWrapper.className).toContain('items-center');
+    });
+
     it('FE-CMP-08 a loading button cannot be clicked twice', async () => {
       const wrapper = mount(BaseButton, { props: { loading: true }, slots: { default: 'Save' } });
 

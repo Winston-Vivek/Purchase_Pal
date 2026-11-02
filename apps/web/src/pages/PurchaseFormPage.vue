@@ -173,10 +173,11 @@ async function save(): Promise<void> {
 
 <template>
   <AppShell>
-    <!-- ui-guide §2: forms are capped at 640px. Centring the column keeps the
-         page balanced on a wide monitor, where a left-hugging form left most
-         of the screen empty. -->
-    <div class="mx-auto max-w-[640px]">
+    <!-- One column on a phone, two from 1024px up. The product identifies the
+         thing and spans the width; its two deadlines sit side by side, which
+         is how they are read. Wider than ui-guide §2's 640px cap on purpose
+         (change logged) — at 640 the form used about a third of a desktop. -->
+    <div class="mx-auto max-w-[640px] lg:max-w-[1040px]">
       <h1 class="font-heading text-2xl font-semibold text-fg lg:text-[28px]">
         {{ isEdit ? 'Edit purchase' : 'Add purchase' }}
       </h1>
@@ -184,18 +185,20 @@ async function save(): Promise<void> {
         Only the product, price and purchase date are required. Add the rest now or later.
       </p>
 
-      <form class="mt-6 flex flex-col gap-6" novalidate @submit.prevent="save">
-        <ErrorSummary :errors="fields" />
+      <form class="mt-6 grid gap-6 lg:grid-cols-2" novalidate @submit.prevent="save">
+        <ErrorSummary :errors="fields" class="lg:col-span-2" />
 
         <p
           v-if="formError"
           role="alert"
-          class="rounded-sm border border-danger bg-bad-bg px-3 py-2 text-sm font-semibold text-bad-fg"
+          class="rounded-sm border border-danger bg-bad-bg px-3 py-2 text-sm font-semibold text-bad-fg lg:col-span-2"
         >
           {{ formError }}
         </p>
 
-        <fieldset class="flex flex-col gap-4 rounded-md border border-border bg-surface p-4 lg:p-6">
+        <fieldset
+          class="flex flex-col gap-4 rounded-md border border-border bg-surface p-4 lg:col-span-2 lg:p-6"
+        >
           <legend class="px-1 font-heading text-lg font-semibold text-fg">Product</legend>
 
           <BaseInput
@@ -382,7 +385,7 @@ async function save(): Promise<void> {
           </template>
         </fieldset>
 
-        <div class="flex justify-end gap-3">
+        <div class="flex justify-end gap-3 lg:col-span-2">
           <BaseButton variant="secondary" type="button" @click="router.push('/purchases')">
             Cancel
           </BaseButton>
