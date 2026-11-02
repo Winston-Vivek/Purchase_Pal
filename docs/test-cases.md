@@ -374,6 +374,7 @@ Fixture for A (today 2026-10-27), matching the design mockups:
 | FE-PAGE-57 | Profile | Ask to change the email (BR-15) | Says to check the NEW address and that the current one still signs in — never that the address has changed | P0 | Pass 2026-11-02 |
 | FE-PAGE-58 | Confirm email | Opening the link | Confirms on arrival, no button to press; a spent link says so | P0 | Pass 2026-11-02 |
 | FE-PAGE-59 | My purchases | Service column | Shows whichever of the last service and the next one due is nearer to today; "No service" when neither exists | P1 | Pass 2026-11-02 |
+| FE-PAGE-60 | Details | Receipt list | An image receipt shows a thumbnail of itself; a PDF shows a file mark, never a broken image | P1 | Pass 2026-11-02 |
 
 ---
 

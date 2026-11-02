@@ -98,6 +98,42 @@ describe('Purchase details', () => {
       expect(panel).toContain('15 May 2026');
     });
 
+    it('FE-PAGE-60 an image receipt previews itself, a PDF does not', async () => {
+      const wrapper = await page({
+        ...SAMSUNG,
+        hasReceipt: true,
+        attachments: [
+          {
+            id: 'a1',
+            fileName: 'invoice.pdf',
+            mimeType: 'application/pdf',
+            fileSize: 2048,
+            uploadedAt: '2026-10-28T10:00:00.000Z',
+          },
+          {
+            id: 'a2',
+            fileName: 'receipt.jpg',
+            mimeType: 'image/jpeg',
+            fileSize: 4096,
+            uploadedAt: '2026-10-28T10:00:00.000Z',
+          },
+        ],
+      });
+
+      const images = wrapper.findAll('img');
+      // Only the image is previewed. Pointing an <img> at a PDF renders a
+      // broken-image icon, which looks like a corrupt upload.
+      expect(images).toHaveLength(1);
+      expect(images[0]?.attributes('src')).toBe('/api/v1/attachments/a2');
+      // Decorative beside the filename it sits next to, so it is not read out
+      // twice (ui-guide §8).
+      expect(images[0]?.attributes('alt')).toBe('');
+      expect(images[0]?.attributes('loading')).toBe('lazy');
+
+      // The PDF still gets something to look at.
+      expect(wrapper.find('[data-testid="file-mark-a1"]').exists()).toBe(true);
+    });
+
     it('FE-PAGE-54 the panel links down to where a service is logged', async () => {
       const wrapper = await page(DUE);
 

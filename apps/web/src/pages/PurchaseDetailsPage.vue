@@ -494,11 +494,35 @@ onMounted(load);
             :key="attachment.id"
             class="flex flex-wrap items-center justify-between gap-3 py-3"
           >
-            <span class="min-w-0">
-              <span class="block truncate font-semibold text-fg">{{ attachment.fileName }}</span>
-              <span class="block text-sm text-muted-fg">
-                {{ formatFileSize(attachment.fileSize) }} · added
-                {{ formatDate(attachment.uploadedAt.slice(0, 10)) }}
+            <span class="flex min-w-0 items-center gap-3">
+              <!-- A receipt is a picture of a thing; showing it beats naming
+                   it. The browser fetches it with the session cookie because
+                   it is the same origin, so the bytes never pass through
+                   JavaScript — same as the download link below. -->
+              <img
+                v-if="attachment.mimeType.startsWith('image/')"
+                :src="`/api/v1/attachments/${attachment.id}`"
+                alt=""
+                loading="lazy"
+                class="size-12 shrink-0 rounded-sm border border-border bg-subtle object-cover"
+              />
+              <!-- Never an <img> for a PDF: it renders as a broken-image icon,
+                   which reads as a corrupt upload. -->
+              <span
+                v-else
+                :data-testid="`file-mark-${attachment.id}`"
+                class="flex size-12 shrink-0 items-center justify-center rounded-sm border border-border bg-subtle text-[11px] font-semibold text-muted-fg uppercase"
+                aria-hidden="true"
+              >
+                {{ attachment.fileName.split('.').pop()?.slice(0, 4) || 'file' }}
+              </span>
+
+              <span class="min-w-0">
+                <span class="block truncate font-semibold text-fg">{{ attachment.fileName }}</span>
+                <span class="block text-sm text-muted-fg">
+                  {{ formatFileSize(attachment.fileSize) }} · added
+                  {{ formatDate(attachment.uploadedAt.slice(0, 10)) }}
+                </span>
               </span>
             </span>
             <!-- A plain link: the browser streams it and the cookie goes with

@@ -115,6 +115,12 @@ multi-currency · shared household accounts · export · password reset · dark 
 
 ### Product
 
+- **Extended warranties are not recorded.** A purchase holds the manufacturer's
+  term only; an extension bought separately — different provider, its own cost
+  and end date — has nowhere to go. Designed (a separate `extended_warranties`
+  record, so the original term is never overwritten) and **deliberately
+  deferred**, not forgotten.
+
 - **The add/edit form has no Receipt fieldset.** The mockup
   (`design/mockups/desktop-3-add-purchase.png`) shows one; receipts are uploaded
   from the details page after saving instead. No test case covers it, so no gate
