@@ -106,7 +106,7 @@ None identified.
 _Machine-generated from `.ai/EVIDENCE.jsonl`. Do not edit by hand._
 
 ```
-358 commands recorded, of which 11 verified (7 passed, 4 failed, 2 non-binding).
+366 commands recorded, of which 11 verified (7 passed, 4 failed, 2 non-binding).
 
 Files changed since baseline `0ecc127` (git): 239
   - apps/api/package.json
@@ -166,7 +166,7 @@ Most recent verified runs:
 ### Working tree
 
 <!-- relay:git:start -->
-- Branch `master` at `419f424`, 2 uncommitted path(s).
+- Branch `master` at `075b1b9`, 2 uncommitted path(s).
 - Changed now:
 
 ```
@@ -210,5 +210,5 @@ Write `docs/architecture.md` (request-flow and ER diagrams) to close one of the 
 ## Last Updated
 
 <!-- relay:updated:start -->
-- 2026-11-02T12:00:09Z (mechanical regions refreshed by `migration-state.sh`)
+- 2026-11-02T12:05:45Z (mechanical regions refreshed by `migration-state.sh`)
 <!-- relay:updated:end -->
