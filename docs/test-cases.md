@@ -110,6 +110,12 @@ All requests use `/api/v1`. "Signed in as A" = A's auth cookie. Errors must use 
 | API-AUTH-20 | Asking twice | The first token stops working; the second one works | P1 | Pass 2026-11-02 |
 | API-AUTH-21 | A session open before the reset (BR-13) | Its cookie stops working; a cookie from the new password works | P0 | Pass 2026-11-02 |
 | API-AUTH-22 | Reset with a password that breaks the rules | 400 naming the field; the token is still usable afterwards | P1 | Pass 2026-11-02 |
+| API-AUTH-23 | `PATCH /users/me/password` with the right current password | 200; the new password signs in, the old one does not | P0 | Pass 2026-11-02 |
+| API-AUTH-24 | Wrong current password | 400 naming the field, not 401 — a 401 reads as an expired session | P0 | Pass 2026-11-02 |
+| API-AUTH-25 | A new password that breaks the rules | 400; the password is unchanged | P1 | Pass 2026-11-02 |
+| API-AUTH-26 | The device that made the change (BR-13) | Keeps working — it is re-issued a cookie, so nobody is signed out by their own action | P0 | Pass 2026-11-02 |
+| API-AUTH-27 | Another device signed in beforehand (BR-13) | Signed out | P0 | Pass 2026-11-02 |
+| API-AUTH-28 | Signed out caller | 401; no password is changed | P0 | Pass 2026-11-02 |
 
 > **API-AUTH-12 is verified by the Day 4 gate, not Day 3.** Its `/purchases` half passes as of Day 3 Slice 5. The `/dashboard` half cannot: Nest runs guards after routing, so a route that does not exist returns 404 rather than 401. `/dashboard` is built in Day 4 Slice 4, and the test is unchanged.
 
@@ -351,6 +357,9 @@ Fixture for A (today 2026-10-27), matching the design mockups:
 | FE-PAGE-48 | Forgot password | Submit any address | Same confirmation whatever the answer — the page must not leak what the API hides | P0 | Pass 2026-11-02 |
 | FE-PAGE-49 | Reset password | Valid token, matching passwords | POSTs token + password; lands on sign in with a confirmation | P0 | Pass 2026-11-02 |
 | FE-PAGE-50 | Reset password | Passwords differ, or the link has no token | Inline mismatch error with nothing sent; a tokenless link says so instead of offering a form that can only fail | P0 | Pass 2026-11-02 |
+| FE-PAGE-51 | Settings | Change password | Sends current + new; success toast; the fields clear | P0 | Pass 2026-11-02 |
+| FE-PAGE-52 | Settings | New password and confirmation differ | Inline error, nothing sent | P0 | Pass 2026-11-02 |
+| FE-PAGE-53 | Settings | Server refuses the current password | The error lands on that field, not as a sign-out | P0 | Pass 2026-11-02 |
 
 ---
 

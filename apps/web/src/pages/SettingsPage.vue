@@ -44,6 +44,46 @@ const preview = computed(
     `Purchase Tracker will warn you ${window_(returnAlertDays.value)} before a return window closes, ${window_(warrantyAlertDays.value)} before a warranty ends, and ${window_(serviceAlertDays.value)} before a service is due.`,
 );
 
+// ---------------------------------------------------------- password ------
+const currentPassword = ref('');
+const newPassword = ref('');
+const newPasswordConfirmation = ref('');
+const passwordFields = ref<Record<string, string>>({});
+const changingPassword = ref(false);
+
+async function changePassword(): Promise<void> {
+  passwordFields.value = {};
+
+  // The server never sees the confirmation: it exists to catch a typo, which
+  // is a question only this form can ask.
+  if (newPassword.value !== newPasswordConfirmation.value) {
+    passwordFields.value = { newPasswordConfirmation: 'The two passwords do not match' };
+    return;
+  }
+
+  changingPassword.value = true;
+  try {
+    await api('/auth/password', {
+      method: 'PATCH',
+      body: { currentPassword: currentPassword.value, newPassword: newPassword.value },
+    });
+
+    // Cleared on success: a password left in a field is one shoulder-surf
+    // from being read, and the form has no further use for it.
+    currentPassword.value = '';
+    newPassword.value = '';
+    newPasswordConfirmation.value = '';
+    toast.value = 'Password changed. Other devices have been signed out.';
+  } catch (failure) {
+    passwordFields.value =
+      failure instanceof ApiError && failure.fields
+        ? failure.fields
+        : { currentPassword: 'Could not change your password. Please try again.' };
+  } finally {
+    changingPassword.value = false;
+  }
+}
+
 function validate(): boolean {
   const next: Record<string, string> = {};
 
@@ -164,6 +204,58 @@ async function signOut(): Promise<void> {
           <BaseButton type="submit" :loading="saving" loading-label="Saving…"
             >Save settings</BaseButton
           >
+        </div>
+      </form>
+
+      <form
+        class="mt-6 flex flex-col gap-4 rounded-md border border-border bg-surface p-4 lg:p-6"
+        data-testid="password-form"
+        novalidate
+        @submit.prevent="changePassword"
+      >
+        <div>
+          <h2 class="font-heading text-lg font-semibold text-fg">Password</h2>
+          <!-- Said before they start, not after: the consequence is the point. -->
+          <p class="mt-1 text-sm text-muted-fg">
+            Changing it signs you out everywhere else. This device stays signed in.
+          </p>
+        </div>
+
+        <BaseInput
+          id="currentPassword"
+          v-model="currentPassword"
+          label="Current password"
+          type="password"
+          autocomplete="current-password"
+          :error="passwordFields.currentPassword"
+          required
+        />
+
+        <BaseInput
+          id="newPassword"
+          v-model="newPassword"
+          label="New password"
+          type="password"
+          autocomplete="new-password"
+          hint="At least 8 characters, with a letter and a number."
+          :error="passwordFields.newPassword"
+          required
+        />
+
+        <BaseInput
+          id="newPasswordConfirmation"
+          v-model="newPasswordConfirmation"
+          label="Confirm new password"
+          type="password"
+          autocomplete="new-password"
+          :error="passwordFields.newPasswordConfirmation"
+          required
+        />
+
+        <div class="flex justify-end">
+          <BaseButton type="submit" :loading="changingPassword" loading-label="Changing…">
+            Change password
+          </BaseButton>
         </div>
       </form>
 

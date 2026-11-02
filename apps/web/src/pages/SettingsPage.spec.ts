@@ -169,4 +169,67 @@ describe('Settings', () => {
     expect(wrapper.text()).toContain('Winston');
     expect(wrapper.text()).toContain('demo@proofly.test');
   });
+
+  // FE-PAGE-51..53. BR-13: the current password is required even though the
+  // caller is signed in, so a stolen session cannot lock the owner out.
+  describe('FE-PAGE-51..53 changing the password', () => {
+    const fill = async (
+      wrapper: ReturnType<typeof page>,
+      current: string,
+      next: string,
+      confirm = next,
+    ) => {
+      await wrapper.get('#currentPassword').setValue(current);
+      await wrapper.get('#newPassword').setValue(next);
+      await wrapper.get('#newPasswordConfirmation').setValue(confirm);
+      await wrapper.get('[data-testid="password-form"]').trigger('submit');
+      await flushPromises();
+    };
+
+    it('FE-PAGE-51 sends both passwords and says it worked', async () => {
+      const wrapper = page();
+
+      fetchMock.mockResolvedValueOnce(json(200, { id: 'u1' }));
+      await fill(wrapper, 'Passw0rd1', 'N3wPassw0rd');
+
+      const [url, init] = fetchMock.mock.calls.at(-1) as [string, RequestInit];
+      expect(url).toBe('/api/v1/auth/password');
+      expect(init.method).toBe('PATCH');
+      expect(JSON.parse(String(init.body))).toEqual({
+        currentPassword: 'Passw0rd1',
+        newPassword: 'N3wPassw0rd',
+      });
+      expect(wrapper.text()).toMatch(/password changed/i);
+      // Left on screen, a password is one shoulder-surf from being read.
+      expect((wrapper.get('#newPassword').element as HTMLInputElement).value).toBe('');
+    });
+
+    it('FE-PAGE-52 a mismatch is caught here, before anything is sent', async () => {
+      const wrapper = page();
+
+      await fill(wrapper, 'Passw0rd1', 'N3wPassw0rd', 'N3wPassw0rdd');
+
+      expect(fetchMock).not.toHaveBeenCalled();
+      expect(wrapper.text()).toMatch(/do not match/i);
+    });
+
+    it('FE-PAGE-53 a refused current password lands on its own field', async () => {
+      const wrapper = page();
+
+      fetchMock.mockResolvedValueOnce(
+        json(400, {
+          error: {
+            code: 'VALIDATION_ERROR',
+            message: 'That is not your current password',
+            fields: { currentPassword: 'That is not your current password' },
+          },
+        }),
+      );
+      await fill(wrapper, 'WrongPassw0rd', 'N3wPassw0rd');
+
+      expect(wrapper.text()).toMatch(/not your current password/i);
+      // Not treated as a lost session: a typo must not sign anyone out.
+      expect(push).not.toHaveBeenCalled();
+    });
+  });
 });

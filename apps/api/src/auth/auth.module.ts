@@ -7,6 +7,7 @@ import { UsersModule } from '../users/users.module';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 import { JwtAuthGuard } from './jwt-auth.guard';
+import { PasswordChangeService } from './password-change.service';
 import { PasswordResetService } from './password-reset.service';
 
 /** Shape EnvironmentVariables already enforces with /^\d+[smhdw]$/. */
@@ -27,6 +28,11 @@ type Duration = `${number}${'s' | 'm' | 'h' | 'd' | 'w'}`;
     }),
   ],
   controllers: [AuthController],
-  providers: [AuthService, PasswordResetService, { provide: APP_GUARD, useClass: JwtAuthGuard }],
+  providers: [
+    AuthService,
+    PasswordResetService,
+    PasswordChangeService,
+    { provide: APP_GUARD, useClass: JwtAuthGuard },
+  ],
 })
 export class AuthModule {}

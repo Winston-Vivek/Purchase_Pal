@@ -1,27 +1,21 @@
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
-import { Body, Controller, Get, HttpCode, Post, Res } from '@nestjs/common';
+import { Body, Controller, Get, HttpCode, Patch, Post, Res } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { CookieOptions, Response } from 'express';
 import { User } from '../users/user.entity';
 import { UserResponse, toUserResponse } from '../users/user-response';
+import { authCookieOptions } from './auth-cookie';
 import { AUTH_COOKIE } from './auth.constants';
 import { AuthService } from './auth.service';
+import { PasswordChangeService } from './password-change.service';
 import { PasswordResetService } from './password-reset.service';
 import { CurrentUser } from './current-user.decorator';
+import { ChangePasswordDto } from './dto/change-password.dto';
 import { ForgotPasswordDto } from './dto/forgot-password.dto';
 import { LoginDto } from './dto/login.dto';
 import { ResetPasswordDto } from './dto/reset-password.dto';
 import { RegisterDto } from './dto/register.dto';
 import { Public } from './public.decorator';
-
-/** "7d" / "15m" -> milliseconds, so the cookie outlives the tab but not the token. */
-function toMilliseconds(expiresIn: string): number {
-  const match = /^(\d+)([smhdw])$/.exec(expiresIn);
-  if (!match) throw new Error(`JWT_EXPIRES_IN "${expiresIn}" is not a duration like 7d`);
-
-  const unit = { s: 1_000, m: 60_000, h: 3_600_000, d: 86_400_000, w: 604_800_000 };
-  return Number(match[1]) * unit[match[2] as keyof typeof unit];
-}
 
 @ApiTags('auth')
 @Controller('auth')
@@ -31,15 +25,10 @@ export class AuthController {
   constructor(
     private readonly auth: AuthService,
     private readonly passwordReset: PasswordResetService,
+    private readonly passwordChange: PasswordChangeService,
     config: ConfigService,
   ) {
-    this.cookieOptions = {
-      httpOnly: true,
-      sameSite: 'lax',
-      path: '/',
-      secure: config.getOrThrow<string>('NODE_ENV') === 'production',
-      maxAge: toMilliseconds(config.getOrThrow<string>('JWT_EXPIRES_IN')),
-    };
+    this.cookieOptions = authCookieOptions(config);
   }
 
   @Public()
@@ -113,5 +102,30 @@ export class AuthController {
   @ApiResponse({ status: 400, description: 'The link is expired, spent or invalid' })
   async resetPassword(@Body() dto: ResetPasswordDto): Promise<void> {
     await this.passwordReset.reset(dto.token, dto.password);
+  }
+
+  /**
+   * BR-13. On the auth controller, not users, because AuthModule already
+   * imports UsersModule — the reverse would be the circular import
+   * arch-avoid-circular-deps exists to prevent. It is also honestly an
+   * authentication operation: it ends every session and issues a new one.
+   *
+   * The cookie is re-issued because changing the password invalidates every
+   * token signed under the old one, including the one that made this request.
+   * Without it the user is signed out by their own action.
+   */
+  @Patch('password')
+  @HttpCode(200)
+  @ApiOperation({ summary: 'Change your password' })
+  @ApiResponse({ status: 400, description: 'Wrong current password, or a new one too weak' })
+  async changePassword(
+    @CurrentUser() user: User,
+    @Body() dto: ChangePasswordDto,
+    @Res({ passthrough: true }) response: Response,
+  ): Promise<UserResponse> {
+    const updated = await this.passwordChange.change(user, dto.currentPassword, dto.newPassword);
+
+    response.cookie(AUTH_COOKIE, this.auth.signToken(updated), this.cookieOptions);
+    return toUserResponse(updated);
   }
 }
