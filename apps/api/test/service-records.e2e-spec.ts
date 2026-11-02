@@ -60,6 +60,32 @@ describe('Service records (e2e)', () => {
   const listFor = (target: string, as: string = cookie) =>
     request(app.getHttpServer()).get(`/api/v1/purchases/${target}/services`).set('Cookie', as);
 
+  // BR-12. Today is pinned to 2026-10-27 in this suite.
+  describe('BR-12 next service due', () => {
+    it('API-SVC-11 a record can say when the next service is due', async () => {
+      const response = await add({ ...VALID, nextServiceDate: '2027-04-25' }).expect(201);
+
+      expect(response.body.nextServiceDate).toBe('2027-04-25');
+    });
+
+    it('API-SVC-12 a next service before the service itself is rejected', async () => {
+      const response = await add({ ...VALID, nextServiceDate: '2026-10-24' }).expect(400);
+
+      expect(response.body.error.code).toBe('VALIDATION_ERROR');
+      expect(response.body.error.fields).toHaveProperty('nextServiceDate');
+    });
+
+    it('API-SVC-11 the same day is allowed: a service can be due again at once', async () => {
+      await add({ ...VALID, nextServiceDate: '2026-10-25' }).expect(201);
+    });
+
+    it('API-SVC-11 leaving it out keeps the record and schedules nothing', async () => {
+      const response = await add(VALID).expect(201);
+
+      expect(response.body.nextServiceDate).toBeNull();
+    });
+  });
+
   it('API-SVC-01 a valid service record is added', async () => {
     const response = await add().expect(201);
 

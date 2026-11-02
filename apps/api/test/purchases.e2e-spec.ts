@@ -320,6 +320,84 @@ describe('Purchases (e2e)', () => {
     });
   });
 
+  // ------------------------------------------- BR-12 next service due -----
+  describe('BR-12 the next service a purchase is due', () => {
+    const service = (purchaseId: string, body: Record<string, unknown>) =>
+      request(app.getHttpServer())
+        .post(`/api/v1/purchases/${purchaseId}/services`)
+        .set('Cookie', cookie)
+        .send(body);
+
+    const get = (id: string) =>
+      request(app.getHttpServer()).get(`/api/v1/purchases/${id}`).set('Cookie', cookie);
+
+    it('API-PUR-37 the newest service decides when the next one is due', async () => {
+      const id = (await create().expect(201)).body.id;
+
+      // Serviced in January, due again in June; serviced again in October,
+      // due again in November. The October visit is what resets the clock.
+      await service(id, {
+        serviceDate: '2026-01-10',
+        description: 'First service',
+        nextServiceDate: '2026-06-10',
+      }).expect(201);
+      await service(id, {
+        serviceDate: '2026-10-20',
+        description: 'Second service',
+        nextServiceDate: '2026-11-03',
+      }).expect(201);
+
+      const response = await get(id).expect(200);
+
+      expect(response.body.nextServiceDate).toBe('2026-11-03');
+      // 27 Oct to 3 Nov, inclusive of the last day (BR-03).
+      expect(response.body.serviceDaysLeft).toBe(7);
+      expect(response.body.serviceStatus).toBe('EXPIRING_SOON');
+    });
+
+    it('API-PUR-38 the newest record that HAS a date is the one that counts', async () => {
+      const id = (await create().expect(201)).body.id;
+
+      await service(id, {
+        serviceDate: '2026-01-10',
+        description: 'Scheduled service',
+        nextServiceDate: '2026-12-01',
+      }).expect(201);
+      // A later visit that scheduled nothing must not erase the plan.
+      await service(id, { serviceDate: '2026-10-20', description: 'Unplanned repair' }).expect(201);
+
+      const response = await get(id).expect(200);
+
+      expect(response.body.nextServiceDate).toBe('2026-12-01');
+      expect(response.body.serviceStatus).toBe('ACTIVE');
+    });
+
+    it('API-PUR-38 a purchase with no service dates schedules nothing', async () => {
+      const id = (await create().expect(201)).body.id;
+      await service(id, { serviceDate: '2026-10-20', description: 'Repair' }).expect(201);
+
+      const response = await get(id).expect(200);
+
+      expect(response.body.nextServiceDate).toBeNull();
+      expect(response.body.serviceStatus).toBe('NOT_SET');
+      expect(response.body.serviceDaysLeft).toBeNull();
+    });
+
+    it('API-PUR-37 a service date already past reads as overdue', async () => {
+      const id = (await create().expect(201)).body.id;
+      await service(id, {
+        serviceDate: '2026-01-10',
+        description: 'Service',
+        nextServiceDate: '2026-10-01',
+      }).expect(201);
+
+      const response = await get(id).expect(200);
+
+      expect(response.body.serviceStatus).toBe('EXPIRED');
+      expect(response.body.serviceDaysLeft).toBe(-26);
+    });
+  });
+
   // -------------------------------------------- BR-11 closing a return ----
   describe('BR-11 a return closed by hand', () => {
     const patch = (id: string, body: object, as = cookie) =>

@@ -120,4 +120,22 @@ describe('Alert settings (e2e)', () => {
     expect(after.body.returnStatus).toBe('ACTIVE');
     expect(after.body.returnDaysLeft).toBe(5);
   });
+
+  // BR-12: a third deadline needs a third window, or every service would nag
+  // on the same schedule as a return.
+  it('API-SET-07 serviceAlertDays is accepted in range and refused outside it', async () => {
+    const { cookie } = await signUp(app, { email: 'service-window@test.dev' });
+
+    const ok = await patch(cookie, { serviceAlertDays: 21 }).expect(200);
+    expect(ok.body.serviceAlertDays).toBe(21);
+
+    await patch(cookie, { serviceAlertDays: 0 }).expect(400);
+    await patch(cookie, { serviceAlertDays: 366 }).expect(400);
+  });
+
+  it('API-SET-07 a new account starts at 14 days', async () => {
+    const { body } = await signUp(app, { email: 'service-default@test.dev' });
+
+    expect(body.serviceAlertDays).toBe(14);
+  });
 });
