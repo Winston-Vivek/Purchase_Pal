@@ -1,4 +1,4 @@
-import { ApiTags } from '@nestjs/swagger';
+import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { Body, Controller, Get, HttpCode, Post, Res } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { CookieOptions, Response } from 'express';
@@ -6,8 +6,11 @@ import { User } from '../users/user.entity';
 import { UserResponse, toUserResponse } from '../users/user-response';
 import { AUTH_COOKIE } from './auth.constants';
 import { AuthService } from './auth.service';
+import { PasswordResetService } from './password-reset.service';
 import { CurrentUser } from './current-user.decorator';
+import { ForgotPasswordDto } from './dto/forgot-password.dto';
 import { LoginDto } from './dto/login.dto';
+import { ResetPasswordDto } from './dto/reset-password.dto';
 import { RegisterDto } from './dto/register.dto';
 import { Public } from './public.decorator';
 
@@ -27,6 +30,7 @@ export class AuthController {
 
   constructor(
     private readonly auth: AuthService,
+    private readonly passwordReset: PasswordResetService,
     config: ConfigService,
   ) {
     this.cookieOptions = {
@@ -78,5 +82,36 @@ export class AuthController {
 
   private issueCookie(response: Response, user: User): void {
     response.cookie(AUTH_COOKIE, this.auth.signToken(user), this.cookieOptions);
+  }
+
+  /**
+   * BR-14. Always 202, whether or not the address has an account.
+   *
+   * A different answer for a known address would turn this into a way to
+   * find out who has an account here — the same property /auth/login is
+   * careful about.
+   */
+  @Public()
+  @Post('forgot-password')
+  @HttpCode(202)
+  @ApiOperation({ summary: 'Email a password reset link' })
+  @ApiResponse({ status: 202, description: 'Accepted, whether or not the account exists' })
+  async forgotPassword(@Body() dto: ForgotPasswordDto): Promise<void> {
+    await this.passwordReset.request(dto.email);
+  }
+
+  /**
+   * BR-14. Spends the token and sets the password.
+   *
+   * No cookie is issued: possession of an inbox at one moment should not
+   * silently become a signed-in browser. The user signs in afterwards.
+   */
+  @Public()
+  @Post('reset-password')
+  @HttpCode(200)
+  @ApiOperation({ summary: 'Set a new password using a reset link' })
+  @ApiResponse({ status: 400, description: 'The link is expired, spent or invalid' })
+  async resetPassword(@Body() dto: ResetPasswordDto): Promise<void> {
+    await this.passwordReset.reset(dto.token, dto.password);
   }
 }

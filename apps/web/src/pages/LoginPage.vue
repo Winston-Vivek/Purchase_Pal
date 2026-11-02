@@ -18,6 +18,9 @@ const email = ref('');
 const password = ref('');
 const revealed = ref(false);
 
+/** Set by the reset page, so the last step of that journey says it worked. */
+const justReset = (route.query as Record<string, unknown>).reset === '1';
+
 async function submit(): Promise<void> {
   // The values stay in the refs whether this succeeds or fails, so a refused
   // attempt does not make the user retype their email (ui-guide §6).
@@ -29,6 +32,14 @@ async function submit(): Promise<void> {
 
 <template>
   <AuthCard title="Sign in">
+    <p
+      v-if="justReset"
+      data-testid="reset-done"
+      role="status"
+      class="mt-4 rounded-sm bg-ok-bg px-3 py-2 text-ok-fg"
+    >
+      Your password has been changed. Sign in with it.
+    </p>
     <form class="mt-6 flex flex-col gap-4" novalidate @submit.prevent="submit">
       <!-- One message above the form. It never says which half was wrong:
            a specific message turns this into account enumeration. -->
@@ -69,6 +80,13 @@ async function submit(): Promise<void> {
           <span class="sr-only">{{ revealed ? 'Hide password' : 'Show password' }}</span>
         </button>
       </div>
+
+      <RouterLink
+        to="/forgot-password"
+        class="w-fit cursor-pointer text-sm font-semibold text-primary hover:underline"
+      >
+        Forgot your password?
+      </RouterLink>
 
       <BaseButton type="submit" :loading="loading" loading-label="Signing in…">Sign in</BaseButton>
     </form>

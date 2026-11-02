@@ -107,8 +107,13 @@ export async function api<T>(path: string, request: ApiRequest = {}): Promise<T>
     );
   }
 
-  // 204 No Content has no body to parse — logout and every delete return one.
-  if (response.status === 204 || response.status === 205) return undefined as T;
+  // Any success can be bodiless, not only 204: logout and the deletes return
+  // 204, but forgot-password answers 202 and reset-password 200, both empty.
+  // Reading the text first means an empty body resolves instead of failing in
+  // JSON.parse with "Unexpected end of JSON input" — which looks to the caller
+  // like a request that failed after it had actually succeeded.
+  const payload = await response.text();
+  if (payload === '') return undefined as T;
 
-  return (await response.json()) as T;
+  return JSON.parse(payload) as T;
 }

@@ -100,16 +100,16 @@ All requests use `/api/v1`. "Signed in as A" = A's auth cookie. Errors must use 
 | API-AUTH-10 | GET /auth/me without cookie, or a tampered/expired token | 401 | P0 | Pass 2026-10-28 |
 | API-AUTH-11 | POST /auth/logout | 204; cookie cleared; next /auth/me → 401 | P0 | Pass 2026-10-28 |
 | API-AUTH-12 | GET /purchases, /dashboard without cookie | 401 on each | P0 | Pass 2026-10-28 |
-| API-AUTH-13 | `POST /auth/forgot-password` for a real account (BR-14) | 202; one email sent carrying a link to `APP_URL/reset-password?token=…` | P0 | Not run |
-| API-AUTH-14 | Same, for an address with no account | 202, byte-identical body; no email sent | P0 | Not run |
-| API-AUTH-15 | The raw token is never stored | The row holds a SHA-256 digest; the token itself appears nowhere in the database | P0 | Not run |
-| API-AUTH-16 | `POST /auth/reset-password` with a valid token | 200; the new password signs in and the old one does not | P0 | Not run |
-| API-AUTH-17 | The same token twice | Second attempt 400; the password is unchanged by it | P0 | Not run |
-| API-AUTH-18 | An expired token (31 minutes old) | 400 | P0 | Not run |
-| API-AUTH-19 | A token that was never issued, or one tampered with | 400, same message as expired | P0 | Not run |
-| API-AUTH-20 | Asking twice | The first token stops working; the second one works | P1 | Not run |
-| API-AUTH-21 | A session open before the reset (BR-13) | Its cookie stops working; a cookie from the new password works | P0 | Not run |
-| API-AUTH-22 | Reset with a password that breaks the rules | 400 naming the field; the token is still usable afterwards | P1 | Not run |
+| API-AUTH-13 | `POST /auth/forgot-password` for a real account (BR-14) | 202; one email sent carrying a link to `APP_URL/reset-password?token=…` | P0 | Pass 2026-11-02 |
+| API-AUTH-14 | Same, for an address with no account | 202, byte-identical body; no email sent | P0 | Pass 2026-11-02 |
+| API-AUTH-15 | The raw token is never stored | The row holds a SHA-256 digest; the token itself appears nowhere in the database | P0 | Pass 2026-11-02 |
+| API-AUTH-16 | `POST /auth/reset-password` with a valid token | 200; the new password signs in and the old one does not | P0 | Pass 2026-11-02 |
+| API-AUTH-17 | The same token twice | Second attempt 400; the password is unchanged by it | P0 | Pass 2026-11-02 |
+| API-AUTH-18 | An expired token (31 minutes old) | 400 | P0 | Pass 2026-11-02 |
+| API-AUTH-19 | A token that was never issued, or one tampered with | 400, same message as expired | P0 | Pass 2026-11-02 |
+| API-AUTH-20 | Asking twice | The first token stops working; the second one works | P1 | Pass 2026-11-02 |
+| API-AUTH-21 | A session open before the reset (BR-13) | Its cookie stops working; a cookie from the new password works | P0 | Pass 2026-11-02 |
+| API-AUTH-22 | Reset with a password that breaks the rules | 400 naming the field; the token is still usable afterwards | P1 | Pass 2026-11-02 |
 
 > **API-AUTH-12 is verified by the Day 4 gate, not Day 3.** Its `/purchases` half passes as of Day 3 Slice 5. The `/dashboard` half cannot: Nest runs guards after routing, so a route that does not exist returns 404 rather than 401. `/dashboard` is built in Day 4 Slice 4, and the test is unchanged.
 
@@ -263,12 +263,14 @@ Fixture for A (today 2026-10-27), matching the design mockups:
 | FE-API-02 | 400 response with `fields` | Throws ApiError with code, message, fields | P0 | Pass 2026-10-29 |
 | FE-API-03 | 401 on a data call | Auth store cleared; router goes to /login?redirect=<current> | P0 | Pass 2026-10-29 |
 | FE-API-04 | Network failure | ApiError code NETWORK with a readable message | P1 | Pass 2026-10-29 |
+| FE-API-05 | A success with an empty body (200, 202) | Returns undefined rather than throwing on JSON.parse — only 204 was handled, and forgot/reset answer 202 and 200 with no content | P0 | Pass 2026-11-02 |
 | FE-AUTH-01 | Store login success | user set; isAuthenticated true | P0 | Pass 2026-10-29 |
 | FE-AUTH-02 | Store login 401 | Error message shown; user null | P0 | Pass 2026-10-29 |
 | FE-AUTH-03 | Guard: signed out → /purchases | Redirect to /login?redirect=/purchases | P0 | Pass 2026-10-29 |
 | FE-AUTH-04 | After login with redirect | Lands on /purchases | P0 | Pass 2026-10-29 |
 | FE-AUTH-05 | Guard: signed in → /login | Redirect to /dashboard (no redirect loop) | P0 | Pass 2026-10-29 |
 | FE-AUTH-06 | App start with valid cookie | /auth/me restores the session | P0 | Pass 2026-10-29 |
+| FE-AUTH-07 | Signed in, opening a reset link | The reset page opens rather than bouncing to the dashboard — the token is the authority there, not the session | P1 | Pass 2026-11-02 |
 
 ### 3.2 Base components
 
@@ -346,6 +348,9 @@ Fixture for A (today 2026-10-27), matching the design mockups:
 | FE-PAGE-45 | Service dialog | Add a record with a next-service date | Sent on create; shown on the record and in the Service panel | P1 | Pass 2026-11-02 |
 | FE-PAGE-46 | Settings | Service warning days | Third alert window, saved with the others | P1 | Pass 2026-11-02 |
 | FE-PAGE-47 | Add purchase | Service fieldset | A next-service date can be set when the thing is bought, before any service exists | P1 | Pass 2026-11-02 |
+| FE-PAGE-48 | Forgot password | Submit any address | Same confirmation whatever the answer — the page must not leak what the API hides | P0 | Pass 2026-11-02 |
+| FE-PAGE-49 | Reset password | Valid token, matching passwords | POSTs token + password; lands on sign in with a confirmation | P0 | Pass 2026-11-02 |
+| FE-PAGE-50 | Reset password | Passwords differ, or the link has no token | Inline mismatch error with nothing sent; a tokenless link says so instead of offering a form that can only fail | P0 | Pass 2026-11-02 |
 
 ---
 

@@ -23,6 +23,16 @@ export class User {
   @Column({ name: 'password_hash' })
   passwordHash!: string;
 
+  /**
+   * BR-13: when the password last changed.
+   *
+   * The guard refuses any token issued before this, which is how a stateless
+   * JWT gets revocation for the one case that matters — "someone has my
+   * account". Null for accounts that have never changed it.
+   */
+  @Column({ name: 'password_changed_at', type: 'timestamptz', nullable: true })
+  passwordChangedAt!: Date | null;
+
   /** BR-04 thresholds. Defaults from D-08. */
   @Column({ name: 'warranty_alert_days', default: 30 })
   warrantyAlertDays!: number;

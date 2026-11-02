@@ -6,6 +6,7 @@ import { User } from '../users/user.entity';
 import { UsersService } from '../users/users.service';
 import { SIGN_IN_FAILED } from './auth.constants';
 import { RegisterDto } from './dto/register.dto';
+import { passwordFingerprint } from './password-fingerprint';
 
 /**
  * A real bcrypt hash of nothing useful. Compared against when no user matches,
@@ -53,8 +54,17 @@ export class AuthService {
     return user;
   }
 
-  /** `sub` only: anything else in here is unverified data a client could read. */
+  /**
+   * `sub` and a password fingerprint, and nothing else: everything in here is
+   * readable by the client, so it holds only what the server must check.
+   *
+   * BR-13: the fingerprint is what makes a password change end every session
+   * issued under the old password.
+   */
   signToken(user: User): string {
-    return this.jwt.sign({ sub: user.id });
+    return this.jwt.sign({
+      sub: user.id,
+      pwd: passwordFingerprint(user.passwordHash, this.config.getOrThrow<string>('JWT_SECRET')),
+    });
   }
 }

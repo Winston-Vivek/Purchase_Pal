@@ -197,19 +197,13 @@ describe('Password reset (e2e)', () => {
       mailer.clear();
 
       // The session works before the reset.
-      await request(app.getHttpServer())
-        .get('/api/v1/auth/me')
-        .set('Cookie', cookie)
-        .expect(200);
+      await request(app.getHttpServer()).get('/api/v1/auth/me').set('Cookie', cookie).expect(200);
 
       await forgot(EMAIL).expect(202);
       await reset(tokenFromEmail(), NEW_PASSWORD).expect(200);
 
       // A reset that leaves the attacker signed in has not removed them.
-      await request(app.getHttpServer())
-        .get('/api/v1/auth/me')
-        .set('Cookie', cookie)
-        .expect(401);
+      await request(app.getHttpServer()).get('/api/v1/auth/me').set('Cookie', cookie).expect(401);
 
       const fresh = await login(NEW_PASSWORD).expect(200);
       const raw = fresh.headers['set-cookie'];

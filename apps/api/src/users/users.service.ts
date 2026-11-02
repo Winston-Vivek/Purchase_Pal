@@ -29,4 +29,13 @@ export class UsersService {
     if (changes.serviceAlertDays !== undefined) user.serviceAlertDays = changes.serviceAlertDays;
     return this.users.save(user);
   }
+
+  /**
+   * BR-13. Writing the hash and the timestamp together is deliberate: a
+   * password change that forgot the timestamp would leave every old session
+   * alive, which is the failure this exists to prevent.
+   */
+  async setPassword(userId: string, passwordHash: string, changedAt: Date): Promise<void> {
+    await this.users.updatePassword(userId, passwordHash, changedAt);
+  }
 }

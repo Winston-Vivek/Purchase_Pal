@@ -58,6 +58,7 @@ describe('Application bootstrap (e2e)', () => {
 
     expect(tables.map((t) => t.tablename)).toEqual([
       'attachments',
+      'password_reset_tokens',
       'purchases',
       'service_records',
       'users',

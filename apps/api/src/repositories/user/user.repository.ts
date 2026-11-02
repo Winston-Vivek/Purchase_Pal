@@ -24,4 +24,10 @@ export class UserRepository {
   save(user: User): Promise<User> {
     return this.users.save(user);
   }
+
+  /** BR-13: the hash and the timestamp move together, in one statement, so
+   *  there is no window where the password is new and the sessions are old. */
+  async updatePassword(id: string, passwordHash: string, changedAt: Date): Promise<void> {
+    await this.users.update({ id }, { passwordHash, passwordChangedAt: changedAt });
+  }
 }

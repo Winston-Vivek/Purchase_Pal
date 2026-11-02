@@ -116,4 +116,25 @@ describe('API client', () => {
 
     await expect(api('/purchases/1', { method: 'DELETE' })).resolves.toBeUndefined();
   });
+
+  // FE-API-05. Only 204 was treated as bodiless, so an empty 200 or 202 —
+  // which is what forgot-password and reset-password return — made
+  // response.json() throw "Unexpected end of JSON input" and the caller see a
+  // failure after a request that had actually succeeded.
+  it.each([200, 202, 204])('FE-API-05 a %i with no body resolves instead of throwing', async (status) => {
+    fetchMock.mockResolvedValueOnce(new Response(null, { status }));
+
+    await expect(api('/auth/reset-password', { method: 'POST' })).resolves.toBeUndefined();
+  });
+
+  it('FE-API-05 a 200 that does carry a body is still parsed', async () => {
+    fetchMock.mockResolvedValueOnce(
+      new Response(JSON.stringify({ id: 'p1' }), {
+        status: 200,
+        headers: { 'Content-Type': 'application/json' },
+      }),
+    );
+
+    await expect(api('/purchases/p1')).resolves.toEqual({ id: 'p1' });
+  });
 });

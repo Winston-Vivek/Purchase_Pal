@@ -3,15 +3,18 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { Attachment } from '../attachments/attachment.entity';
 import { Purchase } from '../purchases/purchase.entity';
 import { ServiceRecord } from '../service-records/service-record.entity';
+import { PasswordResetToken } from '../auth/password-reset-token.entity';
 import { User } from '../users/user.entity';
 import { AttachmentRepository } from './attachment/attachment.repository';
 import { HealthRepository } from './health/health.repository';
+import { PasswordResetRepository } from './password-reset/password-reset.repository';
 import { PurchaseRepository } from './purchase/purchase.repository';
 import { ServiceRecordRepository } from './service-record/service-record.repository';
 import { UserRepository } from './user/user.repository';
 
 const repositories = [
   UserRepository,
+  PasswordResetRepository,
   PurchaseRepository,
   AttachmentRepository,
   ServiceRecordRepository,
@@ -25,7 +28,9 @@ const repositories = [
  */
 @Global()
 @Module({
-  imports: [TypeOrmModule.forFeature([User, Purchase, Attachment, ServiceRecord])],
+  imports: [
+    TypeOrmModule.forFeature([User, Purchase, Attachment, ServiceRecord, PasswordResetToken]),
+  ],
   providers: repositories,
   exports: repositories,
 })

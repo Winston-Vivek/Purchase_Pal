@@ -92,6 +92,28 @@ describe('Router guards', () => {
     expect(r.currentRoute.value.path).toBe('/dashboard');
   });
 
+  it('FE-AUTH-07 a reset link opens even when someone is signed in', async () => {
+    signedIn();
+    const r = router();
+
+    await r.push('/reset-password?token=abc123');
+
+    // Bouncing here makes the emailed link look broken to someone resetting a
+    // different account's password on a shared browser.
+    expect(r.currentRoute.value.path).toBe('/reset-password');
+    expect(r.currentRoute.value.query.token).toBe('abc123');
+  });
+
+  it('FE-AUTH-07 forgot-password still bounces a signed-in visitor', async () => {
+    signedIn();
+    const r = router();
+
+    await r.push('/forgot-password');
+
+    // No token in it, so there is nothing a signed-in person needs from it.
+    expect(r.currentRoute.value.path).toBe('/dashboard');
+  });
+
   it('FE-AUTH-06 a valid cookie restores the session on first navigation', async () => {
     signedIn();
     const r = router();

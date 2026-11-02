@@ -23,6 +23,18 @@ const routes: RouteRecordRaw[] = [
     meta: { public: true, title: 'Create account · Purchase Tracker' },
   },
   {
+    path: '/forgot-password',
+    name: 'forgot-password',
+    component: () => import('../pages/ForgotPasswordPage.vue'),
+    meta: { public: true, title: 'Forgot password · Purchase Tracker' },
+  },
+  {
+    path: '/reset-password',
+    name: 'reset-password',
+    component: () => import('../pages/ResetPasswordPage.vue'),
+    meta: { public: true, title: 'Set a new password · Purchase Tracker' },
+  },
+  {
     path: '/dashboard',
     name: 'dashboard',
     component: () => import('../pages/DashboardPage.vue'),
@@ -86,6 +98,12 @@ function installGuards(router: Router): void {
     if (!auth.resolved) await auth.restore();
 
     if (auth.isAuthenticated) {
+      // A reset link is the exception: the token in it is the authority, not
+      // whoever happens to be signed in on this browser. Bouncing to the
+      // dashboard makes the link look broken to someone resetting a different
+      // account's password on a shared machine.
+      if (to.name === 'reset-password') return true;
+
       // Signed in and heading for sign-in: move on, do not bounce.
       return to.meta.public === true ? { path: '/dashboard' } : true;
     }
