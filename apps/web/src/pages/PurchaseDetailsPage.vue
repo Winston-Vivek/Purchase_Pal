@@ -180,6 +180,33 @@ const warrantyRule = computed(() => {
   return `${months} from ${formatDate(p.warrantyStartDate)}. The last day is still covered.`;
 });
 
+const closingReturn = ref(false);
+
+/** BR-11. Only offered when there is a return to close: a purchase with no
+ *  window has nothing to decide about. */
+const canCloseReturn = computed(() => purchase.value?.returnDeadline !== null);
+
+async function setReturnClosed(closed: boolean): Promise<void> {
+  closingReturn.value = true;
+  uploadError.value = null;
+
+  try {
+    // The server recomputes the status, so the response — not a local guess —
+    // is what the page then shows.
+    const updated = await api<PurchaseDetail>(`/purchases/${purchaseId.value}`, {
+      method: 'PATCH',
+      body: { returnClosed: closed },
+    });
+    if (purchase.value) Object.assign(purchase.value, updated);
+    toast.value = closed ? 'Return closed — you are keeping it' : 'Return reopened';
+  } catch (failure) {
+    uploadError.value =
+      failure instanceof ApiError ? failure.message : 'Could not change the return.';
+  } finally {
+    closingReturn.value = false;
+  }
+}
+
 const returnRule = computed(() => {
   const p = purchase.value;
   if (!p) return null;
@@ -367,6 +394,18 @@ onMounted(load);
           <p v-else class="mt-4 text-muted-fg">
             No return window was entered for this purchase, so no return deadline is tracked.
           </p>
+
+          <!-- BR-11: the way to say "I have decided, stop counting this." -->
+          <BaseButton
+            v-if="canCloseReturn"
+            variant="secondary"
+            class="mt-4"
+            :loading="closingReturn"
+            loading-label="Saving…"
+            @click="setReturnClosed(purchase.returnStatus !== 'CLOSED')"
+          >
+            {{ purchase.returnStatus === 'CLOSED' ? 'Reopen return' : 'Keeping it' }}
+          </BaseButton>
         </section>
       </div>
 

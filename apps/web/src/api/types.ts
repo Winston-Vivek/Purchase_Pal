@@ -8,7 +8,8 @@ export interface UserResponse {
   returnAlertDays: number;
 }
 
-export type DeadlineStatus = 'NOT_SET' | 'EXPIRED' | 'EXPIRING_SOON' | 'ACTIVE';
+/** CLOSED is returns only (BR-11): the user said they are keeping the item. */
+export type DeadlineStatus = 'NOT_SET' | 'EXPIRED' | 'EXPIRING_SOON' | 'ACTIVE' | 'CLOSED';
 
 export interface PurchaseResponse {
   id: string;

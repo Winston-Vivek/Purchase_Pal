@@ -41,6 +41,8 @@ const tone = computed<keyof typeof TONES>(() => {
   if (props.status === 'ACTIVE') return 'ok';
   if (props.status === 'EXPIRING_SOON') return 'warn';
   if (props.status === 'EXPIRED') return 'bad';
+  // CLOSED included: a decision the user already made needs no colour. A green
+  // badge here would compete with the warranty beside it for attention.
   return 'none';
 });
 
@@ -57,6 +59,11 @@ const label = computed(() => {
   const days = props.daysLeft ?? 0;
 
   switch (props.status) {
+    // BR-11. Deliberately not "Return closed": that is what an EXPIRED window
+    // already says, and the two mean opposite things — one ran out, the other
+    // was decided.
+    case 'CLOSED':
+      return 'Keeping it';
     case 'ACTIVE':
       return isReturn
         ? `Return open · ${pluralDays(days)} left`
