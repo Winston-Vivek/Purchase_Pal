@@ -205,13 +205,16 @@ async function signOut(): Promise<void> {
             />
 
             <p class="rounded-sm bg-subtle px-3 py-2 text-fg">{{ preview }}</p>
-          </fieldset>
 
-          <div class="flex justify-end">
-            <BaseButton type="submit" :loading="saving" loading-label="Saving…"
-              >Save settings</BaseButton
-            >
-          </div>
+            <!-- Inside the card, like every other action on this page. Floating
+               below it left the button belonging to nothing, and the one
+               between two cards looked like it belonged to the wrong one. -->
+            <div class="flex justify-end">
+              <BaseButton type="submit" :loading="saving" loading-label="Saving…">
+                Save settings
+              </BaseButton>
+            </div>
+          </fieldset>
         </form>
 
         <div class="flex flex-col gap-6">
@@ -261,13 +264,13 @@ async function signOut(): Promise<void> {
                 :error="passwordFields.newPasswordConfirmation"
                 required
               />
-            </fieldset>
 
-            <div class="flex justify-end">
-              <BaseButton type="submit" :loading="changingPassword" loading-label="Changing…">
-                Change password
-              </BaseButton>
-            </div>
+              <div class="flex justify-end">
+                <BaseButton type="submit" :loading="changingPassword" loading-label="Changing…">
+                  Change password
+                </BaseButton>
+              </div>
+            </fieldset>
           </form>
 
           <!-- A fieldset rather than a section so it carries the same notched
