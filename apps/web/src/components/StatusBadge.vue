@@ -4,7 +4,7 @@ import { computed } from 'vue';
 import type { DeadlineStatus } from '../api/types';
 import { formatDate, pluralDays } from '../lib/format';
 
-type Kind = 'RETURN' | 'WARRANTY' | 'RECEIPT';
+type Kind = 'RETURN' | 'WARRANTY' | 'SERVICE' | 'RECEIPT';
 type Status = DeadlineStatus | 'MISSING';
 
 const props = withDefaults(
@@ -38,6 +38,9 @@ const ICONS = {
 
 const tone = computed<keyof typeof TONES>(() => {
   if (props.kind === 'RECEIPT') return 'warn';
+  // A service that is merely scheduled is not good news the way a live
+  // warranty is — it is a neutral fact until it comes close.
+  if (props.kind === 'SERVICE' && props.status === 'ACTIVE') return 'none';
   if (props.status === 'ACTIVE') return 'ok';
   if (props.status === 'EXPIRING_SOON') return 'warn';
   if (props.status === 'EXPIRED') return 'bad';
@@ -57,6 +60,22 @@ const label = computed(() => {
 
   const isReturn = props.kind === 'RETURN';
   const days = props.daysLeft ?? 0;
+
+  // BR-12. A service has its own words: "Expiring soon" on a service would
+  // read as the warranty running out, and "overdue" is what a missed service
+  // actually is.
+  if (props.kind === 'SERVICE') {
+    switch (props.status) {
+      case 'ACTIVE':
+        return `Service due in ${pluralDays(days)}`;
+      case 'EXPIRING_SOON':
+        return days === 0 ? 'Service due today' : `Service due in ${pluralDays(days)}`;
+      case 'EXPIRED':
+        return `Service overdue · was ${formatDate(props.date)}`;
+      default:
+        return 'No service due';
+    }
+  }
 
   switch (props.status) {
     // BR-11. Deliberately not "Return closed": that is what an EXPIRED window

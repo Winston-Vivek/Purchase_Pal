@@ -67,6 +67,46 @@ describe('Purchase details', () => {
     return wrapper;
   };
 
+  // FE-PAGE-45. BR-12: the field that turns a service log into a reminder.
+  describe('FE-PAGE-45 scheduling the next service', () => {
+    const DUE = {
+      ...SAMSUNG,
+      nextServiceDate: '2026-11-15',
+      serviceStatus: 'EXPIRING_SOON',
+      serviceDaysLeft: 4,
+      serviceRecords: [
+        {
+          id: 's1',
+          purchaseId: 'p1',
+          serviceDate: '2026-05-15',
+          nextServiceDate: '2026-11-15',
+          description: 'Annual service',
+          provider: 'Croma',
+          cost: 1200,
+          notes: null,
+        },
+      ],
+    };
+
+    it('FE-PAGE-45 the panel shows when the next service is due', async () => {
+      const wrapper = await page(DUE);
+
+      const panel = wrapper.get('[data-testid="service-panel"]').text();
+      expect(panel).toContain('15 Nov 2026');
+      expect(panel).toContain('Service due in 4 days');
+      // And it says which visit scheduled it, so the date is not a mystery.
+      expect(panel).toContain('15 May 2026');
+    });
+
+    it('FE-PAGE-45 nothing scheduled says so, rather than showing an empty date', async () => {
+      const wrapper = await page({ ...SAMSUNG, nextServiceDate: null, serviceStatus: 'NOT_SET' });
+
+      expect(wrapper.get('[data-testid="service-panel"]').text()).toContain(
+        'No service is scheduled',
+      );
+    });
+  });
+
   // FE-PAGE-34. vue-router records the path you came from in history state.
   // The back link was hard-coded to the list, so arriving from the Dashboard
   // and pressing back dropped you somewhere you had never been.
@@ -323,16 +363,22 @@ describe('Purchase details', () => {
       ...SAMSUNG,
       serviceRecords: [
         {
-          id: 's1', purchaseId: 'p1', serviceDate: '2026-03-04',
-          description: 'Free installation check', provider: 'Croma install team',
-          cost: 0, notes: null,
+          id: 's1',
+          purchaseId: 'p1',
+          serviceDate: '2026-03-04',
+          description: 'Free installation check',
+          provider: 'Croma install team',
+          cost: 0,
+          notes: null,
         },
       ],
     };
 
     const clickButton = async (wrapper: ReturnType<typeof mount>, label: RegExp) => {
-      const target = [...document.body.querySelectorAll('button'), ...wrapper.findAll('button').map((b) => b.element)]
-        .find((b) => label.test(b.textContent ?? ''));
+      const target = [
+        ...document.body.querySelectorAll('button'),
+        ...wrapper.findAll('button').map((b) => b.element),
+      ].find((b) => label.test(b.textContent ?? ''));
       target?.click();
       await flushPromises();
       return target;
@@ -346,9 +392,13 @@ describe('Purchase details', () => {
 
       fetchMock.mockResolvedValueOnce(
         json(201, {
-          id: 's2', purchaseId: 'p1', serviceDate: '2026-06-15',
-          description: 'Gas top-up and coil cleaning', provider: 'Samsung authorised service',
-          cost: 2450, notes: null,
+          id: 's2',
+          purchaseId: 'p1',
+          serviceDate: '2026-06-15',
+          description: 'Gas top-up and coil cleaning',
+          provider: 'Samsung authorised service',
+          cost: 2450,
+          notes: null,
         }),
       );
 
@@ -442,7 +492,13 @@ describe('Purchase details', () => {
         ...SAMSUNG,
         hasReceipt: true,
         attachments: [
-          { id: 'a1', fileName: 'invoice.pdf', mimeType: 'application/pdf', fileSize: 1024, uploadedAt: '2026-01-01T00:00:00.000Z' },
+          {
+            id: 'a1',
+            fileName: 'invoice.pdf',
+            mimeType: 'application/pdf',
+            fileSize: 1024,
+            uploadedAt: '2026-01-01T00:00:00.000Z',
+          },
         ],
       });
 

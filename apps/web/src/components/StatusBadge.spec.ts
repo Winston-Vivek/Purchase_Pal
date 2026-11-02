@@ -10,7 +10,7 @@ import StatusBadge from './StatusBadge.vue';
  * 3 days" beats "Expiring".
  */
 interface BadgeProps {
-  kind: 'RETURN' | 'WARRANTY' | 'RECEIPT';
+  kind: 'RETURN' | 'WARRANTY' | 'SERVICE' | 'RECEIPT';
   status: 'NOT_SET' | 'EXPIRED' | 'EXPIRING_SOON' | 'ACTIVE' | 'CLOSED' | 'MISSING';
   daysLeft?: number | null;
   date?: string | null;
@@ -29,6 +29,40 @@ describe('StatusBadge', () => {
     expect(wrapper.text()).not.toContain('Return closed');
     expect(wrapper.text()).not.toMatch(/days? left|closes in/);
     expect(wrapper.classes().join(' ')).toContain('bg-none-bg');
+  });
+
+  // FE-CMP-20. A third deadline needs its own words: "Expiring soon" on a
+  // service would read as the warranty running out.
+  it('FE-CMP-20 a service due soon says so, and when', () => {
+    const wrapper = badge({ kind: 'SERVICE', status: 'EXPIRING_SOON', daysLeft: 4 });
+
+    expect(wrapper.text()).toBe('Service due in 4 days');
+    expect(wrapper.text()).not.toMatch(/return|warranty|covered/i);
+  });
+
+  it('FE-CMP-20 a service already past is overdue, not expired', () => {
+    const wrapper = badge({
+      kind: 'SERVICE',
+      status: 'EXPIRED',
+      daysLeft: -26,
+      date: '2026-10-01',
+    });
+
+    expect(wrapper.text()).toContain('Service overdue');
+    expect(wrapper.text()).toContain('1 Oct 2026');
+    expect(wrapper.classes().join(' ')).toContain('bg-bad-bg');
+  });
+
+  it('FE-CMP-20 a service due today says today', () => {
+    const wrapper = badge({ kind: 'SERVICE', status: 'EXPIRING_SOON', daysLeft: 0 });
+
+    expect(wrapper.text()).toBe('Service due today');
+  });
+
+  it('FE-CMP-20 nothing scheduled says nothing is scheduled', () => {
+    const wrapper = badge({ kind: 'SERVICE', status: 'NOT_SET' });
+
+    expect(wrapper.text()).toBe('No service due');
   });
 
   it('FE-CMP-01 a return closing soon says how long is left, in warn tokens', () => {

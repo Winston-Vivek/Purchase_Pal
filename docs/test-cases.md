@@ -101,7 +101,7 @@ All requests use `/api/v1`. "Signed in as A" = A's auth cookie. Errors must use 
 | API-SET-04 | PATCH returnAlertDays 0 or 61 | 400 fields.returnAlertDays | P0 | Pass 2026-10-28 |
 | API-SET-05 | PATCH with `email` or unknown field | 400 (not allowed here) | P0 | Pass 2026-10-28 |
 | API-SET-06 | After PATCH returnAlertDays 3, purchase with return in 5 days | returnStatus changes from EXPIRING_SOON to ACTIVE | P0 | Pass 2026-10-28 |
-| API-SET-07 | `serviceAlertDays` 1–365 | In range saved; 0 and 366 rejected; narrowing it drops a service out of needs action | P1 | Not run |
+| API-SET-07 | `serviceAlertDays` 1–365 | In range saved; 0 and 366 rejected; narrowing it drops a service out of needs action | P1 | Pass 2026-11-02 |
 
 ### 2.4 Purchases (`purchases.e2e-spec.ts`) — US-02, US-04, US-05, US-09
 
@@ -145,8 +145,8 @@ Valid base body: `{ productName: "AirPods Pro (2nd generation)", category: "ELEC
 | API-PUR-34 | PATCH `returnClosed: false` again | Computed status comes back exactly as it was | P1 | Pass 2026-11-02 |
 | API-PUR-35 | Closing a return whose deadline has already passed | `CLOSED` wins over `EXPIRED` | P1 | Pass 2026-11-02 |
 | API-PUR-36 | B closes A's return | 404; A's purchase untouched | P1 | Pass 2026-11-02 |
-| API-PUR-37 | Purchase with two services, the newer one giving a next date (BR-12) | `nextServiceDate` is the newer one's; `serviceStatus` and `serviceDaysLeft` follow it | P1 | Not run |
-| API-PUR-38 | Newest service has no next date, an older one does | Newest record WITH a date wins; a purchase with none reads NOT_SET and null | P1 | Not run |
+| API-PUR-37 | Purchase with two services, the newer one giving a next date (BR-12) | `nextServiceDate` is the newer one's; `serviceStatus` and `serviceDaysLeft` follow it | P1 | Pass 2026-11-02 |
+| API-PUR-38 | Newest service has no next date, an older one does | Newest record WITH a date wins; a purchase with none reads NOT_SET and null | P1 | Pass 2026-11-02 |
 
 ### 2.5 Receipts (`attachments.e2e-spec.ts`) — US-03, BR-06, BR-10
 
@@ -181,8 +181,8 @@ Valid base body: `{ productName: "AirPods Pro (2nd generation)", category: "ELEC
 | API-SVC-08 | DELETE own record | 204 | P0 | Pass 2026-10-28 |
 | API-SVC-09 | B: list/add on A's purchase | 404 | P0 | Pass 2026-10-28 |
 | API-SVC-10 | B: PATCH/DELETE A's record | 404; record unchanged | P0 | Pass 2026-10-28 |
-| API-SVC-11 | Create a service record with `nextServiceDate` (BR-12) | 201; the date comes back on the record | P1 | Not run |
-| API-SVC-12 | `nextServiceDate` before the service date | 400 naming the field | P1 | Not run |
+| API-SVC-11 | Create a service record with `nextServiceDate` (BR-12) | 201; the date comes back on the record | P1 | Pass 2026-11-02 |
+| API-SVC-12 | `nextServiceDate` before the service date | 400 naming the field | P1 | Pass 2026-11-02 |
 
 ### 2.7 Dashboard (`dashboard.e2e-spec.ts`) — US-06
 
@@ -209,7 +209,7 @@ Fixture for A (today 2026-10-27), matching the design mockups:
 | API-DASH-07 | New user, no purchases | All counts 0, empty lists | P0 | Pass 2026-10-28 |
 | API-DASH-08 | B's dashboard | Counts only from B's purchases | P0 | Pass 2026-10-28 |
 | API-DASH-09 | A closed return that was expiring soon (BR-11) | Drops out of needsAction and out of the open-returns count; the purchase itself is still listed | P1 | Pass 2026-11-02 |
-| API-DASH-10 | A service due inside the window (BR-12) | Appears in needsAction with kind SERVICE, sorted with the rest by days left | P1 | Not run |
+| API-DASH-10 | A service due inside the window (BR-12) | Appears in needsAction with kind SERVICE, sorted with the rest by days left | P1 | Pass 2026-11-02 |
 
 ### 2.8 Search, filter, sort (`purchases-search.e2e-spec.ts`) — US-10 (P1)
 
@@ -268,7 +268,7 @@ Fixture for A (today 2026-10-27), matching the design mockups:
 | FE-CMP-17 | StatusBadge | Return with status CLOSED (BR-11) | Reads "Keeping it" in a neutral tone — never confused with an expired window's "Return closed <date>" | P1 | Pass 2026-11-02 |
 | FE-CMP-18 | BaseButton | Button with an icon and a label | Icon and label sit on one line — Tailwind Preflight makes `svg` display:block, which breaks them apart inside an inline wrapper | P1 | Pass 2026-11-02 |
 | FE-CMP-19 | RowMenu | Keyboard | Opens on Enter with the first item focused; arrows move; Esc closes and returns focus to the trigger | P1 | Pass 2026-11-02 |
-| FE-CMP-20 | StatusBadge | kind SERVICE in each status | Reads "Service due in N days" / "Service overdue" / "No service due" — never a return or warranty phrase | P1 | Not run |
+| FE-CMP-20 | StatusBadge | kind SERVICE in each status | Reads "Service due in N days" / "Service overdue" / "No service due" — never a return or warranty phrase | P1 | Pass 2026-11-02 |
 
 ## 4. Frontend pages (`apps/web/src/pages/**/*.spec.ts`)
 
@@ -318,8 +318,8 @@ Fixture for A (today 2026-10-27), matching the design mockups:
 | FE-PAGE-42 | My purchases | Click anywhere in a table row | Opens that purchase; the name link still works on its own | P1 | Pass 2026-11-02 |
 | FE-PAGE-43 | My purchases | Row menu (3 dots) | Offers View, Edit and Delete for that row; opening it does not navigate | P1 | Pass 2026-11-02 |
 | FE-PAGE-44 | My purchases | Delete from the row menu | Asks first; on confirm sends DELETE and the row leaves the list | P1 | Pass 2026-11-02 |
-| FE-PAGE-45 | Service dialog | Add a record with a next-service date | Sent on create; shown on the record and in the Service panel | P1 | Not run |
-| FE-PAGE-46 | Settings | Service warning days | Third alert window, saved with the others | P1 | Not run |
+| FE-PAGE-45 | Service dialog | Add a record with a next-service date | Sent on create; shown on the record and in the Service panel | P1 | Pass 2026-11-02 |
+| FE-PAGE-46 | Settings | Service warning days | Third alert window, saved with the others | P1 | Pass 2026-11-02 |
 
 ---
 

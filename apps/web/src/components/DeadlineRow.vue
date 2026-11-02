@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { RotateCcw, ShieldCheck } from '@lucide/vue';
+import { RotateCcw, ShieldCheck, Wrench } from '@lucide/vue';
 import { computed } from 'vue';
 import { RouterLink } from 'vue-router';
 import StatusBadge from './StatusBadge.vue';
@@ -8,7 +8,7 @@ import { formatDate } from '../lib/format';
 const props = defineProps<{
   purchaseId: string;
   productName: string;
-  kind: 'RETURN' | 'WARRANTY';
+  kind: 'RETURN' | 'WARRANTY' | 'SERVICE';
   date: string;
   daysLeft: number;
   hasReceipt: boolean;
@@ -17,11 +17,16 @@ const props = defineProps<{
 
 const status = computed(() => (props.daysLeft < 0 ? 'EXPIRED' : 'EXPIRING_SOON'));
 
-const detail = computed(() =>
-  props.kind === 'RETURN'
-    ? `Return${props.seller ? ` to ${props.seller}` : ''} by ${formatDate(props.date)}`
-    : `Warranty covered until ${formatDate(props.date)}`,
-);
+const detail = computed(() => {
+  // A map, not a ternary chain: three kinds and a fourth is plausible.
+  const wording: Record<typeof props.kind, string> = {
+    RETURN: `Return${props.seller ? ` to ${props.seller}` : ''} by ${formatDate(props.date)}`,
+    WARRANTY: `Warranty covered until ${formatDate(props.date)}`,
+    SERVICE: `Next service due ${formatDate(props.date)}`,
+  };
+
+  return wording[props.kind];
+});
 </script>
 
 <template>
@@ -36,7 +41,10 @@ const detail = computed(() =>
         class="flex size-9 shrink-0 items-center justify-center rounded-md bg-subtle text-muted-fg"
         aria-hidden="true"
       >
-        <component :is="kind === 'RETURN' ? RotateCcw : ShieldCheck" :size="18" />
+        <component
+          :is="{ RETURN: RotateCcw, WARRANTY: ShieldCheck, SERVICE: Wrench }[kind]"
+          :size="18"
+        />
       </span>
       <span class="min-w-0">
         <span class="block truncate font-semibold text-fg">{{ productName }}</span>

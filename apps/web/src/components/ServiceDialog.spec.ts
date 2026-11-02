@@ -46,7 +46,60 @@ describe('ServiceDialog', () => {
       provider: 'Croma Service Centre',
       cost: 1450.5,
       notes: undefined,
+      nextServiceDate: undefined,
     });
+
+    wrapper.unmount();
+  });
+
+  // FE-PAGE-45. BR-12: the one field that turns a service log into a reminder.
+  it('FE-PAGE-45 a next-service date is collected and handed back', async () => {
+    const { wrapper } = await open();
+
+    field('serviceDate')!.value = '2026-10-20';
+    field('serviceDate')!.dispatchEvent(new Event('input'));
+    field('description')!.value = 'Annual service';
+    field('description')!.dispatchEvent(new Event('input'));
+    field('nextServiceDate')!.value = '2027-04-20';
+    field('nextServiceDate')!.dispatchEvent(new Event('input'));
+    await nextTick();
+
+    document.body.querySelector('form')!.dispatchEvent(new Event('submit'));
+    await nextTick();
+
+    expect(wrapper.emitted('submit')?.[0]?.[0]).toMatchObject({
+      nextServiceDate: '2027-04-20',
+    });
+
+    wrapper.unmount();
+  });
+
+  it('FE-PAGE-45 the picker cannot offer a day before the service itself', async () => {
+    const { wrapper } = await open();
+
+    field('serviceDate')!.value = '2026-10-20';
+    field('serviceDate')!.dispatchEvent(new Event('input'));
+    await nextTick();
+
+    // The server refuses it (API-SVC-12); the form should not offer it.
+    expect(field('nextServiceDate')!.getAttribute('min')).toBe('2026-10-20');
+
+    wrapper.unmount();
+  });
+
+  it('FE-PAGE-45 leaving it empty schedules nothing', async () => {
+    const { wrapper } = await open();
+
+    field('description')!.value = 'Unplanned repair';
+    field('description')!.dispatchEvent(new Event('input'));
+    await nextTick();
+
+    document.body.querySelector('form')!.dispatchEvent(new Event('submit'));
+    await nextTick();
+
+    expect(
+      (wrapper.emitted('submit')?.[0]?.[0] as { nextServiceDate?: string }).nextServiceDate,
+    ).toBeUndefined();
 
     wrapper.unmount();
   });

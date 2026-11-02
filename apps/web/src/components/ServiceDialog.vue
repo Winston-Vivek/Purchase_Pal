@@ -7,6 +7,7 @@ import BaseInput from './BaseInput.vue';
 
 export interface ServiceDraft {
   serviceDate: string;
+  nextServiceDate: string | undefined;
   description: string;
   provider: string | undefined;
   cost: number | undefined;
@@ -29,6 +30,7 @@ const props = withDefaults(
 const emit = defineEmits<{ submit: [ServiceDraft]; cancel: [] }>();
 
 const serviceDate = ref('');
+const nextServiceDate = ref('');
 const description = ref('');
 const provider = ref('');
 const cost = ref('');
@@ -44,6 +46,7 @@ watch(
     const record = props.record;
     // Defaults to today: most visits are logged the day they happen.
     serviceDate.value = record?.serviceDate ?? props.today;
+    nextServiceDate.value = record?.nextServiceDate ?? '';
     description.value = record?.description ?? '';
     provider.value = record?.provider ?? '';
     cost.value = record?.cost === null || record?.cost === undefined ? '' : String(record.cost);
@@ -55,6 +58,7 @@ watch(
 function submit(): void {
   emit('submit', {
     serviceDate: serviceDate.value,
+    nextServiceDate: nextServiceDate.value || undefined,
     description: description.value,
     provider: provider.value || undefined,
     cost: cost.value === '' ? undefined : Number(cost.value),
@@ -88,7 +92,12 @@ function submit(): void {
         :error="fields.description"
         required
       />
-      <BaseInput id="provider" v-model="provider" label="Who did it (optional)" :error="fields.provider" />
+      <BaseInput
+        id="provider"
+        v-model="provider"
+        label="Who did it (optional)"
+        :error="fields.provider"
+      />
       <BaseInput
         id="cost"
         v-model="cost"
@@ -96,6 +105,17 @@ function submit(): void {
         inputmode="decimal"
         :error="fields.cost"
       />
+      <!-- BR-12: the one field that turns a log into a reminder. -->
+      <BaseInput
+        id="nextServiceDate"
+        v-model="nextServiceDate"
+        label="Next service due (optional)"
+        type="date"
+        :min="serviceDate"
+        hint="Leave empty if nothing is scheduled."
+        :error="fields.nextServiceDate"
+      />
+
       <BaseInput id="notes" v-model="notes" label="Notes (optional)" :error="fields.notes" />
 
       <div class="mt-2 flex justify-end gap-3">

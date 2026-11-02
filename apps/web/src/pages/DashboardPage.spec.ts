@@ -13,21 +13,69 @@ vi.mock('vue-router', async (original) => ({
 const SUMMARY = {
   counts: { total: 7, underWarranty: 5, openReturns: 2, needsAction: 3, totalValue: 315372 },
   needsAction: [
-    { purchaseId: 'p-nike', productName: 'Nike Pegasus 41', kind: 'RETURN', date: '2026-10-31', daysLeft: 4, hasReceipt: false },
-    { purchaseId: 'p-sam', productName: 'Samsung 1.5 Ton Inverter Split AC', kind: 'WARRANTY', date: '2026-11-01', daysLeft: 5, hasReceipt: true },
-    { purchaseId: 'p-air', productName: 'AirPods Pro (2nd generation)', kind: 'RETURN', date: '2026-11-03', daysLeft: 7, hasReceipt: true },
+    {
+      purchaseId: 'p-nike',
+      productName: 'Nike Pegasus 41',
+      kind: 'RETURN',
+      date: '2026-10-31',
+      daysLeft: 4,
+      hasReceipt: false,
+    },
+    {
+      purchaseId: 'p-sam',
+      productName: 'Samsung 1.5 Ton Inverter Split AC',
+      kind: 'WARRANTY',
+      date: '2026-11-01',
+      daysLeft: 5,
+      hasReceipt: true,
+    },
+    {
+      purchaseId: 'p-air',
+      productName: 'AirPods Pro (2nd generation)',
+      kind: 'RETURN',
+      date: '2026-11-03',
+      daysLeft: 7,
+      hasReceipt: true,
+    },
   ],
   recentlyExpired: [
-    { purchaseId: 'p-fry', productName: 'Philips Air Fryer', kind: 'RETURN', date: '2026-10-22', daysLeft: -5, hasReceipt: true },
-    { purchaseId: 'p-lg', productName: 'LG washing machine', kind: 'WARRANTY', date: '2026-10-19', daysLeft: -8, hasReceipt: true },
+    {
+      purchaseId: 'p-fry',
+      productName: 'Philips Air Fryer',
+      kind: 'RETURN',
+      date: '2026-10-22',
+      daysLeft: -5,
+      hasReceipt: true,
+    },
+    {
+      purchaseId: 'p-lg',
+      productName: 'LG washing machine',
+      kind: 'WARRANTY',
+      date: '2026-10-19',
+      daysLeft: -8,
+      hasReceipt: true,
+    },
   ],
   recentPurchases: [
     {
-      id: 'p-air', productName: 'AirPods Pro (2nd generation)', category: 'ELECTRONICS', seller: 'Amazon',
-      purchaseDate: '2026-10-27', price: 24900, currency: 'INR', returnWindowDays: 7,
-      warrantyStartDate: '2026-10-27', warrantyMonths: 12, notes: null,
-      returnDeadline: '2026-11-03', returnStatus: 'EXPIRING_SOON', returnDaysLeft: 7,
-      warrantyExpiry: '2027-10-26', warrantyStatus: 'ACTIVE', warrantyDaysLeft: 364, hasReceipt: true,
+      id: 'p-air',
+      productName: 'AirPods Pro (2nd generation)',
+      category: 'ELECTRONICS',
+      seller: 'Amazon',
+      purchaseDate: '2026-10-27',
+      price: 24900,
+      currency: 'INR',
+      returnWindowDays: 7,
+      warrantyStartDate: '2026-10-27',
+      warrantyMonths: 12,
+      notes: null,
+      returnDeadline: '2026-11-03',
+      returnStatus: 'EXPIRING_SOON',
+      returnDaysLeft: 7,
+      warrantyExpiry: '2027-10-26',
+      warrantyStatus: 'ACTIVE',
+      warrantyDaysLeft: 364,
+      hasReceipt: true,
     },
   ],
 };
@@ -51,8 +99,12 @@ describe('Dashboard', () => {
     vi.stubGlobal('fetch', fetchMock);
     fetchMock.mockReset();
     useAuthStore().user = {
-      id: 'u1', name: 'Winston', email: 'demo@proofly.test',
-      warrantyAlertDays: 30, returnAlertDays: 7,
+      id: 'u1',
+      name: 'Winston',
+      email: 'demo@proofly.test',
+      warrantyAlertDays: 30,
+      returnAlertDays: 7,
+      serviceAlertDays: 14,
     };
   });
 

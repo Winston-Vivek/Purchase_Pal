@@ -29,6 +29,7 @@ describe('AppShell', () => {
       email: 'demo@proofly.test',
       warrantyAlertDays: 30,
       returnAlertDays: 7,
+      serviceAlertDays: 14,
     };
     await router.push(path);
     await router.isReady();

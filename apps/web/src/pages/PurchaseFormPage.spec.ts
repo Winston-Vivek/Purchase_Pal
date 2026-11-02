@@ -122,7 +122,10 @@ describe('Add and edit purchase', () => {
         error: {
           code: 'VALIDATION_ERROR',
           message: 'Invalid input',
-          fields: { price: 'Must be 0 or more', purchaseDate: 'A purchase cannot be in the future' },
+          fields: {
+            price: 'Must be 0 or more',
+            purchaseDate: 'A purchase cannot be in the future',
+          },
         },
       }),
     );

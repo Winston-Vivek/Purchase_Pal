@@ -26,7 +26,9 @@ export const useAuthStore = defineStore('auth', () => {
   }
 
   function message(failure: unknown): string {
-    return failure instanceof ApiError ? failure.message : 'Something went wrong. Please try again.';
+    return failure instanceof ApiError
+      ? failure.message
+      : 'Something went wrong. Please try again.';
   }
 
   async function submit(path: string, body: Record<string, unknown>): Promise<boolean> {
@@ -78,5 +80,17 @@ export const useAuthStore = defineStore('auth', () => {
     }
   }
 
-  return { user, error, fields, loading, resolved, isAuthenticated, login, register, logout, restore, clear };
+  return {
+    user,
+    error,
+    fields,
+    loading,
+    resolved,
+    isAuthenticated,
+    login,
+    register,
+    logout,
+    restore,
+    clear,
+  };
 });

@@ -100,7 +100,9 @@ describe('Auth pages', () => {
 
     it('FE-PAGE-02 the failure is announced, not just painted red', async () => {
       fetchMock.mockResolvedValue(
-        json(401, { error: { code: 'UNAUTHENTICATED', message: 'Email or password is incorrect' } }),
+        json(401, {
+          error: { code: 'UNAUTHENTICATED', message: 'Email or password is incorrect' },
+        }),
       );
       const wrapper = mountPage(LoginPage);
 
@@ -113,7 +115,9 @@ describe('Auth pages', () => {
 
     it('FE-PAGE-02 what was typed survives a failed attempt', async () => {
       fetchMock.mockResolvedValue(
-        json(401, { error: { code: 'UNAUTHENTICATED', message: 'Email or password is incorrect' } }),
+        json(401, {
+          error: { code: 'UNAUTHENTICATED', message: 'Email or password is incorrect' },
+        }),
       );
       const wrapper = mountPage(LoginPage);
 
@@ -151,7 +155,10 @@ describe('Auth pages', () => {
           error: {
             code: 'VALIDATION_ERROR',
             message: 'Invalid input',
-            fields: { email: 'Enter a valid email address', password: 'Password must be 8 to 72 characters' },
+            fields: {
+              email: 'Enter a valid email address',
+              password: 'Password must be 8 to 72 characters',
+            },
           },
         }),
       );

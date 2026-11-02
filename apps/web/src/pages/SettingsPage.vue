@@ -15,6 +15,8 @@ import { useAuthStore } from '../stores/auth';
 const RANGES = {
   warrantyAlertDays: { min: 1, max: 365 },
   returnAlertDays: { min: 1, max: 60 },
+  // BR-12: wider than a return, because a service can be a year out.
+  serviceAlertDays: { min: 1, max: 365 },
 } as const;
 
 const auth = useAuthStore();
@@ -23,6 +25,7 @@ const router = useRouter();
 
 const warrantyAlertDays = ref(String(user.value?.warrantyAlertDays ?? 30));
 const returnAlertDays = ref(String(user.value?.returnAlertDays ?? 7));
+const serviceAlertDays = ref(String(user.value?.serviceAlertDays ?? 14));
 
 const fields = ref<Record<string, string>>({});
 const saving = ref(false);
@@ -38,7 +41,7 @@ function window_(value: string): string {
 
 const preview = computed(
   () =>
-    `Purchase Tracker will warn you ${window_(returnAlertDays.value)} before a return window closes, and ${window_(warrantyAlertDays.value)} before a warranty ends.`,
+    `Purchase Tracker will warn you ${window_(returnAlertDays.value)} before a return window closes, ${window_(warrantyAlertDays.value)} before a warranty ends, and ${window_(serviceAlertDays.value)} before a service is due.`,
 );
 
 function validate(): boolean {
@@ -47,6 +50,7 @@ function validate(): boolean {
   for (const [key, ref_] of [
     ['warrantyAlertDays', warrantyAlertDays],
     ['returnAlertDays', returnAlertDays],
+    ['serviceAlertDays', serviceAlertDays],
   ] as const) {
     const { min, max } = RANGES[key];
     const value = Number(ref_.value);
@@ -68,22 +72,25 @@ async function save(): Promise<void> {
   saving.value = true;
 
   try {
-    const settings = await api<{ warrantyAlertDays: number; returnAlertDays: number }>(
-      '/users/me/settings',
-      {
-        method: 'PATCH',
-        body: {
-          warrantyAlertDays: Number(warrantyAlertDays.value),
-          returnAlertDays: Number(returnAlertDays.value),
-        },
+    const settings = await api<{
+      warrantyAlertDays: number;
+      returnAlertDays: number;
+      serviceAlertDays: number;
+    }>('/users/me/settings', {
+      method: 'PATCH',
+      body: {
+        warrantyAlertDays: Number(warrantyAlertDays.value),
+        returnAlertDays: Number(returnAlertDays.value),
+        serviceAlertDays: Number(serviceAlertDays.value),
       },
-    );
+    });
 
     // US-08: the dashboard reads these from the store, so it has to change
     // here too or the new windows only take effect on a reload.
     if (user.value) {
       user.value.warrantyAlertDays = settings.warrantyAlertDays;
       user.value.returnAlertDays = settings.returnAlertDays;
+      user.value.serviceAlertDays = settings.serviceAlertDays;
     }
 
     toast.value = 'Settings saved';
@@ -114,7 +121,12 @@ async function signOut(): Promise<void> {
         How far ahead Purchase Tracker warns you, and the account you are signed in to.
       </p>
 
-      <form class="mt-6 flex flex-col gap-6" novalidate @submit.prevent="save">
+      <form
+        class="mt-6 flex flex-col gap-6"
+        data-testid="settings-form"
+        novalidate
+        @submit.prevent="save"
+      >
         <fieldset class="flex flex-col gap-4 rounded-md border border-border bg-surface p-4 lg:p-6">
           <legend class="px-1 font-heading text-lg font-semibold text-fg">Alerts</legend>
 
@@ -134,6 +146,15 @@ async function signOut(): Promise<void> {
             inputmode="numeric"
             hint="Days, between 1 and 60."
             :error="fields.returnAlertDays"
+          />
+
+          <BaseInput
+            id="serviceAlertDays"
+            v-model="serviceAlertDays"
+            label="Warn me before a service is due"
+            inputmode="numeric"
+            hint="Days, between 1 and 365."
+            :error="fields.serviceAlertDays"
           />
 
           <p class="rounded-sm bg-subtle px-3 py-2 text-fg">{{ preview }}</p>

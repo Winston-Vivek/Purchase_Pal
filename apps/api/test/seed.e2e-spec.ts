@@ -64,9 +64,14 @@ describe('Seed (e2e)', () => {
       total: 7,
       underWarranty: 5,
       openReturns: 2,
-      needsAction: 3,
+      // Three deadlines plus the seeded service due in four days (BR-12).
+      needsAction: 4,
     });
     expect(dashboard.body.recentlyExpired).toHaveLength(2);
+
+    // The demo has to show all three kinds, or the third one is invisible.
+    const kinds = dashboard.body.needsAction.map((i: { kind: string }) => i.kind);
+    expect(kinds).toContain('SERVICE');
 
     // Needs action is still ordered soonest-first after the offsets are applied.
     const daysLeft = dashboard.body.needsAction.map((i: { daysLeft: number }) => i.daysLeft);

@@ -16,7 +16,7 @@ import { formatDate, formatMoney, pluralDays } from '../lib/format';
 interface DeadlineItem {
   purchaseId: string;
   productName: string;
-  kind: 'RETURN' | 'WARRANTY';
+  kind: 'RETURN' | 'WARRANTY' | 'SERVICE';
   date: string;
   daysLeft: number;
   hasReceipt: boolean;
@@ -195,8 +195,9 @@ onMounted(load);
           <div class="flex flex-wrap items-baseline justify-between gap-2 px-4 py-3">
             <h2 class="font-heading text-lg font-semibold text-fg">Needs action</h2>
             <p class="text-sm text-muted-fg">
-              Soonest first · warns {{ user?.returnAlertDays }} days before a return,
-              {{ user?.warrantyAlertDays }} before a warranty
+              Soonest first · warns {{ pluralDays(user?.returnAlertDays ?? 7) }} before a return,
+              {{ user?.warrantyAlertDays }} before a warranty, {{ user?.serviceAlertDays }} before a
+              service
             </p>
           </div>
           <ul class="divide-y divide-border border-t border-border">
@@ -225,7 +226,10 @@ onMounted(load);
             </ul>
           </section>
 
-          <section data-testid="recent-purchases" class="rounded-md border border-border bg-surface">
+          <section
+            data-testid="recent-purchases"
+            class="rounded-md border border-border bg-surface"
+          >
             <div class="flex flex-wrap items-baseline justify-between gap-2 px-4 py-3">
               <h2 class="font-heading text-lg font-semibold text-fg">Recent purchases</h2>
               <RouterLink
@@ -242,7 +246,9 @@ onMounted(load);
                   class="flex cursor-pointer flex-wrap items-center justify-between gap-3 px-4 py-3 hover:bg-subtle focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-hidden"
                 >
                   <span class="min-w-0">
-                    <span class="block truncate font-semibold text-fg">{{ purchase.productName }}</span>
+                    <span class="block truncate font-semibold text-fg">{{
+                      purchase.productName
+                    }}</span>
                     <span class="block truncate text-sm text-muted-fg">
                       <template v-if="purchase.seller">{{ purchase.seller }} · </template>
                       {{ formatDate(purchase.purchaseDate) }}

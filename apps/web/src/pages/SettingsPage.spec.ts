@@ -30,6 +30,7 @@ describe('Settings', () => {
       email: 'demo@proofly.test',
       warrantyAlertDays: 30,
       returnAlertDays: 7,
+      serviceAlertDays: 14,
     };
   });
 
@@ -57,6 +58,26 @@ describe('Settings', () => {
     expect(sentence).not.toContain('1 days');
   });
 
+  // FE-PAGE-46. BR-12's third deadline needs its own window, or a yearly
+  // service would nag on a return's schedule.
+  it('FE-PAGE-46 the service window is shown and saved with the others', async () => {
+    const wrapper = page();
+
+    expect((wrapper.get('#serviceAlertDays').element as HTMLInputElement).value).toBe('14');
+
+    await wrapper.get('#serviceAlertDays').setValue('21');
+    expect(wrapper.text()).toContain('21 days before a service is due');
+
+    fetchMock.mockResolvedValueOnce(
+      json(200, { warrantyAlertDays: 30, returnAlertDays: 7, serviceAlertDays: 21 }),
+    );
+    await wrapper.get('[data-testid="settings-form"]').trigger('submit');
+    await flushPromises();
+
+    const [, init] = fetchMock.mock.calls.at(-1)!;
+    expect(JSON.parse(init.body)).toMatchObject({ serviceAlertDays: 21 });
+  });
+
   it('FE-PAGE-26 starts from the windows the account already has', () => {
     const wrapper = page();
 
@@ -79,7 +100,9 @@ describe('Settings', () => {
   });
 
   it('FE-PAGE-26 saving sends only the windows, and says it worked', async () => {
-    fetchMock.mockResolvedValue(json(200, { warrantyAlertDays: 60, returnAlertDays: 3 }));
+    fetchMock.mockResolvedValue(
+      json(200, { warrantyAlertDays: 60, returnAlertDays: 3, serviceAlertDays: 14 }),
+    );
     const wrapper = page();
 
     await wrapper.get('#warrantyAlertDays').setValue('60');
@@ -90,7 +113,12 @@ describe('Settings', () => {
     const [url, init] = fetchMock.mock.calls[0] as [string, RequestInit];
     expect(url).toBe('/api/v1/users/me/settings');
     expect(init.method).toBe('PATCH');
-    expect(JSON.parse(String(init.body))).toEqual({ warrantyAlertDays: 60, returnAlertDays: 3 });
+    // All three windows, because the form owns all three (BR-12).
+    expect(JSON.parse(String(init.body))).toEqual({
+      warrantyAlertDays: 60,
+      returnAlertDays: 3,
+      serviceAlertDays: 14,
+    });
 
     expect(wrapper.get('[role="status"]').text()).toMatch(/saved/i);
     // US-08: the store is updated too, so the dashboard uses the new windows

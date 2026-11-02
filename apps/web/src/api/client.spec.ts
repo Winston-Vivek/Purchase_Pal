@@ -53,9 +53,7 @@ describe('API client', () => {
       }),
     );
 
-    const failure = await api('/purchases', { method: 'POST', body: {} }).catch(
-      (e: unknown) => e,
-    );
+    const failure = await api('/purchases', { method: 'POST', body: {} }).catch((e: unknown) => e);
 
     expect(failure).toBeInstanceOf(ApiError);
     const error = failure as ApiError;

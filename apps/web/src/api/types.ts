@@ -6,6 +6,7 @@ export interface UserResponse {
   email: string;
   warrantyAlertDays: number;
   returnAlertDays: number;
+  serviceAlertDays: number;
 }
 
 /** CLOSED is returns only (BR-11): the user said they are keeping the item. */
@@ -26,6 +27,9 @@ export interface PurchaseResponse {
   returnDeadline: string | null;
   returnStatus: DeadlineStatus;
   returnDaysLeft: number | null;
+  nextServiceDate: string | null;
+  serviceStatus: DeadlineStatus;
+  serviceDaysLeft: number | null;
   warrantyExpiry: string | null;
   warrantyStatus: DeadlineStatus;
   warrantyDaysLeft: number | null;
@@ -68,6 +72,7 @@ export interface ServiceRecordResponse {
   id: string;
   purchaseId: string;
   serviceDate: string;
+  nextServiceDate: string | null;
   description: string;
   provider: string | null;
   cost: number | null;

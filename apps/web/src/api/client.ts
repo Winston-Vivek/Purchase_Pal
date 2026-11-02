@@ -58,7 +58,11 @@ async function readErrorBody(
 ): Promise<{ code?: string; message?: string; fields?: ApiErrorFields } | null> {
   try {
     const body = (await response.json()) as { error?: Record<string, unknown> };
-    return (body.error ?? null) as { code?: string; message?: string; fields?: ApiErrorFields } | null;
+    return (body.error ?? null) as {
+      code?: string;
+      message?: string;
+      fields?: ApiErrorFields;
+    } | null;
   } catch {
     // A proxy or gateway can return HTML. That is still an error, just not ours.
     return null;

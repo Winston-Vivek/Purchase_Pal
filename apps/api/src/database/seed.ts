@@ -6,6 +6,7 @@ import { AppModule } from '../app.module';
 import { DatesService } from '../common/dates/dates.service';
 import { Category } from '../purchases/purchase.entity';
 import { PurchaseRepository } from '../repositories/purchase/purchase.repository';
+import { ServiceRecordRepository } from '../repositories/service-record/service-record.repository';
 import { UserRepository } from '../repositories/user/user.repository';
 
 export const DEMO_EMAIL = 'demo@proofly.test';
@@ -107,6 +108,7 @@ function demoPurchases(ago: (days: number) => string): Record<string, unknown>[]
 export async function seed(app: INestApplicationContext): Promise<SeedResult> {
   const users = app.get(UserRepository);
   const purchases = app.get(PurchaseRepository);
+  const services = app.get(ServiceRecordRepository);
   const dates = app.get(DatesService);
   const config = app.get(ConfigService);
 
@@ -120,8 +122,25 @@ export async function seed(app: INestApplicationContext): Promise<SeedResult> {
   const today = dates.today();
   const ago = (days: number): string => dates.addDays(today, -days);
 
+  const stored = [];
   for (const purchase of demoPurchases(ago)) {
-    await purchases.store({ ...purchase, userId: demo.id });
+    stored.push(await purchases.store({ ...purchase, userId: demo.id }));
+  }
+
+  // BR-12: an air conditioner is the obvious thing with a service due, and the
+  // demo needs one so the third deadline is visible at all. Serviced six
+  // months ago, due again in four days — inside the default 14-day window, so
+  // it lands in Needs action beside the returns and warranties.
+  const airConditioner = stored.find((purchase) => purchase.productName.includes('Samsung'));
+  if (airConditioner) {
+    await services.store({
+      purchaseId: airConditioner.id,
+      serviceDate: ago(180),
+      nextServiceDate: dates.addDays(today, 4),
+      description: 'Annual service — gas top-up and coil clean',
+      provider: 'Samsung authorised service',
+      cost: '2450.00',
+    });
   }
 
   // The second account owns something of its own, so the privacy step of the

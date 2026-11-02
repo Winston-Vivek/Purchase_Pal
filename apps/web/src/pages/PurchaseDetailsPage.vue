@@ -207,6 +207,17 @@ async function setReturnClosed(closed: boolean): Promise<void> {
   }
 }
 
+/** BR-12: the record the next-service date came from — the newest one that
+ *  has a date, which is the same rule the server applies. */
+const scheduledBy = computed(() => {
+  const scheduled = services.value.filter((record) => record.nextServiceDate !== null);
+  if (scheduled.length === 0) return null;
+
+  return scheduled.reduce((latest, record) =>
+    record.serviceDate > latest.serviceDate ? record : latest,
+  );
+});
+
 const returnRule = computed(() => {
   const p = purchase.value;
   if (!p) return null;
@@ -370,6 +381,37 @@ onMounted(load);
           <p v-else class="mt-4 text-muted-fg">No warranty was recorded for this purchase.</p>
         </section>
 
+        <section
+          data-testid="service-panel"
+          class="rounded-md border border-border bg-surface p-4 lg:p-6"
+        >
+          <div class="flex flex-wrap items-center justify-between gap-2">
+            <h2 class="flex items-center gap-2 font-heading text-lg font-semibold text-fg">
+              <Wrench :size="20" aria-hidden="true" />
+              Service
+            </h2>
+            <StatusBadge
+              kind="SERVICE"
+              :status="purchase.serviceStatus"
+              :days-left="purchase.serviceDaysLeft"
+              :date="purchase.nextServiceDate"
+            />
+          </div>
+
+          <template v-if="purchase.nextServiceDate">
+            <p class="mt-4 text-sm text-muted-fg">Next service due</p>
+            <p class="font-heading text-2xl font-semibold text-fg tabular-nums">
+              {{ formatDate(purchase.nextServiceDate) }}
+            </p>
+            <p class="mt-3 text-sm text-muted-fg">
+              Set on the service of {{ formatDate(scheduledBy?.serviceDate ?? null) }}
+            </p>
+          </template>
+          <p v-else class="mt-4 text-muted-fg">
+            No service is scheduled. Add one on a service record to be warned before it is due.
+          </p>
+        </section>
+
         <section class="rounded-md border border-border bg-surface p-4 lg:p-6">
           <div class="flex flex-wrap items-center justify-between gap-2">
             <h2 class="flex items-center gap-2 font-heading text-lg font-semibold text-fg">
@@ -492,6 +534,10 @@ onMounted(load);
               <p class="text-sm text-muted-fg">
                 {{ formatDate(record.serviceDate) }}
                 <template v-if="record.provider"> · {{ record.provider }}</template>
+              </p>
+              <!-- BR-12: the record that scheduled the next visit says so. -->
+              <p v-if="record.nextServiceDate" class="text-sm text-muted-fg">
+                Next service due {{ formatDate(record.nextServiceDate) }}
               </p>
               <p class="mt-1 flex gap-2">
                 <button
