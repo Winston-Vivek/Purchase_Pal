@@ -49,6 +49,12 @@ export const CATEGORIES = [
   ['OTHER', 'Other'],
 ] as const;
 
+/** The words the form offered, for anywhere a stored category is displayed.
+ *  An unknown value is returned as-is rather than hidden. */
+export function categoryLabel(value: string): string {
+  return CATEGORIES.find(([stored]) => stored === value)?.[1] ?? value;
+}
+
 export interface AttachmentResponse {
   id: string;
   fileName: string;

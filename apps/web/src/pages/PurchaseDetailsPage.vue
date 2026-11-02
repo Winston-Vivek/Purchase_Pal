@@ -3,7 +3,12 @@ import { Download, Pencil, Plus, RotateCcw, ShieldCheck, Trash2, Wrench } from '
 import { computed, onMounted, ref } from 'vue';
 import { RouterLink, useRoute, useRouter } from 'vue-router';
 import { ApiError, api } from '../api/client';
-import type { AttachmentResponse, PurchaseDetail, ServiceRecordResponse } from '../api/types';
+import {
+  categoryLabel,
+  type AttachmentResponse,
+  type PurchaseDetail,
+  type ServiceRecordResponse,
+} from '../api/types';
 import AppShell from '../components/AppShell.vue';
 import BaseButton from '../components/BaseButton.vue';
 import ConfirmDialog from '../components/ConfirmDialog.vue';
@@ -271,7 +276,7 @@ onMounted(load);
             </h1>
             <p class="mt-1 flex flex-wrap items-center gap-x-3 text-muted-fg">
               <span class="rounded-sm bg-subtle px-2 py-0.5 text-sm font-semibold text-fg">
-                {{ purchase.category }}
+                {{ categoryLabel(purchase.category) }}
               </span>
               <span v-if="purchase.seller">Bought from {{ purchase.seller }}</span>
             </p>

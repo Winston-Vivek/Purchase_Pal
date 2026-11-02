@@ -101,6 +101,15 @@ describe('Purchase details', () => {
     });
   });
 
+  // FE-PAGE-37. The header printed the stored value, so a kitchen purchase
+  // announced itself as HOME_KITCHEN.
+  it('FE-PAGE-37 the category reads as the words the form offered', async () => {
+    const wrapper = await page({ ...SAMSUNG, category: 'HOME_KITCHEN' });
+
+    expect(wrapper.text()).toContain('Home & kitchen');
+    expect(wrapper.text()).not.toContain('HOME_KITCHEN');
+  });
+
   it('FE-PAGE-13 the header carries the facts about the purchase', async () => {
     const wrapper = await page();
     const text = wrapper.text();

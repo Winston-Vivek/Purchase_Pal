@@ -295,6 +295,7 @@ Fixture for A (today 2026-10-27), matching the design mockups:
 | FE-PAGE-34 | Details | Arrived from the Dashboard | Back link says Dashboard and returns there; a direct load or any other origin falls back to My purchases | P1 | Pass 2026-11-02 |
 | FE-PAGE-35 | Search | Chip for a multi-value filter (`ACTIVE,EXPIRING_SOON`, as the Dashboard links it) | Chip reads "Return: Active or Expiring soon" — never a raw enum with underscores | P1 | Pass 2026-11-02 |
 | FE-PAGE-36 | Settings | Alert window of 1 | Preview reads "1 day", not "1 days" | P2 | Pass 2026-11-02 |
+| FE-PAGE-37 | Details | Category of a HOME_KITCHEN purchase | Header reads "Home & kitchen" — the label the form offered, never the stored value | P1 | Pass 2026-11-02 |
 
 ---
 
