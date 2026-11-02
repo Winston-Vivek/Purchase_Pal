@@ -1,12 +1,21 @@
 # Deploying the web app to Vercel
 
-Root directory **`apps/web`**. Everything else is in `vercel.json` beside this
-file, with two things to fill in.
+Root directory **`apps/web`** — set it in Vercel's project settings, since this
+is a monorepo and the repository root holds no web app.
 
-## 1. Point the rewrite at the API
+Also set **Production Branch = `master`** (Settings → Git). Vercel defaults to
+the repository's default branch, which on the GitHub mirror is `main` and holds
+only a generated README.
 
-Replace `REPLACE-WITH-API-HOST` in `vercel.json` with the API's domain, for
-example `purchase-tracker-api.onrender.com`.
+Everything else comes from `vercel.json` beside this file; the build settings
+there (`vite`, `npm run build`, `dist`) should not be overridden in the
+dashboard.
+
+## 1. The rewrite — already pointed at the API
+
+`vercel.json` rewrites `/api/*` to `purchase-tracker-api.onrender.com`, which
+is the live API. Nothing to fill in; change it only if the API is ever renamed
+or moved.
 
 **This rewrite is not a convenience.** It keeps the browser talking to one
 origin, which is what keeps the session cookie first-party (D-04). Point the
@@ -18,18 +27,25 @@ The SPA rule below it (`/(.*)` → `/index.html`) must stay **after** the API
 rule, or `/api/...` would be answered with the HTML page. Order is the whole
 behaviour here.
 
-## 2. The cron
+## 2. The cron is NOT here
 
-`crons` calls the reminder endpoint daily. **Vercel's schedules are UTC**, so
-`30 2 * * *` is 08:00 Asia/Kolkata — the app's own zone (D-10).
+`vercel.json` has no `crons` block, deliberately. Vercel's scheduler cannot
+reach this endpoint:
 
-Set `CRON_SECRET` in the Vercel project environment to the same value the API
-has. Vercel sends it as `Authorization: Bearer <CRON_SECRET>`; the API expects
-`x-cron-secret`, so add a header to the rewrite or front the call with a tiny
-route — whichever, **the API refuses an unsigned call**, which is the point.
+- it issues a **GET**, and the endpoint is a `POST`;
+- it cannot send a custom header, and the guard requires `x-cron-secret`
+  (Vercel sends its own `Authorization: Bearer`, which the API does not read);
+- it only invokes **Vercel Functions**, never a rewrite to another host — and
+  this project is a static SPA with no functions.
 
-Without the secret, that endpoint would let anyone make the server email every
-user.
+Verified against the running API: a GET to that path returns 404.
+
+BR-16's daily digest is scheduled by `.github/workflows/reminders.yml`
+instead, which can send a POST with an arbitrary header. It needs two
+repository secrets, `API_BASE_URL` and `CRON_SECRET`, the latter matching the
+value Render generated.
+
+Set no `CRON_SECRET` in Vercel — nothing here uses it.
 
 ## 3. Checking it worked
 
