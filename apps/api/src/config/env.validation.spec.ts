@@ -41,15 +41,27 @@ describe('validateEnv', () => {
     });
   });
 
+  describe('MAIL_DRIVER', () => {
+    it('defaults to smtp, which is what Mailpit speaks locally', () => {
+      expect(validateEnv({ ...valid }).MAIL_DRIVER).toBe('smtp');
+    });
+
+    it("accepts 'brevo-api', for hosts that block outbound SMTP", () => {
+      expect(validateEnv({ ...valid, MAIL_DRIVER: 'brevo-api' }).MAIL_DRIVER).toBe('brevo-api');
+    });
+
+    it('refuses a transport that does not exist, rather than falling back', () => {
+      expect(() => validateEnv({ ...valid, MAIL_DRIVER: 'sendgrid' })).toThrow(/MAIL_DRIVER/);
+    });
+  });
+
   describe('the guarantees worth keeping', () => {
     it('refuses a JWT_SECRET short enough to brute force', () => {
       expect(() => validateEnv({ ...valid, JWT_SECRET: 'tooshort' })).toThrow(/JWT_SECRET/);
     });
 
     it('refuses a DATABASE_URL that is not a postgres connection string', () => {
-      expect(() => validateEnv({ ...valid, DATABASE_URL: 'mysql://nope' })).toThrow(
-        /DATABASE_URL/,
-      );
+      expect(() => validateEnv({ ...valid, DATABASE_URL: 'mysql://nope' })).toThrow(/DATABASE_URL/);
     });
 
     it('turns PORT into a number, not the string process.env holds', () => {
