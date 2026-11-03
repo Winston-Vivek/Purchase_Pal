@@ -72,6 +72,16 @@ services:
         sync: false
       - key: APP_URL             # the Vercel domain; reset links are built from it
         sync: false
+      # Brevo over HTTPS, not SMTP. A free instance blocks outbound 25, 465
+      # and 587 (render.com/changelog/free-web-services-will-no-longer-allow-
+      # outbound-traffic-to-smtp-ports), so SmtpMailer cannot get a packet out
+      # -- and cannot report that it failed, because sending is best-effort.
+      # On a paid plan, `smtp` and the SMTP_* values below work as they are.
+      - key: MAIL_DRIVER
+        value: brevo-api
+      - key: BREVO_API_KEY     # Brevo's REST key (xkeysib-), NOT the SMTP key
+        sync: false
+
       - key: SMTP_HOST
         value: smtp-relay.brevo.com
       - key: SMTP_PORT

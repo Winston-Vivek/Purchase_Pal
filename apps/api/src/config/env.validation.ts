@@ -26,6 +26,18 @@ import {
  * Every variable here appears in `.env.example` (NFR-10).
  */
 
+/**
+ * How mail leaves the process.
+ *
+ * `smtp` is right locally (Mailpit) and on any host that allows outbound SMTP.
+ * `brevo-api` exists because Render's free instances block ports 25, 465 and
+ * 587 outright, so SMTP cannot leave the container at all.
+ */
+export enum MailDriver {
+  Smtp = 'smtp',
+  BrevoApi = 'brevo-api',
+}
+
 export enum NodeEnv {
   Development = 'development',
   Test = 'test',
@@ -162,6 +174,14 @@ export class EnvironmentVariables {
   // ------------------------------------------------------------------ mail --
   // Defaults point at the Mailpit container in docker-compose, which catches
   // everything locally. Any SMTP provider works by changing these four.
+
+  @IsEnum(MailDriver, { message: "MAIL_DRIVER must be 'smtp' or 'brevo-api'" })
+  MAIL_DRIVER: MailDriver = MailDriver.Smtp;
+
+  /** Required only when MAIL_DRIVER is brevo-api. Brevo's REST key, which is
+   *  the `xkeysib-` one — not the SMTP key. */
+  @IsString()
+  BREVO_API_KEY: string = '';
 
   @IsString()
   @IsNotEmpty()
